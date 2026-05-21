@@ -1,0 +1,27 @@
+// useCreate{{RESOURCE_SINGULAR}} — React Query mutation for adding a new
+// {{RESOURCE_SINGULAR_LOWER}}. Invalidates the list cache on success so the
+// next read picks up the new record.
+//
+// Convention: invalidate by passing the same queryKey the read hook uses.
+// In OpenAPI projects you'd typically pull the key from
+// `client.queryOptions(...).queryKey`; with Firestore we use the literal
+// string array since the hooks own their key shape.
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { {{RESOURCE_PLURAL_LOWER}}Service } from "@/services/{{RESOURCE_PLURAL}}-service";
+
+import type { {{RESOURCE_SINGULAR}} } from "../interfaces/{{RESOURCE_SINGULAR_KEBAB}}.interface";
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export function useCreate{{RESOURCE_SINGULAR}}() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: Omit<{{RESOURCE_SINGULAR}}, "id" | "createdAt">) =>
+      {{RESOURCE_PLURAL_LOWER}}Service.create(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["{{RESOURCE_PLURAL}}"] });
+    },
+  });
+}

@@ -1,0 +1,29 @@
+{
+  "skill_name": "wire-up-agents-md",
+  "evals": [
+    {
+      "id": 0,
+      "name": "fresh-rn-repo-no-prior-agent-context",
+      "prompt": "I have a half-finished React Native app called WorkoutBuddy. It's a workout tracker — I've been vibe-coding it for a couple weeks and there's no AGENTS.md or guidelines folder yet. Wire up the standard agent context so Claude follows the course patterns when I work on it.",
+      "expected_output": "11 files written to the repo root: AGENTS.md, best_practices.md, .agents/skills/README.md, guidelines/README.md + 8 guideline files (architecture, state, components, views, hooks, navigation, styling, skills). AGENTS.md heading reads 'AGENTS.md — WorkoutBuddy'. Stack is react-native.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 1,
+      "name": "next-js-repo",
+      "prompt": "Wire up AGENTS.md on my Next.js project. It's a marketplace for vintage cameras called LensVault. Stack is Next.js 15 App Router with MUI.",
+      "expected_output": "Same 11 files. AGENTS.md heading reads 'AGENTS.md — LensVault'. Generated navigation.md is RN-specific so the next-steps message should remind the user to edit it to match Next.js App Router.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 2,
+      "name": "refuses-to-overwrite-existing",
+      "prompt": "I have a repo at ./my-app that already has an AGENTS.md and a partial guidelines/ folder. I made some progress on the agent setup but want to redo it with the course's pattern. Wire it up.",
+      "expected_output": "The script preflights and finds the existing AGENTS.md (and possibly guidelines/README.md). It refuses to overwrite, prints the list of conflicting files, and tells the user to either rerun with --force yes OR edit the existing files manually. No files written.",
+      "files": [],
+      "assertions": []
+    }
+  ]
+}

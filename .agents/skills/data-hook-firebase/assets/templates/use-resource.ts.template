@@ -1,0 +1,16 @@
+// use{{RESOURCE_SINGULAR}} — React Query fetch for a single record by id.
+// Enabled only when an id is provided so the hook is safe to call with
+// undefined while the parent decides what to look up.
+
+import { useQuery } from "@tanstack/react-query";
+
+import { {{RESOURCE_PLURAL_LOWER}}Service } from "@/services/{{RESOURCE_PLURAL}}-service";
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export function use{{RESOURCE_SINGULAR}}(id: string | undefined) {
+  return useQuery({
+    queryKey: ["{{RESOURCE_PLURAL}}", id],
+    queryFn: () => {{RESOURCE_PLURAL_LOWER}}Service.get(id!),
+    enabled: !!id,
+  });
+}

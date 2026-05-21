@@ -1,0 +1,45 @@
+// {{RESOURCE_PLURAL}} service — thin wrapper around Firestore. Hooks call
+// these methods; views and components never import this file directly.
+
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+} from "firebase/firestore";
+
+import { db } from "./firebase";
+
+import type { {{RESOURCE_SINGULAR}} } from "@/page/{{RESOURCE_PLURAL}}/interfaces/{{RESOURCE_SINGULAR_KEBAB}}.interface";
+
+const COLLECTION = "{{RESOURCE_PLURAL}}";
+
+export const {{RESOURCE_PLURAL_LOWER}}Service = {
+  async list(): Promise<{{RESOURCE_SINGULAR}}[]> {
+    const q = query(
+      collection(db, COLLECTION),
+      orderBy("createdAt", "desc"),
+      limit(100),
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<{{RESOURCE_SINGULAR}}, "id">) }));
+  },
+
+  async get(id: string): Promise<{{RESOURCE_SINGULAR}} | undefined> {
+    const snap = await getDoc(doc(db, COLLECTION, id));
+    if (!snap.exists()) return undefined;
+    return { id: snap.id, ...(snap.data() as Omit<{{RESOURCE_SINGULAR}}, "id">) };
+  },
+
+  async create(input: Omit<{{RESOURCE_SINGULAR}}, "id" | "createdAt">): Promise<string> {
+    const ref = await addDoc(collection(db, COLLECTION), {
+      ...input,
+      createdAt: Date.now(),
+    });
+    return ref.id;
+  },
+};

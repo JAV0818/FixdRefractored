@@ -1,0 +1,29 @@
+{
+  "skill_name": "data-hook-firebase",
+  "evals": [
+    {
+      "id": 0,
+      "name": "habits-resource-full",
+      "prompt": "I scaffolded my habit tracker. Now I need to wire up Firestore for the habits collection. Each habit has a name, an array of completedDates (ISO date strings), and a createdAt timestamp. Make a hook to list habits, fetch one by id, and create new ones. Feature folder is src/page/habits.",
+      "expected_output": "habits-service.ts in src/services/, use-habits.ts + use-habit.ts + use-create-habit.ts in src/page/habits/hooks/, habit.interface.ts in src/page/habits/interfaces/. All hooks use React Query. Service is the only file importing firebase/firestore.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 1,
+      "name": "journal-entries-no-mutation",
+      "prompt": "Add a Firestore data layer for journal entries. Fields: id, title, body, mood (one of 'happy'|'neutral'|'sad'), createdAt. Read-only for now, no create hook needed. Feature folder is src/page/journal.",
+      "expected_output": "entries-service.ts, use-entries.ts, use-entry.ts, entry.interface.ts. Mood is a union type. No use-create-entry.ts generated.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 2,
+      "name": "workouts-with-nested-types",
+      "prompt": "Wire up Firestore for workouts. A workout has id, name, durationMinutes, exercises (an array of objects with name, sets, reps, weight), and createdAt. Generate a mutation hook too. Feature folder: src/page/workouts.",
+      "expected_output": "workouts-service.ts, use-workouts.ts, use-workout.ts, use-create-workout.ts, workout.interface.ts with nested exercise type. The interface handles the complex shape.",
+      "files": [],
+      "assertions": []
+    }
+  ]
+}

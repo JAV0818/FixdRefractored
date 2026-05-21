@@ -1,0 +1,39 @@
+{
+  "name": "{{PROJECT_SLUG}}",
+  "version": "0.1.0",
+  "main": "expo-router/entry",
+  "scripts": {
+    "dev": "expo start",
+    "ios": "expo start --ios",
+    "android": "expo start --android",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "{{V_ASYNC_STORAGE}}",
+    "@tanstack/react-query": "^5.51.0",
+    "expo": "{{V_EXPO}}",
+    "expo-constants": "{{V_EXPO_CONSTANTS}}",
+    "expo-linking": "{{V_EXPO_LINKING}}",
+    "expo-router": "{{V_EXPO_ROUTER}}",
+    "expo-status-bar": "{{V_EXPO_STATUS_BAR}}",
+    "expo-system-ui": "{{V_EXPO_SYSTEM_UI}}",
+    "firebase": "^10.12.0",
+    "react": "{{V_REACT}}",
+    "react-dom": "{{V_REACT_DOM}}",
+    "react-hook-form": "^7.51.0",
+    "react-native": "{{V_REACT_NATIVE}}",
+    "react-native-paper": "^5.12.0",
+    "react-native-safe-area-context": "{{V_REACT_NATIVE_SAFE_AREA_CONTEXT}}",
+    "react-native-screens": "{{V_REACT_NATIVE_SCREENS}}",
+    "react-native-web": "{{V_REACT_NATIVE_WEB}}",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@types/react": "{{V_TYPES_REACT}}",
+    "prettier": "^3.2.0",
+    "typescript": "~5.4.0"
+  },
+  "private": true
+}

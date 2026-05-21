@@ -1,0 +1,29 @@
+{
+  "skill_name": "build-performant-component",
+  "evals": [
+    {
+      "id": 0,
+      "name": "habit-card-feature-scoped",
+      "prompt": "I'm working in my habit tracker app — I just scaffolded it with the course's skill. Now I need to add a HabitCard component to the habits feature. It should take a title (the habit name), a count (streak days), and an onPress callback. Drop it in src/page/habits/components/.",
+      "expected_output": "habit-card.component.tsx + habit-card.interface.ts written to src/page/habits/components/. index.ts updated to re-export both. Component uses theme tokens, Paper Card. Not wrapped in memo by default.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 1,
+      "name": "streak-badge-with-memo",
+      "prompt": "Add a small StreakBadge component to src/page/habits/components/. It just shows a number and a flame icon — will be rendered inside every row of a list of habits, so let's wrap it in memo. Props: days (number).",
+      "expected_output": "streak-badge.component.tsx wrapped in React.memo, since user explicitly asked for it. Props type has days: number. index.ts re-exports.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 2,
+      "name": "empty-state-shared",
+      "prompt": "I want to add a shared EmptyState component that I can use across multiple features. It takes a title and a body string, and optionally an action element to render below. Put it in src/components/ at the app level.",
+      "expected_output": "empty-state.component.tsx + empty-state.interface.ts in src/components/. action prop is optional (ReactNode). index.ts re-exports. No memo (single instance per screen).",
+      "files": [],
+      "assertions": []
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "skill_name": "scaffold-rn-project",
+  "evals": [
+    {
+      "id": 0,
+      "name": "habit-tracker-fully-specified",
+      "prompt": "I'm starting a personal project this weekend \u2014 a habit tracker mobile app where I can check off daily habits and see streaks across weeks. I want to scaffold a new React Native project for it. Project name HabitTracker, bundle id com.kingjuju.habittracker. I'll use Firebase for auth and store the habits in a Firestore collection. Set up the project at ./HabitTracker so I can cd into it after.",
+      "expected_output": "A new directory ./HabitTracker containing a fully wired Expo project (SDK 54, V2 feature-scoped layout): package.json with project name habit-tracker and @tanstack/react-query, app.json with display name 'Habit Tracker' and bundle com.kingjuju.habittracker, the full src/ tree including page/auth/ (with sign-in.page, sign-up.page, welcome.page, three view siblings each demonstrating the 3-state switch, components/auth-input + auth-button, hooks/use-sign-in + use-sign-up + use-user-profile using React Query), src/providers/ (AppProviders + AuthProvider + QueryProvider using React Context), src/services/ (firebase + auth-service + user-service + query-client), src/theme/ tokens with brand color, guidelines/ folder with 8 source-of-truth files, AGENTS.md as index, best_practices.md, .agents/skills/ placeholder, and README.md. Initialized git repo with one commit on main.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 1,
+      "name": "journal-app-minimal-info",
+      "prompt": "Set up a new Expo app for a journal app I'm building. I want to write journal entries each morning and sync them to my account so I can read them on multiple devices. Call it MorningPages. The bundle id should be com.kingjuju.morningpages. Use the course's standard architecture.",
+      "expected_output": "Same complete V2 project tree as eval 0, but named MorningPages: package.json with morning-pages, app.json with display name 'Morning Pages' and bundle com.kingjuju.morningpages. Default location ./MorningPages. Display name and location inferred from PascalCase split.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 2,
+      "name": "fitlog-side-project-exploratory",
+      "prompt": "I'm starting a side project to track my gym workouts \u2014 sets, reps, weights, that kind of thing. Eventually I want to see progress over time but the MVP is just logging today's session. Want to set up a new React Native project with all the standard patterns \u2014 folder structure, theme tokens, loading and error states wired up, the whole thing. Name it FitLog, bundle com.kingjuju.fitlog. Let's keep Firebase in for now even though I don't have a Firebase project set up yet.",
+      "expected_output": "Same complete V2 project tree, named FitLog. Bundle com.kingjuju.fitlog. Display name 'Fit Log' (inferred from PascalCase). The skill should produce the project without getting stuck on the user not having a Firebase project ready \u2014 that's a runtime concern, not a scaffolding concern. The next-steps message reminds the user to fill in .env before running.",
+      "files": [],
+      "assertions": []
+    }
+  ]
+}

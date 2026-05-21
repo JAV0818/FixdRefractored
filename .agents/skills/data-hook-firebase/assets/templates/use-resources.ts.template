@@ -1,0 +1,23 @@
+// use{{RESOURCE_SINGULAR}}s — React Query list hook.
+//
+// Returns the standard React Query shape: { data, isLoading, isError,
+// error, refetch }. Views switch on this directly.
+//
+// Note on shape: in OpenAPI-based codebases the convention is
+// `client.useQuery(method, path, params)` via openapi-react-query.
+// Firestore doesn't have an openapi-react-query binding, so this hook
+// calls a typed service wrapper instead. The mental model is identical
+// — the hook wraps a typed data call in useQuery — only the call shape
+// differs because the SDK is Firestore, not OpenAPI.
+
+import { useQuery } from "@tanstack/react-query";
+
+import { {{RESOURCE_PLURAL_LOWER}}Service } from "@/services/{{RESOURCE_PLURAL}}-service";
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export function use{{RESOURCE_SINGULAR}}s() {
+  return useQuery({
+    queryKey: ["{{RESOURCE_PLURAL}}"],
+    queryFn: () => {{RESOURCE_PLURAL_LOWER}}Service.list(),
+  });
+}
