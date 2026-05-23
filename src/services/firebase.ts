@@ -1,11 +1,12 @@
-// Real Firebase SDK initialization.
-// Credentials are loaded from EXPO_PUBLIC_* env vars — never hardcoded.
-// Add your values to .env (copy from .env.example).
+// Firebase SDK initialization.
+// Uses initializeAuth + getReactNativePersistence so auth works in Expo Go.
+// Credentials loaded from EXPO_PUBLIC_* env vars — never hardcoded.
 
-import { initializeApp, getApps } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeAuth, getAuth, getReactNativePersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -17,9 +18,15 @@ const firebaseConfig = {
 };
 
 // Prevent re-initialization on hot reload
-export const firebaseApp =
-  getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const isFirstLoad = getApps().length === 0;
+export const firebaseApp = isFirstLoad ? initializeApp(firebaseConfig) : getApp();
 
-export const auth = getAuth(firebaseApp);
+// getReactNativePersistence — sessions survive app restarts via AsyncStorage
+export const auth = isFirstLoad
+  ? initializeAuth(firebaseApp, {
+      persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+    })
+  : getAuth(firebaseApp);
+
 export const db = getFirestore(firebaseApp);
 export const storage = getStorage(firebaseApp);

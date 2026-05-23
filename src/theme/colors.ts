@@ -16,9 +16,18 @@ export const lightColors = {
   textSecondary: "#4E4B66",
   textDisabled: "#A0A3BD",
 
+  // Text on dark/primary-colored surfaces
+  onPrimary: "#FFFFFF",
+  onDarkMuted: "rgba(255,255,255,0.7)",
+
+  // Overlays & scrims
+  scrim: "#111111",
+  overlayDark: "rgba(0,0,0,0.55)",
+
   outline: "#D9DBE9",
 
   danger: "#EF4444",
+  dangerOnDark: "#FF6B6B",
   success: "#34C759",
   warning: "#FFB800",
   info: "#5B57F5",

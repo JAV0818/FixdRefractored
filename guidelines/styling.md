@@ -78,9 +78,30 @@ Paper's variants are already mapped to the theme's typography tokens.
 - **`gap` works on `View`** in modern RN. Use it instead of margin-collapsing through layouts.
 - **`SafeAreaView`** from `react-native-safe-area-context` for any top-level view that touches screen edges. Phones have notches.
 
+## Keyboard & input screens
+
+Any screen that contains text inputs **must** use `KeyboardSafeView` as its root scrollable container. This is a shared app-wide component that handles `KeyboardAvoidingView` + `ScrollView` correctly on both iOS and Android, and accounts for the home indicator safe area at the bottom. Never roll your own `KeyboardAvoidingView` inline.
+
+```tsx
+import { KeyboardSafeView } from "@/components";
+
+export const MyFormView = () => (
+  <KeyboardSafeView contentContainerStyle={styles.content}>
+    <TextInput ... />
+    <Button ... />
+  </KeyboardSafeView>
+);
+```
+
+Props:
+- `style` — applied to the outer `KeyboardAvoidingView`
+- `contentContainerStyle` — applied to the `ScrollView` content container
+- `scrollable` (default `true`) — set `false` for very short forms that don't need to scroll
+
 ## Anti-patterns
 
 - **Hardcoded hex/px/rem literals in components.** Use tokens.
 - **Importing colors from somewhere other than `@/theme`.** There's exactly one source.
 - **Inline `style={{ ... }}` for static values.** Move to `StyleSheet.create`.
 - **`style.css` files or CSS-in-JS libraries.** RN doesn't have them. Pretend they don't exist.
+- **Rolling a custom `KeyboardAvoidingView` in a view or page.** Use `KeyboardSafeView` from `@/components` instead.

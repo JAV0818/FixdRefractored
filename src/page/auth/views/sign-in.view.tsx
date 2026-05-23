@@ -1,48 +1,23 @@
-// Sign-in view - wires the form to the useSignIn mutation.
-//
-// Theme-aware: pulls colors from useTheme() rather than hardcoding literals.
-// Container fills the screen and centers content.
-
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
-import { Text, useTheme } from "react-native-paper";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
+import { Text } from "react-native-paper";
+import { useRouter } from "expo-router";
 
 import { AuthButton, AuthInput } from "../components";
 import { useSignIn } from "../hooks/use-sign-in";
 import { AUTH_COPY } from "../auth.constants";
-import { fontFamily, spacing } from "@/theme";
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: spacing.lg,
-    justifyContent: "center",
-  },
-  title: {
-    fontFamily: fontFamily.displayBold,
-    marginBottom: spacing.lg,
-    letterSpacing: -0.5,
-  },
-  errorText: {
-    marginTop: spacing.xs,
-  },
-});
+import { colors, fontFamily, spacing, radii } from "@/theme";
 
 export const SignInView = () => {
-  const theme = useTheme();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const signIn = useSignIn();
 
-  const onSubmit = () => {
-    signIn.mutate({ email, password });
-  };
-
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Text variant="headlineLarge" style={styles.title}>
-        {AUTH_COPY.signIn.title}
-      </Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Welcome Back</Text>
+      <Text style={styles.subtitle}>Sign in to your Fixd account</Text>
 
       <AuthInput
         label={AUTH_COPY.signIn.emailLabel}
@@ -58,17 +33,63 @@ export const SignInView = () => {
       />
 
       {signIn.isError ? (
-        <Text variant="bodySmall" style={[styles.errorText, { color: theme.colors.error }]}>
-          {AUTH_COPY.signIn.genericError}
-        </Text>
+        <Text style={styles.errorText}>{AUTH_COPY.signIn.genericError}</Text>
       ) : null}
 
       <AuthButton
         label={AUTH_COPY.signIn.submit}
         isLoading={signIn.isPending}
         disabled={!email || !password}
-        onPress={onSubmit}
+        onPress={() => signIn.mutate({ email, password })}
       />
+
+      <TouchableOpacity
+        style={styles.signUpRow}
+        onPress={() => router.push("/(auth)/sign-up")}
+      >
+        <Text style={styles.signUpText}>Don't have an account? </Text>
+        <Text style={[styles.signUpText, styles.signUpLink]}>Sign up</Text>
+      </TouchableOpacity>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.overlayDark,
+    borderTopLeftRadius: radii.xl,
+    borderTopRightRadius: radii.xl,
+    padding: spacing.xl,
+    paddingTop: spacing.xxl,
+  },
+  title: {
+    fontSize: 32,
+    fontFamily: fontFamily.displayBold,
+    color: colors.onPrimary,
+    marginBottom: spacing.xs,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: colors.onDarkMuted,
+    marginBottom: spacing.xl,
+  },
+  errorText: {
+    color: colors.dangerOnDark,
+    fontSize: 13,
+    marginTop: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  signUpRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: spacing.lg,
+  },
+  signUpText: {
+    fontSize: 14,
+    color: colors.onDarkMuted,
+  },
+  signUpLink: {
+    color: colors.primary,
+    fontWeight: "700",
+  },
+});

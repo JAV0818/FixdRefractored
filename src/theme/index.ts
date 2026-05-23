@@ -9,6 +9,8 @@ import { useTheme } from "react-native-paper";
 import { lightColors, darkColors } from "./colors";
 
 export { lightColors, darkColors } from "./colors";
+// Convenience alias — components that don't need dark mode just import `colors`
+export const colors = lightColors;
 export type { ColorToken } from "./colors";
 
 export {

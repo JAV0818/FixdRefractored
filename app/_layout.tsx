@@ -42,13 +42,17 @@ const InitialLayout = () => {
   useEffect(() => {
     if (!isHydrated) return;
 
+    const inAuth = segments[0] === "(auth)";
+    const inOnboarding = segments[0] === "(onboarding)";
+
     if (!currentUser) {
-      router.replace("/(auth)/sign-in");
+      if (!inAuth) router.replace("/(auth)/sign-in");
       return;
     }
 
     if (!hasCompletedOnboarding) {
-      router.replace("/(onboarding)/role-selection");
+      // Already navigating within onboarding — let the flow proceed
+      if (!inOnboarding) router.replace("/(onboarding)/role-selection");
       return;
     }
 
