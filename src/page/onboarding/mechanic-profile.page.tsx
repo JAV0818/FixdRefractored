@@ -7,6 +7,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { KeyboardSafeView } from "@/components";
 import { colors, fontSize, fontWeight, spacing, radii } from "@/theme";
 import type { UserRole } from "@/types/user.interface";
+import { useSaveMechanicProfile } from "./hooks/use-save-mechanic-profile";
 
 const SPECIALTIES = [
   "Oil Change", "Brakes", "Tires", "Engine", "Transmission",
@@ -16,6 +17,7 @@ const SPECIALTIES = [
 export const MechanicProfilePage = () => {
   const router = useRouter();
   const { role } = useLocalSearchParams<{ role: UserRole }>();
+  const saveMechanicProfile = useSaveMechanicProfile();
 
   const [bio, setBio] = useState("");
   const [years, setYears] = useState("");
@@ -29,6 +31,18 @@ export const MechanicProfilePage = () => {
 
   const goNext = () => {
     router.push({ pathname: "/(onboarding)/notifications", params: { role } });
+  };
+
+  const onContinue = () => {
+    const yearsNum = parseInt(years, 10);
+    if (!yearsNum) {
+      goNext();
+      return;
+    }
+    saveMechanicProfile.mutate(
+      { bio, specialties: selected, yearsExperience: yearsNum },
+      { onSettled: goNext },
+    );
   };
 
   return (
@@ -88,7 +102,7 @@ export const MechanicProfilePage = () => {
         </View>
 
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.continueButton} onPress={goNext} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.continueButton} onPress={onContinue} activeOpacity={0.8}>
             <Text style={styles.continueText}>Continue</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.skipButton} onPress={goNext}>

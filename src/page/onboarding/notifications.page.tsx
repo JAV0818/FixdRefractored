@@ -4,13 +4,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
 import { colors, fontSize, fontWeight, spacing, radii } from "@/theme";
-import { useAuthContext } from "@/providers/auth-provider";
+import { useCompleteOnboarding } from "./hooks/use-complete-onboarding";
 import type { UserRole } from "@/types/user.interface";
 
 export const NotificationsPage = () => {
   const router = useRouter();
   const { role } = useLocalSearchParams<{ role: UserRole }>();
-  const { completeOnboarding } = useAuthContext();
+  const { completeOnboarding } = useCompleteOnboarding();
 
   const finish = () => {
     completeOnboarding(role as UserRole);

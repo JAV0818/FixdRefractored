@@ -7,10 +7,12 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { KeyboardSafeView } from "@/components";
 import { colors, fontSize, fontWeight, spacing, radii } from "@/theme";
 import type { UserRole } from "@/types/user.interface";
+import { useSaveVehicle } from "./hooks/use-save-vehicle";
 
 export const VehicleSetupPage = () => {
   const router = useRouter();
   const { role } = useLocalSearchParams<{ role: UserRole }>();
+  const saveVehicle = useSaveVehicle();
 
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
@@ -20,6 +22,17 @@ export const VehicleSetupPage = () => {
 
   const goNext = () => {
     router.push({ pathname: "/(onboarding)/notifications", params: { role } });
+  };
+
+  const onContinue = () => {
+    if (!make || !model || !year) {
+      goNext();
+      return;
+    }
+    saveVehicle.mutate(
+      { make, model, year, color: color || undefined, licensePlate: plate || undefined },
+      { onSettled: goNext },
+    );
   };
 
   return (
@@ -88,7 +101,7 @@ export const VehicleSetupPage = () => {
         </View>
 
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.continueButton} onPress={goNext} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.continueButton} onPress={onContinue} activeOpacity={0.8}>
             <Text style={styles.continueText}>Continue</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.skipButton} onPress={goNext}>
