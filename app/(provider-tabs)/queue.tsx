@@ -1,14 +1,14 @@
 import { View, StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors, fontWeight, spacing } from "@/theme";
+import { colors } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 
-export default function ProviderMarketplaceScreen() {
+export default function ProviderQueueScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.center}>
-        <Text variant="headlineMedium" style={styles.title}>Marketplace</Text>
+        <Text variant="headlineMedium" style={styles.title}>My Queue</Text>
         <Text variant="bodyMedium" style={styles.sub}>Coming in M5</Text>
       </View>
     </SafeAreaView>
@@ -17,7 +17,7 @@ export default function ProviderMarketplaceScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  center: { flex: 1, justifyContent: "center", alignItems: "center", padding: spacing.lg, paddingBottom: TAB_BAR_CLEARANCE },
-  title: { fontWeight: fontWeight.bold, color: colors.textPrimary },
-  sub: { marginTop: spacing.sm, color: colors.textSecondary },
+  center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 24, paddingBottom: TAB_BAR_CLEARANCE },
+  title: { fontWeight: "700", color: colors.textPrimary },
+  sub: { marginTop: 8, color: colors.textSecondary },
 });

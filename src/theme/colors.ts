@@ -25,6 +25,7 @@ export const lightColors = {
   overlayDark: "rgba(0,0,0,0.55)",
 
   outline: "#D9DBE9",
+  shadow: "#14142B",
 
   danger: "#EF4444",
   dangerOnDark: "#FF6B6B",
@@ -47,6 +48,7 @@ export const darkColors = {
   textDisabled: "#5A5A75",
 
   outline: "#2A2540",
+  shadow: "#000000",
 
   danger: "#FF5A5A",
   success: "#3DD68C",

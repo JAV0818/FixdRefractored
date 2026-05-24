@@ -1,20 +1,48 @@
 import { Tabs } from "expo-router";
-import { colors } from "@/theme";
+import { Ionicons } from "@expo/vector-icons";
+import { FloatingTabBar } from "@/components";
+
+type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
+
+const tabIcon = (active: IoniconName, inactive: IoniconName) =>
+  ({ color, focused }: { color: string; focused: boolean }) => (
+    <Ionicons name={focused ? active : inactive} size={22} color={color} />
+  );
 
 export default function CustomerTabsLayout() {
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
-        tabBarStyle: { backgroundColor: colors.surface },
-      }}
+      tabBar={(props) => <FloatingTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
     >
-      <Tabs.Screen name="index" options={{ title: "Services", tabBarIcon: () => null }} />
-      <Tabs.Screen name="requests" options={{ title: "Requests", tabBarIcon: () => null }} />
-      <Tabs.Screen name="messages" options={{ title: "Messages", tabBarIcon: () => null }} />
-      <Tabs.Screen name="profile" options={{ title: "Profile", tabBarIcon: () => null }} />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "Services",
+          tabBarIcon: tabIcon("construct", "construct-outline"),
+        }}
+      />
+      <Tabs.Screen
+        name="requests"
+        options={{
+          title: "Requests",
+          tabBarIcon: tabIcon("document-text", "document-text-outline"),
+        }}
+      />
+      <Tabs.Screen
+        name="messages"
+        options={{
+          title: "Messages",
+          tabBarIcon: tabIcon("chatbubble", "chatbubble-outline"),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: tabIcon("person", "person-outline"),
+        }}
+      />
     </Tabs>
   );
 }

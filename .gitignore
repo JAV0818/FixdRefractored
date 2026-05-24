@@ -33,3 +33,5 @@ web-build/
 
 expo-env.d.ts
 # @end expo-cli
+# Local transcript recovery staging - not for commit
+.transcript-recovery/

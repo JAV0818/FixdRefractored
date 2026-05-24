@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import { useTheme } from "react-native-paper";
 import { useState } from "react";
 
-import { colors, spacing, radii } from "@/theme";
+import { colors, fontSize, fontWeight, spacing, radii } from "@/theme";
 import { ROLE_OPTIONS } from "./onboarding.constants";
 import type { UserRole } from "@/types/user.interface";
 
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xxl,
   },
   title: {
-    fontWeight: "700",
+    fontWeight: fontWeight.bold,
     marginBottom: spacing.sm,
   },
   subtitle: {
@@ -105,11 +105,11 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   icon: {
-    fontSize: 40,
+    fontSize: 40, // one-off emoji display size
     marginBottom: spacing.md,
   },
   cardTitle: {
-    fontWeight: "700",
+    fontWeight: fontWeight.bold,
     marginBottom: spacing.xs,
   },
   cardSubtitle: {
@@ -127,8 +127,8 @@ const styles = StyleSheet.create({
   },
   checkText: {
     color: colors.onPrimary,
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.bold,
   },
   continueButton: {
     borderRadius: radii.lg,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   },
   continueText: {
     color: colors.onPrimary,
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.bold,
   },
 });

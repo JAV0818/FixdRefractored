@@ -1,7 +1,8 @@
 import { View, StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors } from "@/theme";
+import { colors, fontWeight, spacing } from "@/theme";
+import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 
 export default function CustomerHomeScreen() {
   return (
@@ -16,7 +17,7 @@ export default function CustomerHomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 24 },
-  title: { fontWeight: "700", color: colors.textPrimary },
-  sub: { marginTop: 8, color: colors.textSecondary },
+  center: { flex: 1, justifyContent: "center", alignItems: "center", padding: spacing.lg, paddingBottom: TAB_BAR_CLEARANCE },
+  title: { fontWeight: fontWeight.bold, color: colors.textPrimary },
+  sub: { marginTop: spacing.sm, color: colors.textSecondary },
 });

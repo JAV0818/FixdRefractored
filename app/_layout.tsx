@@ -1,15 +1,19 @@
 // Root layout — loads fonts, wires global providers, enforces the auth gate.
 //
 // Auth gate logic:
-//   !isHydrated                → render nothing (wait for Firebase + Firestore read)
-//   !currentUser               → sign-in screen
+//   !isHydrated                → branded loading screen (prevents role-flicker)
+//   !currentUser               → sign-in
 //   !hasCompletedOnboarding    → onboarding flow
-//   role === 'customer'        → customer tabs
-//   role === 'provider'        → provider tabs
-//   role === 'owner'           → admin tabs
+//   role === 'customer'        → (customer-tabs)
+//   role === 'provider'        → (provider-tabs)
+//   role === 'owner'           → (admin-tabs)
+//
+// Flicker prevention: returning a loading screen (not null) while !isHydrated
+// ensures neither tab group ever mounts before the role is confirmed.
 
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useTheme } from "react-native-paper";
 
@@ -32,6 +36,13 @@ import {
 } from "@expo-google-fonts/space-mono";
 
 import { AppProviders, useAuthContext } from "@/providers";
+import { colors } from "@/theme";
+
+const LoadingScreen = () => (
+  <View style={styles.loading}>
+    <ActivityIndicator size="large" color={colors.primary} />
+  </View>
+);
 
 const InitialLayout = () => {
   const router = useRouter();
@@ -44,6 +55,9 @@ const InitialLayout = () => {
 
     const inAuth = segments[0] === "(auth)";
     const inOnboarding = segments[0] === "(onboarding)";
+    const inCustomer = segments[0] === "(customer-tabs)";
+    const inProvider = segments[0] === "(provider-tabs)";
+    const inAdmin = segments[0] === "(admin-tabs)";
 
     if (!currentUser) {
       if (!inAuth) router.replace("/(auth)/sign-in");
@@ -51,19 +65,24 @@ const InitialLayout = () => {
     }
 
     if (!hasCompletedOnboarding) {
-      // Already navigating within onboarding — let the flow proceed
       if (!inOnboarding) router.replace("/(onboarding)/role-selection");
       return;
     }
 
-    if (role === "customer") {
+    if (role === "customer" && !inCustomer) {
       router.replace("/(customer-tabs)");
-    } else if (role === "provider") {
+    } else if (role === "provider" && !inProvider) {
       router.replace("/(provider-tabs)");
-    } else if (role === "owner") {
+    } else if (role === "owner" && !inAdmin) {
       router.replace("/(admin-tabs)");
     }
   }, [currentUser, role, hasCompletedOnboarding, isHydrated, segments, router]);
+
+  // Block rendering entirely until role is confirmed — prevents any tab group
+  // from flashing before the redirect fires.
+  if (!isHydrated) {
+    return <LoadingScreen />;
+  }
 
   return (
     <>
@@ -102,3 +121,12 @@ export default function RootLayout() {
     </AppProviders>
   );
 }
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    backgroundColor: colors.background,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

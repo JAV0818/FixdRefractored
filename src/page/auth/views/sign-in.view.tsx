@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import { AuthButton, AuthInput } from "../components";
 import { useSignIn } from "../hooks/use-sign-in";
 import { AUTH_COPY } from "../auth.constants";
-import { colors, fontFamily, spacing, radii } from "@/theme";
+import { colors, fontFamily, fontSize, fontWeight, spacing, radii } from "@/theme";
 
 export const SignInView = () => {
   const router = useRouter();
@@ -63,19 +63,19 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xxl,
   },
   title: {
-    fontSize: 32,
+    fontSize: 32, // one-off display heading — no matching token
     fontFamily: fontFamily.displayBold,
     color: colors.onPrimary,
     marginBottom: spacing.xs,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: fontSize.sm,
     color: colors.onDarkMuted,
     marginBottom: spacing.xl,
   },
   errorText: {
     color: colors.dangerOnDark,
-    fontSize: 13,
+    fontSize: fontSize.xs,
     marginTop: spacing.xs,
     marginBottom: spacing.sm,
   },
@@ -85,11 +85,11 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
   signUpText: {
-    fontSize: 14,
+    fontSize: fontSize.sm,
     color: colors.onDarkMuted,
   },
   signUpLink: {
     color: colors.primary,
-    fontWeight: "700",
+    fontWeight: fontWeight.bold,
   },
 });

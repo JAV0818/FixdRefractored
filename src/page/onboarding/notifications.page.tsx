@@ -3,7 +3,7 @@ import { Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
-import { colors, spacing, radii } from "@/theme";
+import { colors, fontSize, fontWeight, spacing, radii } from "@/theme";
 import { useAuthContext } from "@/providers/auth-provider";
 import type { UserRole } from "@/types/user.interface";
 
@@ -82,17 +82,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   icon: {
-    fontSize: 44,
+    fontSize: 44, // one-off emoji display size
   },
   title: {
-    fontSize: 28,
-    fontWeight: "700",
+    fontSize: fontSize["2.5xl"],
+    fontWeight: fontWeight.bold,
     color: colors.textPrimary,
     textAlign: "center",
     marginBottom: spacing.md,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: fontSize.sm,
     color: colors.textSecondary,
     textAlign: "center",
     lineHeight: 22,
@@ -111,14 +111,14 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   check: {
-    fontSize: 16,
+    fontSize: fontSize.base,
     color: colors.primary,
-    fontWeight: "700",
+    fontWeight: fontWeight.bold,
   },
   itemText: {
-    fontSize: 14,
+    fontSize: fontSize.sm,
     color: colors.textPrimary,
-    fontWeight: "500",
+    fontWeight: fontWeight.medium,
     flex: 1,
   },
   footer: {
@@ -133,15 +133,15 @@ const styles = StyleSheet.create({
   },
   enableText: {
     color: colors.onPrimary,
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.bold,
   },
   skipButton: {
     padding: spacing.md,
     alignItems: "center",
   },
   skipText: {
-    fontSize: 14,
+    fontSize: fontSize.sm,
     color: colors.textSecondary,
   },
 });

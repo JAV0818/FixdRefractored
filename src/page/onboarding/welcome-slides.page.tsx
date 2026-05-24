@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LottieView from "lottie-react-native";
 import Onboarding from "react-native-onboarding-swiper";
 
-import { colors, spacing } from "@/theme";
+import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import { CUSTOMER_SLIDES, MECHANIC_SLIDES } from "./onboarding.constants";
 import type { UserRole } from "@/types/user.interface";
 
@@ -70,14 +70,14 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   slideTitle: {
-    fontSize: 24,
-    fontWeight: "700",
+    fontSize: fontSize["2xl"],
+    fontWeight: fontWeight.bold,
     color: colors.textPrimary,
     textAlign: "center",
     paddingHorizontal: spacing.lg,
   },
   slideSubtitle: {
-    fontSize: 15,
+    fontSize: fontSize.sm,
     color: colors.textSecondary,
     textAlign: "center",
     paddingHorizontal: spacing.xl,

@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
 import { KeyboardSafeView } from "@/components";
-import { colors, spacing, radii } from "@/theme";
+import { colors, fontSize, fontWeight, spacing, radii } from "@/theme";
 import type { UserRole } from "@/types/user.interface";
 
 export const VehicleSetupPage = () => {
@@ -113,21 +113,21 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   stepLabel: {
-    fontSize: 13,
+    fontSize: fontSize.xs,
     color: colors.primary,
-    fontWeight: "600",
+    fontWeight: fontWeight.semibold,
     marginBottom: spacing.sm,
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
   title: {
-    fontSize: 28,
-    fontWeight: "700",
+    fontSize: fontSize["2.5xl"],
+    fontWeight: fontWeight.bold,
     color: colors.textPrimary,
     marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: fontSize.sm,
     color: colors.textSecondary,
     lineHeight: 22,
   },
@@ -149,15 +149,15 @@ const styles = StyleSheet.create({
   },
   continueText: {
     color: colors.onPrimary,
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.bold,
   },
   skipButton: {
     padding: spacing.md,
     alignItems: "center",
   },
   skipText: {
-    fontSize: 14,
+    fontSize: fontSize.sm,
     color: colors.textSecondary,
   },
 });
