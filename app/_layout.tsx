@@ -30,10 +30,7 @@ import {
   Inter_600SemiBold,
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
-import {
-  SpaceMono_400Regular,
-  SpaceMono_700Bold,
-} from "@expo-google-fonts/space-mono";
+import { SpaceMono_400Regular, SpaceMono_700Bold } from "@expo-google-fonts/space-mono";
 
 import { AppProviders, useAuthContext } from "@/providers";
 import { colors } from "@/theme";
@@ -70,7 +67,7 @@ const InitialLayout = () => {
     }
 
     if (role === "customer" && !inCustomer) {
-      router.replace("/(customer-tabs)");
+      router.replace("/(customer-tabs)/services");
     } else if (role === "provider" && !inProvider) {
       router.replace("/(provider-tabs)");
     } else if (role === "owner" && !inAdmin) {
