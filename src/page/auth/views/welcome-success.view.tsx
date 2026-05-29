@@ -10,16 +10,16 @@ import { Card, Text } from "react-native-paper";
 import { spacing } from "@/theme";
 
 import { AUTH_COPY } from "../auth.constants";
-import type { UserProfile } from "../interfaces/user-profile.interface";
+import type { UserProfile } from "@/types/user.interface";
 
 type WelcomeSuccessViewProps = {
-  profile: UserProfile;
+  profile: UserProfile | null;
 };
 
 export const WelcomeSuccessView = ({ profile }: WelcomeSuccessViewProps) => {
-  // Empty-as-sub-state: if the user has no display name yet, render an
+  // Empty-as-sub-state: if there's no profile doc yet or no name, render an
   // onboarding nudge inline instead of an awkward "Hello, undefined".
-  if (!profile.displayName) {
+  if (!profile?.firstName) {
     return (
       <Card mode="contained" style={{ margin: spacing.md }}>
         <Card.Content>
@@ -35,7 +35,7 @@ export const WelcomeSuccessView = ({ profile }: WelcomeSuccessViewProps) => {
   return (
     <Card mode="contained" style={{ margin: spacing.md }}>
       <Card.Content>
-        <Text variant="titleLarge">Hello, {profile.displayName}</Text>
+        <Text variant="titleLarge">Hello, {profile.firstName}</Text>
         <Text variant="bodyMedium" style={{ marginTop: spacing.xs, opacity: 0.7 }}>
           {profile.email}
         </Text>

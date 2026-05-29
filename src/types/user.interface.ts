@@ -3,21 +3,59 @@
 export type UserRole = "customer" | "provider" | "owner";
 
 export type AuthUser = {
-  id: string;
-  email?: string;
   displayName?: string;
+  email?: string;
+  id: string;
+};
+
+// A customer's saved vehicle (collected during onboarding / vehicle management).
+export type Vehicle = {
+  color?: string;
+  licensePlate?: string;
+  make: string;
+  model: string;
+  year: string;
+};
+
+// Mechanic-only profile data, set during the provider onboarding path.
+// averageRating / totalJobsCompleted / totalEarnings are maintained by Cloud
+// Functions (M10); they default to 0 when the profile is first created.
+export type ProviderDetails = {
+  averageRating: number; // rating the mechanic has received from customers (1–5)
+  bio: string;
+  isAvailable: boolean;
+  specialties: string[];
+  totalEarnings: number;
+  totalJobsCompleted: number;
+  yearsExperience: number;
 };
 
 export type UserProfile = {
-  id: string;
+  // Identity & contact
   email: string;
   firstName: string | null;
+  id: string;
   lastName: string | null;
   phone: string | null;
   photoUrl: string | null;
-  role: UserRole | null;
-  isActive: boolean;
+
+  // Role & status
   hasCompletedOnboarding: boolean;
+  isActive: boolean;
+  role: UserRole | null;
+
+  // Customer aggregates — maintained by Cloud Functions (M10); default 0 / null at signup.
+  averageRating: number | null; // rating the customer has received from mechanics (1–5)
+  completedOrdersCount: number; // orders the customer has completed
+  totalRatingsCount: number;
+
+  // Role-specific data. Exactly one is populated once onboarding sets `role`:
+  //   • customer → `vehicles`
+  //   • provider → `providerProfile`
+  providerProfile?: ProviderDetails;
+  vehicles?: Vehicle[];
+
+  // Timestamps
   createdAt: number;
   updatedAt: number;
 };

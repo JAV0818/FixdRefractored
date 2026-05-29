@@ -27,7 +27,7 @@ export const WelcomeView = () => {
     return <WelcomeErrorView onRetry={profile.refetch} />;
   }
 
-  // No profile document yet — pass undefined; the success view handles
-  // its own "no data yet" sub-state.
-  return <WelcomeSuccessView profile={profile.data ?? { id: currentUser.id, displayName: "", email: currentUser.email ?? "", createdAt: 0 }} />;
+  // No profile document yet — pass null; the success view handles its own
+  // "no data yet" sub-state.
+  return <WelcomeSuccessView profile={profile.data ?? null} />;
 };

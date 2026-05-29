@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { userService } from "@/services/user-service";
 
-import type { UserProfile } from "@/page/auth/interfaces/user-profile.interface";
+import type { UserProfile } from "@/types/user.interface";
 
 export const useUserProfile = (userId: string | undefined) =>
   useQuery({
