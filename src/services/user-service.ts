@@ -1,7 +1,7 @@
 // User service — the only file that reads/writes the `users` Firestore collection.
 // Hooks call these; views and components never import this directly.
 
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { arrayUnion, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import type { UserProfile, UserRole } from "@/types/user.interface";
 
@@ -47,10 +47,10 @@ export const userService = {
 
   async saveVehicle(userId: string, vehicle: Vehicle): Promise<void> {
     const ref = doc(db, "users", userId);
-    const snap = await getDoc(ref);
-    const existing: Vehicle[] = snap.exists() ? (snap.data().vehicles ?? []) : [];
+    // arrayUnion appends atomically server-side — no read-modify-write, so two
+    // concurrent saves can't clobber each other (lost-update race).
     await updateDoc(ref, {
-      vehicles: [...existing, vehicle],
+      vehicles: arrayUnion(vehicle),
       updatedAt: Date.now(),
     });
   },

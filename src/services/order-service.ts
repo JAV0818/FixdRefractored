@@ -12,6 +12,7 @@ import {
   orderBy,
   limit,
   updateDoc,
+  runTransaction,
 } from "firebase/firestore";
 
 import { db } from "./firebase";
@@ -244,14 +245,29 @@ export const orderService = {
   },
 
   // Mechanic claims a Pending order → Accepted. They build the quote next.
+  // Runs in a transaction so two mechanics can't claim the same order: the
+  // re-read inside the transaction rejects the claim if another mechanic already
+  // took it (status moved off Pending, or providerId is set). Throws on conflict
+  // so the caller can surface "no longer available".
   async acceptOrder(id: string, providerId: string, providerName: string): Promise<void> {
-    const now = Date.now();
-    await updateDoc(doc(db, ORDERS, id), {
-      providerId,
-      providerName,
-      status: "Accepted",
-      acceptedAt: now,
-      updatedAt: now,
+    const ref = doc(db, ORDERS, id);
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error("Order not found");
+
+      const data = snap.data();
+      if (data.status !== "Pending" || data.providerId != null) {
+        throw new Error("This order has already been claimed by another mechanic.");
+      }
+
+      const now = Date.now();
+      tx.update(ref, {
+        providerId,
+        providerName,
+        status: "Accepted",
+        acceptedAt: now,
+        updatedAt: now,
+      });
     });
   },
 };
