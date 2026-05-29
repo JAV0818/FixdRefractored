@@ -37,6 +37,9 @@ export const authService = {
       hasCompletedOnboarding: false,
       createdAt: Date.now(),
       updatedAt: Date.now(),
+      completedOrdersCount: 0,
+      averageRating: null,
+      totalRatingsCount: 0,
     });
   },
 

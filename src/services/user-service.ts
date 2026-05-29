@@ -24,7 +24,15 @@ export const userService = {
     const ref = doc(db, "users", userId);
     const snap = await getDoc(ref);
     if (!snap.exists()) return undefined;
-    return { id: snap.id, ...snap.data() } as UserProfile;
+    const data = snap.data();
+    // Default the aggregates so docs created before these fields read safely.
+    return {
+      ...(data as UserProfile),
+      id: snap.id,
+      completedOrdersCount: data.completedOrdersCount ?? 0,
+      averageRating: data.averageRating ?? null,
+      totalRatingsCount: data.totalRatingsCount ?? 0,
+    };
   },
 
   async upsertProfile(profile: UserProfile): Promise<void> {
