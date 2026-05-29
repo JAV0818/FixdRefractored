@@ -3,7 +3,12 @@
 // Credentials loaded from EXPO_PUBLIC_* env vars — never hardcoded.
 
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { initializeAuth, getAuth, getReactNativePersistence } from "firebase/auth";
+import { initializeAuth, getAuth } from "firebase/auth";
+// getReactNativePersistence ships only in firebase/auth's React Native build
+// (dist/rn). Metro resolves it at runtime, but the package's web typings don't
+// declare it — so we import it through the RN entry and the type stays correct.
+// @ts-expect-error — RN-only export, absent from the default web type defs.
+import { getReactNativePersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";

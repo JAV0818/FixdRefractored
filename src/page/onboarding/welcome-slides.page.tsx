@@ -2,7 +2,7 @@ import { View, StyleSheet, Dimensions } from "react-native";
 import { Text } from "react-native-paper";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import LottieView from "lottie-react-native";
+import LottieView, { type AnimationObject } from "lottie-react-native";
 import Onboarding from "react-native-onboarding-swiper";
 
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
@@ -11,14 +11,9 @@ import type { UserRole } from "@/types/user.interface";
 
 const { width } = Dimensions.get("window");
 
-const LottieImage = ({ source }: { source: unknown }) => (
+const LottieImage = ({ source }: { source: AnimationObject }) => (
   <View style={styles.animationContainer}>
-    <LottieView
-      source={source as object}
-      autoPlay
-      loop
-      style={styles.animation}
-    />
+    <LottieView source={source} autoPlay loop style={styles.animation} />
   </View>
 );
 
@@ -45,8 +40,6 @@ export const WelcomeSlidesPage = () => {
         onDone={() => router.push({ pathname: nextRoute as never, params: { role } })}
         onSkip={() => router.push({ pathname: nextRoute as never, params: { role } })}
         bottomBarColor={colors.background}
-        dotColor={colors.outline}
-        dotColorSelected={colors.primary}
         titleStyles={styles.slideTitle}
         subTitleStyles={styles.slideSubtitle}
         containerStyles={styles.slideContainer}
