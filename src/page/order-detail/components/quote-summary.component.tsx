@@ -37,16 +37,11 @@ export const QuoteSummary = memo(function QuoteSummary({
       {laborCost > 0 && <Row label="Labor" value={formatCurrency(laborCost)} />}
       {partsCost > 0 && <Row label="Parts" value={formatCurrency(partsCost)} />}
 
+      {/* The line items are the mechanic's charge; the $20 booking deposit is
+          added on top, so items + deposit = total (the deposit is part of it). */}
+      <Row label="Booking deposit" value={formatCurrency(depositAmount)} muted />
       <View style={styles.divider} />
       <Row label="Total" value={formatCurrency(totalPrice)} emphasized />
-      {/* The $20 deposit is part of the total, not on top of it: it's due now,
-          the rest at completion. Show the split so it never reads as +$20. */}
-      <Row label="Booking deposit (due now)" value={formatCurrency(depositAmount)} muted />
-      <Row
-        label="Due at completion"
-        value={formatCurrency(Math.max(totalPrice - depositAmount, 0))}
-        muted
-      />
     </View>
   );
 });

@@ -5,11 +5,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { ActivityIndicator, Button, HelperText, Text, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, HelperText, Text } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { DateTimeField, KeyboardSafeView } from "@/components";
 import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
+import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatCurrency } from "@/utils/format";
 import { useOrder } from "@/hooks/use-order";
 import { PLATFORM_DEPOSIT } from "@/services/order-service";
@@ -40,8 +41,6 @@ export const QuoteBuilderView = () => {
   );
 
   const [items, setItems] = useState<LineItemDraft[]>(() => [makeItem()]);
-  const [labor, setLabor] = useState("");
-  const [parts, setParts] = useState("");
 
   // Seed the appointment time with the customer's requested time once the order
   // loads; the mechanic can then adjust it before sending the quote.
@@ -59,22 +58,20 @@ export const QuoteBuilderView = () => {
     [],
   );
 
-  // Only named, priced rows are submitted — compute the total from that SAME set
-  // so the shown/charged total always matches the line items the customer sees.
+  // Only named, priced rows count. The mechanic's line items are what THEY earn;
+  // the $20 platform fee is added on top, so the customer's total = earnings + fee.
   const validItems = useMemo(
     () => items.filter((it) => it.name.trim() && num(it.price) > 0),
     [items],
   );
-  const total = useMemo(
-    () =>
-      validItems.reduce((sum, it) => sum + num(it.price) * qtyOf(it.quantity), 0) +
-      num(labor) +
-      num(parts),
-    [validItems, labor, parts],
+  const earnings = useMemo(
+    () => validItems.reduce((sum, it) => sum + num(it.price) * qtyOf(it.quantity), 0),
+    [validItems],
   );
+  const total = earnings + PLATFORM_DEPOSIT;
 
   const canSubmit =
-    validItems.length > 0 && total > 0 && scheduledAt !== null && !proposeQuote.isPending && !!orderId;
+    validItems.length > 0 && earnings > 0 && scheduledAt !== null && !proposeQuote.isPending && !!orderId;
 
   const onSubmit = useCallback(() => {
     if (!orderId || scheduledAt === null) return;
@@ -88,14 +85,14 @@ export const QuoteBuilderView = () => {
       {
         orderId,
         items: orderItems,
-        laborCost: num(labor),
-        partsCost: num(parts),
+        laborCost: 0,
+        partsCost: 0,
         totalPrice: total,
         scheduledAt,
       },
       { onSuccess: () => router.back() },
     );
-  }, [orderId, validItems, labor, parts, total, scheduledAt, proposeQuote, router]);
+  }, [orderId, validItems, total, scheduledAt, proposeQuote, router]);
 
   if (isLoading) {
     return (
@@ -146,40 +143,21 @@ export const QuoteBuilderView = () => {
         {QUOTE_BUILDER_COPY.addItem}
       </Button>
 
-      <TextInput
-        label={QUOTE_BUILDER_COPY.laborLabel}
-        value={labor}
-        onChangeText={setLabor}
-        mode="outlined"
-        keyboardType="decimal-pad"
-        style={styles.cost}
-        outlineColor={colors.outline}
-        activeOutlineColor={colors.primary}
-      />
-      <TextInput
-        label={QUOTE_BUILDER_COPY.partsLabel}
-        value={parts}
-        onChangeText={setParts}
-        mode="outlined"
-        keyboardType="decimal-pad"
-        style={styles.cost}
-        outlineColor={colors.outline}
-        activeOutlineColor={colors.primary}
-      />
-
-      <View style={styles.totalRow}>
-        <Text style={styles.totalLabel}>{QUOTE_BUILDER_COPY.total}</Text>
-        <Text style={styles.totalValue}>{formatCurrency(total)}</Text>
+      <View style={styles.summary}>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>{QUOTE_BUILDER_COPY.earnings}</Text>
+          <Text style={styles.summaryValue}>{formatCurrency(earnings)}</Text>
+        </View>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>{QUOTE_BUILDER_COPY.platformFee}</Text>
+          <Text style={styles.summaryValue}>{formatCurrency(PLATFORM_DEPOSIT)}</Text>
+        </View>
+        <View style={styles.summaryDivider} />
+        <View style={styles.summaryRow}>
+          <Text style={styles.totalLabel}>{QUOTE_BUILDER_COPY.customerTotal}</Text>
+          <Text style={styles.totalValue}>{formatCurrency(total)}</Text>
+        </View>
       </View>
-
-      {total > 0 && (
-        <Text style={styles.payoutNote}>
-          {QUOTE_BUILDER_COPY.payoutNote(
-            formatCurrency(Math.max(total - PLATFORM_DEPOSIT, 0)),
-            formatCurrency(PLATFORM_DEPOSIT),
-          )}
-        </Text>
-      )}
 
       {proposeQuote.isError && (
         <HelperText type="error" visible>
@@ -203,6 +181,8 @@ const styles = StyleSheet.create({
   content: {
     padding: spacing.lg,
     gap: spacing.md,
+    // Clear the floating tab bar so the submit button isn't hidden behind it.
+    paddingBottom: TAB_BAR_CLEARANCE,
   },
   center: {
     flex: 1,
@@ -224,17 +204,30 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textSecondary,
   },
-  cost: {
-    backgroundColor: colors.surface,
-  },
-  totalRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  summary: {
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     backgroundColor: colors.surfaceVariant,
     borderRadius: radii.lg,
+    gap: spacing.xs,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  summaryLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textSecondary,
+  },
+  summaryValue: {
+    fontSize: fontSize.sm,
+    color: colors.textPrimary,
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: colors.outline,
+    marginVertical: spacing.xxs,
   },
   totalLabel: {
     fontSize: fontSize.base,
@@ -245,10 +238,5 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xl,
     fontWeight: fontWeight.bold,
     color: colors.primary,
-  },
-  payoutNote: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    textAlign: "right",
   },
 });
