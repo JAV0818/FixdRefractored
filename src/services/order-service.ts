@@ -256,11 +256,16 @@ export const orderService = {
       if (!snap.exists()) throw new Error("Order not found");
 
       const data = snap.data();
+      const now = Date.now();
       if (data.status !== "Pending" || data.providerId != null) {
         throw new Error("This order has already been claimed by another mechanic.");
       }
+      // Defense-in-depth: don't let a stale Pending order be claimed past its 24h
+      // window (the M10 expire function isn't live yet to flip status server-side).
+      if (now > data.expiresAt) {
+        throw new Error("This order has expired and is no longer available.");
+      }
 
-      const now = Date.now();
       tx.update(ref, {
         providerId,
         providerName,
