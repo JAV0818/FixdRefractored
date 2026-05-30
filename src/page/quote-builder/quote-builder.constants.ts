@@ -10,6 +10,8 @@ export const QUOTE_BUILDER_COPY = {
   laborLabel: "Labor cost (optional)",
   partsLabel: "Parts cost (optional)",
   total: "Total",
+  payoutNote: (earnings: string, fee: string) =>
+    `You'll receive ${earnings} after the ${fee} platform fee.`,
   submit: "Send quote to customer",
   submitting: "Sending…",
   submitError: "We couldn't send the quote. Please try again.",

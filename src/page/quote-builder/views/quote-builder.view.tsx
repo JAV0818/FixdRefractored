@@ -12,6 +12,7 @@ import { KeyboardSafeView } from "@/components";
 import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
 import { formatCurrency } from "@/utils/format";
 import { useOrder } from "@/hooks/use-order";
+import { PLATFORM_DEPOSIT } from "@/services/order-service";
 import type { OrderItem } from "@/types/order.interface";
 
 import { QUOTE_BUILDER_COPY } from "../quote-builder.constants";
@@ -155,6 +156,15 @@ export const QuoteBuilderView = () => {
         <Text style={styles.totalValue}>{formatCurrency(total)}</Text>
       </View>
 
+      {total > 0 && (
+        <Text style={styles.payoutNote}>
+          {QUOTE_BUILDER_COPY.payoutNote(
+            formatCurrency(Math.max(total - PLATFORM_DEPOSIT, 0)),
+            formatCurrency(PLATFORM_DEPOSIT),
+          )}
+        </Text>
+      )}
+
       {proposeQuote.isError && (
         <HelperText type="error" visible>
           {QUOTE_BUILDER_COPY.submitError}
@@ -219,5 +229,10 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xl,
     fontWeight: fontWeight.bold,
     color: colors.primary,
+  },
+  payoutNote: {
+    fontSize: fontSize.sm,
+    color: colors.textSecondary,
+    textAlign: "right",
   },
 });
