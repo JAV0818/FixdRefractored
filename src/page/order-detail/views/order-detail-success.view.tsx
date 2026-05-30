@@ -2,16 +2,17 @@
 // (identical for both) and delegates the role-specific actions to CustomerActions
 // / ProviderActions, so each role only mounts its own hooks + side-effects.
 
-import { Image, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
 import { OrderStatusBadge } from "@/components";
-import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
+import { colors, fontSize, fontWeight, spacing } from "@/theme";
+import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { useAuthContext } from "@/providers/auth-provider";
 import type { RepairOrder } from "@/types/order.interface";
 
 import { ORDER_DETAIL_COPY } from "../order-detail.constants";
-import { DetailSection, QuoteSummary } from "../components";
+import { DetailSection, PhotoGallery, QuoteSummary } from "../components";
 import { CustomerActions } from "./order-detail-customer-actions.view";
 import { ProviderActions } from "./order-detail-provider-actions.view";
 
@@ -57,11 +58,7 @@ export const OrderDetailSuccessView = ({ order }: OrderDetailSuccessViewProps) =
 
       {order.mediaUrls.length > 0 && (
         <DetailSection title={ORDER_DETAIL_COPY.sections.photos}>
-          <View style={styles.photoGrid}>
-            {order.mediaUrls.map((uri) => (
-              <Image key={uri} source={{ uri }} style={styles.photo} resizeMode="cover" />
-            ))}
-          </View>
+          <PhotoGallery uris={order.mediaUrls} />
         </DetailSection>
       )}
 
@@ -91,6 +88,8 @@ const styles = StyleSheet.create({
   content: {
     padding: spacing.lg,
     gap: spacing.md,
+    // Clear the floating tab bar so the action buttons / hints aren't hidden.
+    paddingBottom: TAB_BAR_CLEARANCE,
   },
   header: {
     gap: spacing.sm,
@@ -108,16 +107,5 @@ const styles = StyleSheet.create({
   muted: {
     fontSize: fontSize.sm,
     color: colors.textSecondary,
-  },
-  photoGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm,
-  },
-  photo: {
-    width: 96,
-    height: 96,
-    borderRadius: radii.md,
-    backgroundColor: colors.surfaceVariant,
   },
 });

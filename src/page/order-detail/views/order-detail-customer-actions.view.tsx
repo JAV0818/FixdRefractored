@@ -65,7 +65,13 @@ export const CustomerActions = ({ order }: CustomerActionsProps) => {
         <Button mode="contained" onPress={() => setPickerOpen(true)} loading={isBusy} disabled={isBusy}>
           {customer.approve}
         </Button>
-        <Button mode="outlined" onPress={onDecline} disabled={isBusy} textColor={colors.danger}>
+        <Button
+          mode="contained"
+          onPress={onDecline}
+          disabled={isBusy}
+          buttonColor={colors.danger}
+          textColor={colors.onPrimary}
+        >
           {customer.decline}
         </Button>
         {pickerOpen && (
