@@ -147,12 +147,12 @@ repair-orders/{orderId}
       quantity: number,
     }
   ],
-  laborCost: number,
-  partsCost: number,
-  totalPrice: number,
-  depositAmount: 20,                    // FIXED $20 platform fee (always $20)
+  laborCost: number,                    // unused (line items hold the pricing)
+  partsCost: number,                    // unused (line items hold the pricing)
+  totalPrice: number,                   // what the customer pays = sum(items) + $20 fee
+  depositAmount: 20,                    // FIXED $20 platform fee / booking deposit
   depositPaid: boolean,
-  remainingBalance: number,             // totalPrice - 20 (goes to mechanic)
+  remainingBalance: number,             // totalPrice - 20 = the mechanic's earnings
 
   // Media
   mediaUrls: string[],                  // Customer-uploaded photos
@@ -478,20 +478,28 @@ Mechanic collects cash → Records in app → System tracks:
 ### 5.3 Revenue Split
 
 ```
-PLATFORM FEE = DEPOSIT = $20 (flat fee, regardless of service total)
+PLATFORM FEE = BOOKING DEPOSIT = $20 (flat, ADDED ON TOP of the mechanic's price)
 
-Example: Total Service $200
-─────────────────────────────
-Deposit (Platform Fee): $20 → Collected at quote acceptance → Goes to Owner
-Remaining Balance: $180 → Collected at completion → Goes to Mechanic
+Example: Mechanic prices an oil change at $80
+──────────────────────────────────────────────
+Mechanic's earnings:   $80   → the line items they enter (their take-home)
+Platform fee (deposit): +$20  → the booking deposit, added on top
+Customer total:        $100   → what the customer pays
+
+Who gets what:
+  - Owner:    $20  (the booking deposit, captured when the customer approves)
+  - Mechanic: $80  (collected at completion — Stripe transfer or cash)
 
 Payment Collection Options:
-  - Stripe: $180 transferred to mechanic
-  - Cash: Mechanic collects $180 directly from customer
+  - Stripe: the $80 balance transferred to the mechanic
+  - Cash:   mechanic collects the $80 balance directly from the customer
 ```
 
-> **Key Point:** The $20 deposit IS the platform fee. This simplifies accounting -
-> the owner receives $20 per completed job, mechanics receive the full remaining balance.
+> **Key Point:** The mechanic's line items are their **earnings**; the flat $20
+> booking deposit is **added on top** to form the customer's total — it is *not*
+> carved out of the mechanic's price. So `totalPrice = earnings + $20` and
+> `remainingBalance = totalPrice − $20 = the mechanic's earnings`. The owner
+> receives $20 per completed job; the mechanic receives their full quoted price.
 
 ---
 
