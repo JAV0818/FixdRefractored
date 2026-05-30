@@ -112,6 +112,11 @@ export const QuoteRequestView = () => {
         if (images.length > 0) {
           await uploadImages.mutateAsync({ orderId, uris: images });
         }
+        // Leave the wizard: pop the services stack back to its root first, then
+        // switch to the Requests tab so the new order is visible. Replacing from
+        // deep in the stack alone doesn't reliably switch tabs (leaves the user
+        // stuck on the last step).
+        if (router.canDismiss()) router.dismissAll();
         router.replace("/(customer-tabs)/requests");
       } catch {
         // Surfaced via submitFailed below; nothing else to do here.
