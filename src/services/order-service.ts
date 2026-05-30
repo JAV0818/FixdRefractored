@@ -13,6 +13,8 @@ import {
   limit,
   updateDoc,
   runTransaction,
+  onSnapshot,
+  type Unsubscribe,
 } from "firebase/firestore";
 
 import { db } from "./firebase";
@@ -116,6 +118,37 @@ export const orderService = {
     const snap = await getDoc(doc(db, ORDERS, id));
     if (!snap.exists()) return undefined;
     return snapToOrder(snap);
+  },
+
+  // Real-time: stream a single order. Returns an unsubscribe fn the caller must
+  // call on cleanup. Hooks use this for live status (e.g. customer waiting on a
+  // quote); the only place onSnapshot for `repair-orders` lives.
+  subscribeToOrder(
+    id: string,
+    onData: (order: RepairOrder | undefined) => void,
+    onError: (error: Error) => void,
+  ): Unsubscribe {
+    return onSnapshot(
+      doc(db, ORDERS, id),
+      (snap) => onData(snap.exists() ? snapToOrder(snap) : undefined),
+      onError,
+    );
+  },
+
+  // Real-time: stream a customer's orders, newest first. Same composite index as
+  // getOrdersByCustomer.
+  subscribeToCustomerOrders(
+    customerId: string,
+    onData: (orders: RepairOrder[]) => void,
+    onError: (error: Error) => void,
+  ): Unsubscribe {
+    const q = query(
+      ordersCollection(),
+      where("customerId", "==", customerId),
+      orderBy("createdAt", "desc"),
+      limit(LIST_QUERY_LIMIT),
+    );
+    return onSnapshot(q, (snap) => onData(snap.docs.map(snapToOrder)), onError);
   },
 
   // A customer's own orders, newest first.
