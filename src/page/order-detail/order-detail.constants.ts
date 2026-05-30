@@ -9,6 +9,7 @@ export const ORDER_DETAIL_COPY = {
     details: "What's wrong",
     vehicle: "Vehicle",
     location: "Location",
+    when: "When",
     photos: "Photos",
     quote: "Quote",
   },

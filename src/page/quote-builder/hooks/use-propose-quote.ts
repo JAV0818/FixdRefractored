@@ -12,13 +12,14 @@ type ProposeQuoteInput = {
   laborCost: number;
   partsCost: number;
   totalPrice: number;
+  scheduledAt: number;
 };
 
 export const useProposeQuote = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ orderId, items, laborCost, partsCost, totalPrice }: ProposeQuoteInput) =>
-      orderService.proposeQuote(orderId, { items, laborCost, partsCost, totalPrice }),
+    mutationFn: ({ orderId, items, laborCost, partsCost, totalPrice, scheduledAt }: ProposeQuoteInput) =>
+      orderService.proposeQuote(orderId, { items, laborCost, partsCost, totalPrice, scheduledAt }),
     onSuccess: (_data, { orderId }) => {
       queryClient.invalidateQueries({ queryKey: ["order", orderId] });
       queryClient.invalidateQueries({ queryKey: ["provider-orders"] });

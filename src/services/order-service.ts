@@ -84,7 +84,7 @@ export const orderService = {
       quoteProposedAt: null,
       quoteExpiresAt: null,
       quoteApprovedAt: null,
-      scheduledAt: null,
+      scheduledAt: input.scheduledAt, // customer's preferred time (mechanic may adjust)
       startedAt: null,
       completedAt: null,
       cancelledAt: null,
@@ -169,6 +169,7 @@ export const orderService = {
       laborCost: number;
       partsCost: number;
       totalPrice: number;
+      scheduledAt: number; // mechanic confirms/adjusts the customer's requested time
     },
   ): Promise<void> {
     const now = Date.now();
@@ -179,6 +180,7 @@ export const orderService = {
       partsCost: quote.partsCost,
       totalPrice: quote.totalPrice,
       remainingBalance: Math.max(quote.totalPrice - PLATFORM_DEPOSIT, 0),
+      scheduledAt: quote.scheduledAt,
       quoteProposedAt: now,
       quoteExpiresAt: now + QUOTE_APPROVAL_WINDOW_MS,
       updatedAt: now,
@@ -188,12 +190,13 @@ export const orderService = {
   // Customer approves and books an appointment (which may be far in the future).
   // Capturing the $20 hold is done server-side by the payment Cloud Function,
   // which then sets paymentStatus → "deposit_paid" + depositCapturedAt.
-  async approveQuote(id: string, scheduledAt: number): Promise<void> {
+  // The appointment time was set by the customer at request and confirmed by the
+  // mechanic in the quote, so approval just books it — no time argument.
+  async approveQuote(id: string): Promise<void> {
     const now = Date.now();
     await updateDoc(doc(db, ORDERS, id), {
       status: "Scheduled",
       quoteApprovedAt: now,
-      scheduledAt,
       updatedAt: now,
     });
   },

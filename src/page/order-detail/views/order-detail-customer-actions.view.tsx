@@ -1,16 +1,15 @@
 // CustomerActions — the customer's status-aware actions on an order. View-tier:
-// owns the customer-only hooks + side-effects (approve with the date picker,
-// decline with confirm) and the passive "waiting" hints. The shared
-// order-detail-success view renders this only when role === "customer", so the
-// provider never mounts these hooks.
+// owns the customer-only hooks + side-effects (approve / decline with confirm)
+// and the passive "waiting" hints. The appointment time was already agreed
+// (customer requested it, mechanic confirmed it in the quote), so approval just
+// books it — no date picker here.
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { Button, Text } from "react-native-paper";
-import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 
 import { colors, fontSize, spacing } from "@/theme";
-import { formatCurrency, formatDate } from "@/utils/format";
+import { formatCurrency, formatDateTime } from "@/utils/format";
 import { PLATFORM_DEPOSIT } from "@/services/order-service";
 import type { RepairOrder } from "@/types/order.interface";
 
@@ -28,18 +27,9 @@ export const CustomerActions = ({ order }: CustomerActionsProps) => {
   const declineQuote = useDeclineQuote();
   const isBusy = approveQuote.isPending || declineQuote.isPending;
 
-  const [pickerOpen, setPickerOpen] = useState(false);
   const { customer, depositNote } = ORDER_DETAIL_COPY;
 
-  const onPickDate = useCallback(
-    (event: DateTimePickerEvent, date?: Date) => {
-      setPickerOpen(false);
-      if (event.type === "set" && date) {
-        approveQuote.mutate({ orderId: order.id, scheduledAt: date.getTime() });
-      }
-    },
-    [approveQuote, order.id],
-  );
+  const onApprove = useCallback(() => approveQuote.mutate(order.id), [approveQuote, order.id]);
 
   const onDecline = useCallback(() => {
     Alert.alert(customer.declineTitle, customer.declineBody, [
@@ -55,14 +45,14 @@ export const CustomerActions = ({ order }: CustomerActionsProps) => {
   if (order.status === "Pending") return <StatusHint text={customer.waitingMechanic} />;
   if (order.status === "Accepted") return <StatusHint text={customer.waitingQuote} />;
   if (order.status === "Scheduled" && order.scheduledAt) {
-    return <StatusHint text={customer.scheduledFor(formatDate(order.scheduledAt))} />;
+    return <StatusHint text={customer.scheduledFor(formatDateTime(order.scheduledAt))} />;
   }
 
   if (order.status === "QuoteProposed") {
     return (
       <View style={styles.actions}>
         <Text style={styles.depositNote}>{depositNote(formatCurrency(PLATFORM_DEPOSIT))}</Text>
-        <Button mode="contained" onPress={() => setPickerOpen(true)} loading={isBusy} disabled={isBusy}>
+        <Button mode="contained" onPress={onApprove} loading={isBusy} disabled={isBusy}>
           {customer.approve}
         </Button>
         <Button
@@ -74,9 +64,6 @@ export const CustomerActions = ({ order }: CustomerActionsProps) => {
         >
           {customer.decline}
         </Button>
-        {pickerOpen && (
-          <DateTimePicker value={new Date()} mode="date" minimumDate={new Date()} onChange={onPickDate} />
-        )}
       </View>
     );
   }

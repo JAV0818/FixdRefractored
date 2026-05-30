@@ -11,9 +11,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 
-import { KeyboardSafeView } from "@/components";
+import { DateTimeField, KeyboardSafeView } from "@/components";
 import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
 import { SERVICE_CATEGORIES } from "@/constants/service-categories";
+import { formatDateTime } from "@/utils/format";
 
 import { CategoryChips, FormTextField, ImagePickerGrid, StepIndicator } from "../components";
 import { useCreateOrder } from "../hooks/use-create-order";
@@ -42,7 +43,15 @@ export const QuoteRequestView = () => {
   const isSubmitting = createOrder.isPending || uploadImages.isPending;
   const submitFailed = createOrder.isError || uploadImages.isError;
 
-  const { control, handleSubmit, trigger, watch, setValue, getValues } = useForm<QuoteRequestForm>({
+  const {
+    control,
+    handleSubmit,
+    trigger,
+    watch,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm<QuoteRequestForm>({
     resolver: zodResolver(quoteRequestSchema),
     mode: "onTouched",
     defaultValues: {
@@ -185,6 +194,17 @@ export const QuoteRequestView = () => {
               label="ZIP (optional)"
               keyboardType="numeric"
             />
+            <DateTimeField
+              label="Preferred date & time"
+              value={watch("scheduledAt") ?? null}
+              onChange={(ts) => setValue("scheduledAt", ts, { shouldValidate: true })}
+              minimumDate={new Date()}
+            />
+            {errors.scheduledAt && (
+              <HelperText type="error" visible>
+                {errors.scheduledAt.message}
+              </HelperText>
+            )}
           </>
         )}
 
@@ -253,6 +273,7 @@ const ReviewSummary = ({ values, photoCount }: ReviewSummaryProps) => {
     { label: review.categories, value: values.categories.join(", ") || review.none },
     { label: review.vehicle, value: values.vehicleInfo || review.none },
     { label: review.location, value: location || review.none },
+    { label: review.when, value: values.scheduledAt ? formatDateTime(values.scheduledAt) : review.none },
     { label: review.photos, value: photoCount > 0 ? `${photoCount} attached` : review.none },
   ];
 

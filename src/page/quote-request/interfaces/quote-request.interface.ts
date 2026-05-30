@@ -18,6 +18,12 @@ export const quoteRequestSchema = z.object({
   city: z.string().trim().optional(),
   state: z.string().trim().optional(),
   zip: z.string().trim().optional(),
+  scheduledAt: z
+    .number({
+      required_error: "Pick a preferred date and time.",
+      invalid_type_error: "Pick a preferred date and time.",
+    })
+    .refine((v) => v > Date.now(), "Pick a time in the future."),
 });
 
 export type QuoteRequestForm = z.infer<typeof quoteRequestSchema>;
@@ -27,7 +33,7 @@ export type QuoteRequestForm = z.infer<typeof quoteRequestSchema>;
 export const QUOTE_STEP_FIELDS: readonly (keyof QuoteRequestForm)[][] = [
   ["description", "categories"], // Step 1 — what's wrong
   ["vehicleInfo"], // Step 2 — vehicle
-  ["address", "city", "state", "zip"], // Step 3 — location
+  ["address", "city", "state", "zip", "scheduledAt"], // Step 3 — location & timing
   [], // Step 4 — photos (no text fields to validate)
   [], // Step 5 — review
 ];

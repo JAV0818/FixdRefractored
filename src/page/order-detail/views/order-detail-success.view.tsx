@@ -8,6 +8,7 @@ import { Text } from "react-native-paper";
 import { OrderStatusBadge } from "@/components";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
+import { formatDateTime } from "@/utils/format";
 import { useAuthContext } from "@/providers/auth-provider";
 import type { RepairOrder } from "@/types/order.interface";
 
@@ -55,6 +56,12 @@ export const OrderDetailSuccessView = ({ order }: OrderDetailSuccessViewProps) =
       <DetailSection title={ORDER_DETAIL_COPY.sections.location}>
         <Text style={styles.body}>{formatLocation(order) || "—"}</Text>
       </DetailSection>
+
+      {order.scheduledAt !== null && (
+        <DetailSection title={ORDER_DETAIL_COPY.sections.when}>
+          <Text style={styles.body}>{formatDateTime(order.scheduledAt)}</Text>
+        </DetailSection>
+      )}
 
       {order.mediaUrls.length > 0 && (
         <DetailSection title={ORDER_DETAIL_COPY.sections.photos}>

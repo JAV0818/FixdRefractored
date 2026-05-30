@@ -3,12 +3,12 @@
 // than RHF; values are parsed to numbers at submit. On send → proposeQuote,
 // which moves the order to QuoteProposed and opens the approval window.
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, HelperText, Text, TextInput } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
-import { KeyboardSafeView } from "@/components";
+import { DateTimeField, KeyboardSafeView } from "@/components";
 import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
 import { formatCurrency } from "@/utils/format";
 import { useOrder } from "@/hooks/use-order";
@@ -43,6 +43,13 @@ export const QuoteBuilderView = () => {
   const [labor, setLabor] = useState("");
   const [parts, setParts] = useState("");
 
+  // Seed the appointment time with the customer's requested time once the order
+  // loads; the mechanic can then adjust it before sending the quote.
+  const [scheduledAt, setScheduledAt] = useState<number | null>(null);
+  useEffect(() => {
+    if (order && scheduledAt === null) setScheduledAt(order.scheduledAt);
+  }, [order, scheduledAt]);
+
   const updateItem = useCallback((index: number, patch: Partial<LineItemDraft>) => {
     setItems((prev) => prev.map((it, i) => (i === index ? { ...it, ...patch } : it)));
   }, []);
@@ -66,10 +73,11 @@ export const QuoteBuilderView = () => {
     [validItems, labor, parts],
   );
 
-  const canSubmit = validItems.length > 0 && total > 0 && !proposeQuote.isPending && !!orderId;
+  const canSubmit =
+    validItems.length > 0 && total > 0 && scheduledAt !== null && !proposeQuote.isPending && !!orderId;
 
   const onSubmit = useCallback(() => {
-    if (!orderId) return;
+    if (!orderId || scheduledAt === null) return;
     const orderItems: OrderItem[] = validItems.map((it) => ({
       name: it.name.trim(),
       description: null,
@@ -83,10 +91,11 @@ export const QuoteBuilderView = () => {
         laborCost: num(labor),
         partsCost: num(parts),
         totalPrice: total,
+        scheduledAt,
       },
       { onSuccess: () => router.back() },
     );
-  }, [orderId, validItems, labor, parts, total, proposeQuote, router]);
+  }, [orderId, validItems, labor, parts, total, scheduledAt, proposeQuote, router]);
 
   if (isLoading) {
     return (
@@ -111,6 +120,13 @@ export const QuoteBuilderView = () => {
         <Text style={styles.muted}>{order.description}</Text>
       </View>
       <Text style={styles.hint}>{QUOTE_BUILDER_COPY.hint}</Text>
+
+      <DateTimeField
+        label={QUOTE_BUILDER_COPY.scheduledLabel}
+        value={scheduledAt}
+        onChange={setScheduledAt}
+        minimumDate={new Date()}
+      />
 
       {items.map((item, index) => (
         <LineItemRow

@@ -6,7 +6,7 @@ export const QUOTE_REQUEST_COPY = {
   steps: [
     { title: "What's wrong?", subtitle: "Describe the issue and pick the services you need." },
     { title: "Your vehicle", subtitle: "Which vehicle is this for?" },
-    { title: "Where are you?", subtitle: "Tell us where the mechanic should meet you." },
+    { title: "Where & when?", subtitle: "Where should the mechanic meet you, and when works best?" },
     { title: "Add photos", subtitle: "Photos help mechanics quote more accurately. Optional." },
     { title: "Review & submit", subtitle: "Make sure everything looks right before you send it." },
   ],
@@ -21,6 +21,7 @@ export const QUOTE_REQUEST_COPY = {
     categories: "Services",
     vehicle: "Vehicle",
     location: "Location",
+    when: "Preferred time",
     photos: "Photos",
     none: "—",
   },

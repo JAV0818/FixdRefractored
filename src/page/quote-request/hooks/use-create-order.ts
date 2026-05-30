@@ -31,6 +31,7 @@ export const useCreateOrder = () => {
         description: form.description,
         categories: form.categories,
         vehicleInfo: form.vehicleInfo,
+        scheduledAt: form.scheduledAt,
         locationDetails: {
           address: form.address,
           city: form.city || null,

@@ -150,5 +150,8 @@ export type CreateOrderInput = {
   estimatedTotal?: number;
   locationDetails: LocationDetails;
   mediaUrls: string[];
+  // The customer's preferred appointment time, chosen at request. The mechanic
+  // can adjust it when proposing the quote; the customer approves it as-is.
+  scheduledAt: number;
   vehicleInfo: string;
 };

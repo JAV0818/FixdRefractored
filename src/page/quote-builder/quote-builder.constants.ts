@@ -3,6 +3,7 @@ export const QUOTE_BUILDER_COPY = {
   loading: "Loading order…",
   notFound: "This order no longer exists.",
   hint: "Add the work and pricing. The customer reviews this before any work begins.",
+  scheduledLabel: "Appointment time (customer's request — adjust if needed)",
   addItem: "Add line item",
   itemNamePlaceholder: "Item or service",
   pricePlaceholder: "Price",
