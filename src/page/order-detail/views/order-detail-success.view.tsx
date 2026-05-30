@@ -10,10 +10,11 @@ import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatDateTime } from "@/utils/format";
 import { useAuthContext } from "@/providers/auth-provider";
+import { useUserProfile } from "@/page/auth/hooks/use-user-profile";
 import type { RepairOrder } from "@/types/order.interface";
 
 import { ORDER_DETAIL_COPY } from "../order-detail.constants";
-import { DetailSection, PhotoGallery, QuoteSummary } from "../components";
+import { DetailSection, OrderParty, PhotoGallery, QuoteSummary } from "../components";
 import { CustomerActions } from "./order-detail-customer-actions.view";
 import { ProviderActions } from "./order-detail-provider-actions.view";
 
@@ -32,8 +33,19 @@ const formatLocation = (order: RepairOrder): string =>
     .join(", ");
 
 export const OrderDetailSuccessView = ({ order }: OrderDetailSuccessViewProps) => {
-  const { role } = useAuthContext();
+  const { role, currentUser } = useAuthContext();
   const hasQuote = order.totalPrice > 0 || order.items.length > 0;
+
+  // Show the other party — the mechanic to the customer, the customer to the
+  // mechanic. Photo/phone come from their profile (not denormalized on the
+  // order). The customer's phone is only shown to the assigned mechanic, not to
+  // every mechanic browsing the pool.
+  const isOwner = !!order.providerId && order.providerId === currentUser?.id;
+  const otherPartyId = role === "customer" ? order.providerId : order.customerId;
+  const otherParty = useUserProfile(otherPartyId ?? undefined);
+  const partyName = role === "customer" ? order.providerName : order.customerName;
+  const partyPhone =
+    role === "customer" ? (otherParty.data?.phone ?? null) : isOwner ? order.customerPhone : null;
 
   return (
     <ScrollView
@@ -45,6 +57,18 @@ export const OrderDetailSuccessView = ({ order }: OrderDetailSuccessViewProps) =
         <OrderStatusBadge status={order.status} />
         <Text style={styles.heading}>{order.vehicleInfo}</Text>
       </View>
+
+      {otherPartyId && partyName && (
+        <DetailSection
+          title={
+            role === "customer"
+              ? ORDER_DETAIL_COPY.sections.mechanic
+              : ORDER_DETAIL_COPY.sections.customer
+          }
+        >
+          <OrderParty name={partyName} photoUrl={otherParty.data?.photoUrl} phone={partyPhone} />
+        </DetailSection>
+      )}
 
       <DetailSection title={ORDER_DETAIL_COPY.sections.details}>
         <Text style={styles.body}>{order.description}</Text>

@@ -40,6 +40,22 @@ src/page/<feature>/
 
 See `guidelines/architecture.md` for the long version.
 
+## Use the skills
+
+`.agents/skills/` holds skills that bake in these conventions (naming, `memo`,
+theme tokens, the data-layer split). When a task matches one, **invoke it**
+instead of hand-rolling:
+
+| Task | Skill |
+|---|---|
+| New presentational component | `build-performant-component` |
+| New Firestore data hook (service + query/mutation) | `data-hook-firebase` |
+| New screen / feature scaffold | `scaffold-rn-project` (fresh app) or extend a feature folder |
+
+Caveat: these skills are *interactive* (they interview you), so for a small
+component added mid-feature it is often faster to follow the rules inline — which
+is exactly why the conventions also live in this file, not only in the skill.
+
 ## Navigation
 
 Routes live in `app/`, using Expo Router (file-system-based routing — same model as Next.js App Router). Route files re-export pages from `src/page/<feature>/<name>.page.tsx`. The root `_layout.tsx` enforces an auth gate that redirects between `(auth)` and `(tabs)` based on the signed-in user.
@@ -84,6 +100,30 @@ wrappers (e.g. `FormTextField` binding RHF) should wrap the shared primitive,
 not re-implement its styling.
 
 See `guidelines/styling.md`.
+
+## Re-render discipline
+
+Full rules in `guidelines/components.md`; the essentials, because they're easy to
+miss when a component is hand-written mid-feature:
+
+- **`memo` presentational `*.component.tsx` by default** — especially anything
+  rendered in a list / `.map`, or whose parent re-renders often (e.g. a screen
+  driven by a live Firestore listener). Name the inner fn: `memo(function Foo(props) { … })`.
+- **Skip `memo`** for a page/screen rendered once, **or** a component that always
+  receives new props (e.g. `children`, an inline object, an inline `onPress`) —
+  `memo` would compare, find them unequal, and re-render anyway. (That's why the
+  `AppButton` / `AppCard` wrappers that take `children` are deliberately *not* memo'd.)
+- **`useCallback` only pairs with a `memo`'d child** — otherwise it's noise.
+- **`useMemo` for expensive derived data** (filter/sort/map large arrays), not
+  cheap scalars or strings.
+- **No inline `style={{…}}` / objects in JSX** — declare a `const` above the
+  component or use `StyleSheet.create`. Inline objects get a new reference each
+  render and break a child's `memo`.
+- **Pure helpers that don't close over props/state → module-level functions**,
+  not redefined inside the component.
+
+Quick pre-merge check: `find src -name '*.component.tsx'` and eyeball any without
+`memo` against the "skip" cases above.
 
 ## TypeScript discipline
 

@@ -12,6 +12,8 @@ export const ORDER_DETAIL_COPY = {
     when: "When",
     photos: "Photos",
     quote: "Quote",
+    mechanic: "Your mechanic",
+    customer: "Customer",
   },
   customer: {
     approve: "Approve & schedule",
