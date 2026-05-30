@@ -10,20 +10,49 @@
 |---|-----------|--------|-------|
 | M1 | Foundation: Theme, Real Firebase, CometChat Init | DONE | Theme + real Firebase live. CometChat still a stub — not wired yet. |
 | M2 | Onboarding Flow | DONE | Role selection -> slides -> profile setup -> notifications. |
-| M3 | Customer: Services Tab & Quote Request | DONE | customer-home + multi-step quote-request (branch `feat/order-flow`). |
-| M4 | Customer: Requests/Orders Tab & Profile Tab | PARTIAL | Requests tab + shared order-detail done; Profile tab still a placeholder (sign-out only). |
-| M5 | Provider: Marketplace Tab & Queue Tab | PARTIAL | Marketplace (pool) + Queue (accepted jobs) + quote-builder done; inspection-checklist / custom-charge / update-status not built. |
-| M6 | Provider: Profile Tab & Performance | NOT STARTED | Depends on M5. |
-| M7 | Messaging (CometChat) | NOT STARTED | Depends on M4 + M6. |
+| M3 | Customer: Services Tab & Quote Request | DONE | customer-home + multi-step quote-request, now incl. a customer-picked appointment time. |
+| M4 | Customer: Requests/Orders Tab & Profile Tab | PARTIAL | Requests tab (live) + a rich shared order-detail (party info, photo lightbox, scheduled time, quote) done. **Still missing: Profile tab, vehicle management, account/privacy settings.** |
+| M5 | Provider: Marketplace Tab & Queue Tab | PARTIAL | Marketplace (pool) + Queue + quote-builder + accept + **start (Scheduled→InProgress) + cancel** done. **Remaining: Complete flow, inspection-checklist (`order-forms`), custom charges.** |
+| M6 | Provider: Profile Tab & Performance | NOT STARTED | Includes the mechanic photo upload — until then, avatars fall back to initials. |
+| M7 | Messaging (CometChat) | NOT STARTED | "Message" buttons currently show a "coming soon" Alert placeholder. |
 | M8 | Admin Flow | NOT STARTED | Can start after M3 + M5. |
 | M9 | Payments | NOT STARTED | Order lifecycle already models the $20 deposit hold (authorize/capture/release); Stripe not wired. |
 | M10 | Polish: Cloud Functions, Push, Security Rules | NOT STARTED | `acceptOrder` has a client-side expiry guard until the expire function exists. Firestore composite indexes created ad-hoc; `firestore.indexes.json` holds the canonical set. |
 
-> **Lifecycle note:** the order flow was reworked into an explicit quote
-> propose/approve model (`Pending → Accepted → QuoteProposed → Scheduled →
-> InProgress → Completed`, with a 24h claim window + 2-day quote-approval
-> window). See `BACKEND_DESIGN.md` and `src/types/order.interface.ts`. The M3/M5
-> notes above predate that rework.
+## Divergences & additions beyond the original plan (as of 2026-05-30)
+
+The full plan below predates several reworks. Where it and the code on `main`
+disagree, **the code wins**; the key deltas:
+
+- **Order lifecycle = explicit quote propose/approve.**
+  `Pending → Accepted → QuoteProposed → Scheduled → InProgress → Completed`, with
+  a 24h mechanic-claim window and a 2-day quote-approval window. See
+  `BACKEND_DESIGN.md` and `src/types/order.interface.ts`.
+- **Scheduling is customer-proposed.** The customer picks a preferred date+time
+  *at request*; the mechanic confirms/adjusts it in the quote-builder; the
+  customer just approves (no calendar at approval). The plan had the mechanic
+  scheduling via an `update-status` screen.
+- **Pricing is fee-on-top, not carved out.** The mechanic's line items are their
+  earnings; the flat $20 deposit is added on top for the customer's total
+  (`totalPrice = earnings + $20`).
+- **Order screens are real-time, not polled.** The Requests list and order-detail
+  stream live via Firestore `onSnapshot`; React Query still backs the provider
+  lists and all mutations.
+- **Shared UI primitives.** `AppButton` / `AppTextInput` / `AppCard` / `Avatar`
+  in `src/components/` centralize styling. See best_practices "Shared UI
+  primitives" + "Re-render discipline".
+- **Order-detail is richer than M4 scoped.** One shared customer/provider screen
+  with role-split action views, party info (avatar + name + tappable phone), a
+  photo lightbox, the scheduled time, and the quote breakdown.
+- **Messaging is stubbed.** "Message" buttons show a "coming soon" Alert; M7
+  (CometChat) is unbuilt.
+
+### Nearest remaining work
+- **Finish M5:** Complete flow (`InProgress → Completed`), inspection checklist
+  (`order-forms`), custom charges.
+- **Finish M4:** customer Profile tab, vehicle management, account/privacy.
+- **M6:** provider Profile tab (incl. photo upload — needed before mechanic
+  avatars show real images).
 
 ---
 
@@ -190,6 +219,12 @@ app/(onboarding)/
 
 **Goal:** Customer's Services tab is live — home screen, service categories, emergency banner, multi-step quote request form with image upload.
 
+> **Built as (current):** matches this plan, plus the quote-request wizard added
+> an appointment-time step (the customer picks a date+time). `storage-service.ts`
+> already existed. `order-service` also gained the quote-lifecycle methods
+> (`proposeQuote` / `approveQuote` / `declineQuote` / `acceptOrder` / `startOrder`
+> / `cancelOrder`) and live `subscribe*` (`onSnapshot`) reads.
+
 **Skills:** `build-performant-component` × 2, `data-hook-firebase` for mutations
 
 ### New Expo Router Files
@@ -233,6 +268,15 @@ app/(customer-tabs)/
 
 **Goal:** Customers can view active quotes and order history, see order detail, manage vehicles, update account.
 
+> **Built as (current):** the Requests tab is a single live `FlatList` (no
+> Active/History `SegmentedButtons` or `quotes.tsx` yet). order-detail shipped
+> with `detail-section`, `order-party`, `quote-summary`, `photo-gallery`,
+> `status-hint` — *not* the `order-info-section` / `order-timeline` /
+> `order-action-buttons` named below; role-specific actions live in
+> `order-detail-customer-actions.view` / `-provider-actions.view`. Customer
+> actions are **Approve & schedule / Decline** (not Cancel / Message / Rate yet).
+> **Profile tab, vehicle management, and account/privacy settings are not built.**
+
 **Skills:** `data-hook-firebase` × 3, `build-performant-component` × 3
 
 ### New Expo Router Files
@@ -273,6 +317,15 @@ app/(customer-tabs)/
 ## Milestone 5 — Provider: Marketplace Tab & Queue Tab
 
 **Goal:** Providers can browse available orders, accept them, manage their active queue, update status, fill inspection checklists, create custom charges.
+
+> **Built as (current):** Marketplace (pool) + Queue (the mechanic's own jobs) +
+> quote-builder + accept (atomic claim) + start (`Scheduled → InProgress`) +
+> cancel shipped. The mechanic does **not** schedule via an `update-status`
+> screen — the customer proposes the appointment time at request and the mechanic
+> confirms/adjusts it in the quote-builder. `marketplace/[orderId]` and
+> `queue/[orderId]` both reuse the shared `order-detail` (no separate
+> `request-detail.page`). **Still not built: inspection-checklist (`order-forms`),
+> custom-charge, and the Complete flow (`InProgress → Completed`).**
 
 **Skills:** `data-hook-firebase` × 3, `build-performant-component` × 3
 
