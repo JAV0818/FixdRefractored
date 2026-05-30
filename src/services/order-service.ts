@@ -23,6 +23,7 @@ import type {
   CreateOrderInput,
   OrderItem,
   OrderStatus,
+  CancellationReason,
 } from "@/types/order.interface";
 
 const ORDERS = "repair-orders";
@@ -309,6 +310,30 @@ export const orderService = {
         acceptedAt: now,
         updatedAt: now,
       });
+    });
+  },
+
+  // Mechanic starts a Scheduled job → InProgress. (Inspection order-forms are
+  // created by the M5 inspection-checklist screen, not here.)
+  async startOrder(id: string): Promise<void> {
+    const now = Date.now();
+    await updateDoc(doc(db, ORDERS, id), {
+      status: "InProgress",
+      startedAt: now,
+      updatedAt: now,
+    });
+  },
+
+  // Cancel an order. `cancelledBy` is the actor's uid; `reason` distinguishes
+  // who/why (e.g. "mechanic_cancelled", "customer_cancelled").
+  async cancelOrder(id: string, cancelledBy: string, reason: CancellationReason): Promise<void> {
+    const now = Date.now();
+    await updateDoc(doc(db, ORDERS, id), {
+      status: "Cancelled",
+      cancellationReason: reason,
+      cancelledBy,
+      cancelledAt: now,
+      updatedAt: now,
     });
   },
 };

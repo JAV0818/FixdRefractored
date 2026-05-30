@@ -1,19 +1,20 @@
 // ProviderActions — the mechanic's status-aware actions on an order. View-tier:
-// owns the provider-only hook + side-effect (accept a Pending job, navigate to
-// the quote builder). The shared order-detail-success view renders this only
-// when role === "provider", so the customer never mounts the accept hook.
+// owns the provider-only hooks + side-effects (accept, build quote, start, cancel).
+// The shared order-detail-success view renders this only when role === "provider".
 
 import { useCallback } from "react";
 import { Alert, StyleSheet, View } from "react-native";
-import { Button } from "react-native-paper";
 import { useRouter } from "expo-router";
 
+import { AppButton } from "@/components";
 import { useAuthContext } from "@/providers/auth-provider";
 import { spacing } from "@/theme";
 import type { RepairOrder } from "@/types/order.interface";
 
 import { ORDER_DETAIL_COPY } from "../order-detail.constants";
 import { useAcceptOrder } from "../hooks/use-accept-order";
+import { useStartOrder } from "../hooks/use-start-order";
+import { useCancelOrder } from "../hooks/use-cancel-order";
 import { StatusHint } from "../components";
 
 type ProviderActionsProps = {
@@ -26,11 +27,11 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
   const isOwner = !!order.providerId && order.providerId === currentUser?.id;
 
   const acceptOrder = useAcceptOrder();
+  const startOrder = useStartOrder();
+  const cancelOrder = useCancelOrder();
   const { provider } = ORDER_DETAIL_COPY;
+  const isBusy = startOrder.isPending || cancelOrder.isPending;
 
-  // Surface the claim-conflict (two mechanics race for one order): orderService
-  // .acceptOrder throws when the order is no longer Pending. The onSuccess
-  // invalidations refresh the pool so the now-claimed order drops off.
   const onAccept = useCallback(() => {
     acceptOrder.mutate(order.id, {
       onError: (error) => {
@@ -49,17 +50,36 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
     });
   }, [router, order.id]);
 
+  const onStart = useCallback(() => startOrder.mutate(order.id), [startOrder, order.id]);
+
+  // Placeholder until CometChat is wired (M7).
+  const onChat = useCallback(() => {
+    Alert.alert(provider.chat, provider.chatComingSoon);
+  }, [provider]);
+
+  const onCancel = useCallback(() => {
+    if (!currentUser) return;
+    Alert.alert(provider.cancelTitle, provider.cancelBody, [
+      { text: provider.keep, style: "cancel" },
+      {
+        text: provider.cancelConfirm,
+        style: "destructive",
+        onPress: () =>
+          cancelOrder.mutate({
+            orderId: order.id,
+            cancelledBy: currentUser.id,
+            reason: "mechanic_cancelled",
+          }),
+      },
+    ]);
+  }, [provider, cancelOrder, order.id, currentUser]);
+
   if (order.status === "Pending") {
     return (
       <View style={styles.actions}>
-        <Button
-          mode="contained"
-          onPress={onAccept}
-          loading={acceptOrder.isPending}
-          disabled={acceptOrder.isPending}
-        >
+        <AppButton onPress={onAccept} loading={acceptOrder.isPending} disabled={acceptOrder.isPending}>
           {provider.accept}
-        </Button>
+        </AppButton>
       </View>
     );
   }
@@ -67,15 +87,33 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
   if (order.status === "Accepted" && isOwner) {
     return (
       <View style={styles.actions}>
-        <Button mode="contained" onPress={onBuildQuote}>
-          {provider.buildQuote}
-        </Button>
+        <AppButton onPress={onBuildQuote}>{provider.buildQuote}</AppButton>
       </View>
     );
   }
 
   if (order.status === "QuoteProposed" && isOwner) {
     return <StatusHint text={provider.waitingApproval} />;
+  }
+
+  if (order.status === "Scheduled" && isOwner) {
+    return (
+      <View style={styles.actions}>
+        <AppButton onPress={onStart} loading={startOrder.isPending} disabled={isBusy}>
+          {provider.start}
+        </AppButton>
+        <AppButton variant="secondary" onPress={onChat} disabled={isBusy}>
+          {provider.chat}
+        </AppButton>
+        <AppButton variant="danger" onPress={onCancel} disabled={isBusy}>
+          {provider.cancel}
+        </AppButton>
+      </View>
+    );
+  }
+
+  if (order.status === "InProgress" && isOwner) {
+    return <StatusHint text={provider.inProgress} />;
   }
 
   return null;

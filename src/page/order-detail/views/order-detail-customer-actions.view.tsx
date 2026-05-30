@@ -6,8 +6,9 @@
 
 import { useCallback } from "react";
 import { Alert, StyleSheet, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
 
+import { AppButton } from "@/components";
 import { colors, fontSize, spacing } from "@/theme";
 import { formatCurrency, formatDateTime } from "@/utils/format";
 import { PLATFORM_DEPOSIT } from "@/services/order-service";
@@ -52,18 +53,12 @@ export const CustomerActions = ({ order }: CustomerActionsProps) => {
     return (
       <View style={styles.actions}>
         <Text style={styles.depositNote}>{depositNote(formatCurrency(PLATFORM_DEPOSIT))}</Text>
-        <Button mode="contained" onPress={onApprove} loading={isBusy} disabled={isBusy}>
+        <AppButton onPress={onApprove} loading={isBusy} disabled={isBusy}>
           {customer.approve}
-        </Button>
-        <Button
-          mode="contained"
-          onPress={onDecline}
-          disabled={isBusy}
-          buttonColor={colors.danger}
-          textColor={colors.onPrimary}
-        >
+        </AppButton>
+        <AppButton variant="danger" onPress={onDecline} disabled={isBusy}>
           {customer.decline}
-        </Button>
+        </AppButton>
       </View>
     );
   }
