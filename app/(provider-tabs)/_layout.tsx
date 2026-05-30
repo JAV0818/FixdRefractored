@@ -16,7 +16,7 @@ export default function ProviderTabsLayout() {
       screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen
-        name="index"
+        name="marketplace"
         options={{
           title: "Marketplace",
           tabBarIcon: tabIcon("briefcase", "briefcase-outline"),

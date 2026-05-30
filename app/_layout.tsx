@@ -69,7 +69,7 @@ const InitialLayout = () => {
     if (role === "customer" && !inCustomer) {
       router.replace("/(customer-tabs)/services");
     } else if (role === "provider" && !inProvider) {
-      router.replace("/(provider-tabs)");
+      router.replace("/(provider-tabs)/marketplace");
     } else if (role === "owner" && !inAdmin) {
       router.replace("/(admin-tabs)");
     }
