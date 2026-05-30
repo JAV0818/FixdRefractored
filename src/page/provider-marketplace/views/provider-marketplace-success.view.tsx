@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
 import { useRouter } from "expo-router";
 
-import { OrderListItem } from "@/components";
+import { AppButton, OrderListItem } from "@/components";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatCurrency, formatDate } from "@/utils/format";
@@ -74,9 +74,9 @@ export const ProviderMarketplaceSuccessView = ({ orders }: ProviderMarketplaceSu
       )}
       ListFooterComponent={
         hasMore ? (
-          <Button mode="outlined" onPress={showMore} style={styles.loadMore}>
+          <AppButton variant="secondary" onPress={showMore} style={styles.loadMore}>
             {PROVIDER_MARKETPLACE_COPY.loadMore}
-          </Button>
+          </AppButton>
         ) : null
       }
     />

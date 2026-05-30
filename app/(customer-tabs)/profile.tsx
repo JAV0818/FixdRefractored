@@ -1,6 +1,9 @@
 import { View, StyleSheet } from "react-native";
-import { Text, Button } from "react-native-paper";
+import { Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { AppButton } from "@/components";
+
 import { colors, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { useSignOut } from "@/page/auth/hooks/use-sign-out";
@@ -13,8 +16,7 @@ export default function CustomerProfileScreen() {
       <View style={styles.center}>
         <Text variant="headlineMedium" style={styles.title}>Profile</Text>
         <Text variant="bodyMedium" style={styles.sub}>Coming in M4</Text>
-        <Button
-          mode="contained"
+        <AppButton
           icon="logout"
           onPress={() => signOut.mutate()}
           loading={signOut.isPending}
@@ -22,7 +24,7 @@ export default function CustomerProfileScreen() {
           style={styles.signOut}
         >
           Sign Out
-        </Button>
+        </AppButton>
       </View>
     </SafeAreaView>
   );

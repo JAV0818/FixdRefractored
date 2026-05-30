@@ -1,5 +1,7 @@
 import { StyleSheet, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
+
+import { AppButton } from "@/components";
 
 import { AUTH_COPY } from "../auth.constants";
 import { spacing } from "@/theme";
@@ -14,9 +16,9 @@ export const WelcomeErrorView = ({ onRetry }: WelcomeErrorViewProps) => (
     <Text variant="bodyMedium" style={styles.message}>
       {AUTH_COPY.welcome.bodyError}
     </Text>
-    <Button mode="contained" onPress={onRetry}>
+    <AppButton onPress={onRetry}>
       {AUTH_COPY.welcome.retry}
-    </Button>
+    </AppButton>
   </View>
 );
 

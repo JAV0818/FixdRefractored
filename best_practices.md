@@ -61,6 +61,28 @@ See `guidelines/state.md`.
 - Paper components first, falling back to RN primitives wrapped in styled `<View>`.
 - One `<name>.styles.ts` per component (when styles are non-trivial).
 
+### Shared UI primitives — use these, never re-style
+
+If you find yourself setting `mode`, `buttonColor`, `textColor`, `outlineColor`,
+or a `backgroundColor: colors.surface` + radius + padding on a Paper primitive
+**inline**, stop — use the shared primitive below instead. A primitive's look
+lives in **one** place so it can't drift between screens (the reason the
+customer's Decline and the provider's Cancel once looked different).
+
+| Need | Use (`@/components`) | Variants / notes |
+|---|---|---|
+| Button | `AppButton` | `variant`: `primary` \| `secondary` \| `danger` |
+| Text field | `AppTextInput` | outlined + brand colors; optional `error` string |
+| Card / surface | `AppCard` | white surface + radius + padding |
+| Date + time picker | `DateTimeField` | |
+| Order status pill | `OrderStatusBadge` | |
+| Order list row | `OrderListItem` | |
+
+Need a new look? **Add a variant** to the primitive (e.g. a new `AppButton`
+variant) rather than overriding its props at the call site. Feature-scoped
+wrappers (e.g. `FormTextField` binding RHF) should wrap the shared primitive,
+not re-implement its styling.
+
 See `guidelines/styling.md`.
 
 ## TypeScript discipline

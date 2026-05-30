@@ -1,12 +1,14 @@
-// AuthButton — primary action button with loading/disabled support.
+// AuthButton — primary auth action button with loading/disabled support.
+// Wraps the shared AppButton (which owns the styling) and adds the auth form's
+// top spacing.
 //
-// Dumb component: props in, events out. Wrapped in memo because auth
-// flows re-render their forms on every keystroke; we don't need the
-// submit button re-rendering with them.
+// Dumb component: props in, events out. Wrapped in memo because auth flows
+// re-render their forms on every keystroke; we don't need the submit button
+// re-rendering with them.
 
 import { memo } from "react";
-import { Button } from "react-native-paper";
 
+import { AppButton } from "@/components";
 import { spacing } from "@/theme";
 
 const buttonStyle = { marginTop: spacing.sm };
@@ -25,14 +27,13 @@ export const AuthButton = memo(function AuthButton({
   onPress,
 }: AuthButtonProps) {
   return (
-    <Button
-      mode="contained"
+    <AppButton
       loading={isLoading}
       disabled={disabled || isLoading}
       onPress={onPress}
       style={buttonStyle}
     >
       {label}
-    </Button>
+    </AppButton>
   );
 });

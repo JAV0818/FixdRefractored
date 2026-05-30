@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
 import { useRouter } from "expo-router";
 
-import { OrderListItem } from "@/components";
+import { AppButton, OrderListItem } from "@/components";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatCurrency, formatDate } from "@/utils/format";
@@ -39,9 +39,9 @@ export const CustomerRequestsSuccessView = ({ orders }: CustomerRequestsSuccessV
       <View style={styles.empty}>
         <Text style={styles.emptyTitle}>{CUSTOMER_REQUESTS_COPY.emptyTitle}</Text>
         <Text style={styles.emptyBody}>{CUSTOMER_REQUESTS_COPY.emptyBody}</Text>
-        <Button mode="contained" onPress={() => router.push("/(customer-tabs)/services")}>
+        <AppButton onPress={() => router.push("/(customer-tabs)/services")}>
           Browse services
-        </Button>
+        </AppButton>
       </View>
     );
   }

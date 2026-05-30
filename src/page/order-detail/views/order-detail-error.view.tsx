@@ -1,5 +1,7 @@
 import { StyleSheet, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
+
+import { AppButton } from "@/components";
 
 import { colors, spacing } from "@/theme";
 
@@ -19,9 +21,9 @@ export const OrderDetailErrorView = ({ message, onRetry }: OrderDetailErrorViewP
       {message ?? ORDER_DETAIL_COPY.error}
     </Text>
     {onRetry && (
-      <Button mode="contained" onPress={onRetry}>
+      <AppButton onPress={onRetry}>
         {ORDER_DETAIL_COPY.retry}
-      </Button>
+      </AppButton>
     )}
   </View>
 );

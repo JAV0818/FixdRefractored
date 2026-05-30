@@ -2,10 +2,11 @@
 // renders a heading + whatever content the view passes as children.
 
 import { memo, type ReactNode } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
 
-import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
+import { AppCard } from "@/components";
+import { colors, fontSize, fontWeight } from "@/theme";
 
 type DetailSectionProps = {
   title: string;
@@ -14,20 +15,14 @@ type DetailSectionProps = {
 
 export const DetailSection = memo(function DetailSection({ title, children }: DetailSectionProps) {
   return (
-    <View style={styles.section}>
+    <AppCard>
       <Text style={styles.title}>{title}</Text>
       {children}
-    </View>
+    </AppCard>
   );
 });
 
 const styles = StyleSheet.create({
-  section: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    padding: spacing.lg,
-    gap: spacing.sm,
-  },
   title: {
     fontSize: fontSize.xs,
     fontWeight: fontWeight.semibold,

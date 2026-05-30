@@ -1,9 +1,10 @@
 import { useCallback } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import { useRouter } from "expo-router";
 
-import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
+import { AppButton, AppCard } from "@/components";
+import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { categoriesByGroup, type ServiceCategory } from "@/constants/service-categories";
 import { useAuthContext } from "@/providers/auth-provider";
@@ -70,13 +71,11 @@ export const CustomerHomeSuccessView = ({ profile }: CustomerHomeSuccessViewProp
         onPress={openWithCategory}
       />
 
-      <View style={styles.cta}>
+      <AppCard>
         <Text style={styles.ctaTitle}>{CUSTOMER_HOME_COPY.ctaTitle}</Text>
         <Text style={styles.ctaSubtitle}>{CUSTOMER_HOME_COPY.ctaSubtitle}</Text>
-        <TouchableOpacity style={styles.ctaButton} activeOpacity={0.85} onPress={openQuoteRequest}>
-          <Text style={styles.ctaButtonLabel}>{CUSTOMER_HOME_COPY.ctaButton}</Text>
-        </TouchableOpacity>
-      </View>
+        <AppButton onPress={openQuoteRequest}>{CUSTOMER_HOME_COPY.ctaButton}</AppButton>
+      </AppCard>
     </ScrollView>
   );
 };
@@ -140,12 +139,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xs,
   },
-  cta: {
-    padding: spacing.lg,
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    gap: spacing.sm,
-  },
   ctaTitle: {
     fontSize: fontSize.lg,
     fontWeight: fontWeight.bold,
@@ -155,17 +148,5 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textSecondary,
     lineHeight: 20,
-  },
-  ctaButton: {
-    marginTop: spacing.sm,
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.md,
-    borderRadius: radii.lg,
-    alignItems: "center",
-  },
-  ctaButtonLabel: {
-    color: colors.onPrimary,
-    fontSize: fontSize.base,
-    fontWeight: fontWeight.bold,
   },
 });

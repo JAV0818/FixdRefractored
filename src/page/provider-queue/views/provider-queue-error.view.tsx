@@ -1,5 +1,7 @@
 import { StyleSheet, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
+
+import { AppButton } from "@/components";
 
 import { colors, spacing } from "@/theme";
 
@@ -15,9 +17,9 @@ export const ProviderQueueErrorView = ({ onRetry }: Props) => (
     <Text variant="bodyMedium" style={styles.message}>
       {PROVIDER_QUEUE_COPY.error}
     </Text>
-    <Button mode="contained" onPress={onRetry}>
+    <AppButton onPress={onRetry}>
       {PROVIDER_QUEUE_COPY.retry}
-    </Button>
+    </AppButton>
   </View>
 );
 

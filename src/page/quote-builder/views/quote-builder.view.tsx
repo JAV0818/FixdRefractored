@@ -5,10 +5,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { ActivityIndicator, Button, HelperText, Text } from "react-native-paper";
+import { ActivityIndicator, HelperText, Text } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
-import { DateTimeField, KeyboardSafeView } from "@/components";
+import { AppButton, DateTimeField, KeyboardSafeView } from "@/components";
 import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatCurrency } from "@/utils/format";
@@ -139,9 +139,9 @@ export const QuoteBuilderView = () => {
         />
       ))}
 
-      <Button mode="outlined" icon="plus" onPress={addItem}>
+      <AppButton variant="secondary" icon="plus" onPress={addItem}>
         {QUOTE_BUILDER_COPY.addItem}
-      </Button>
+      </AppButton>
 
       <View style={styles.summary}>
         <View style={styles.summaryRow}>
@@ -165,14 +165,9 @@ export const QuoteBuilderView = () => {
         </HelperText>
       )}
 
-      <Button
-        mode="contained"
-        onPress={onSubmit}
-        loading={proposeQuote.isPending}
-        disabled={!canSubmit}
-      >
+      <AppButton onPress={onSubmit} loading={proposeQuote.isPending} disabled={!canSubmit}>
         {proposeQuote.isPending ? QUOTE_BUILDER_COPY.submitting : QUOTE_BUILDER_COPY.submit}
-      </Button>
+      </AppButton>
     </KeyboardSafeView>
   );
 };

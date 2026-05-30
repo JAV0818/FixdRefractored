@@ -5,13 +5,13 @@
 
 import { useCallback, useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
-import { Button, HelperText, Text } from "react-native-paper";
+import { HelperText, Text } from "react-native-paper";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 
-import { DateTimeField, KeyboardSafeView } from "@/components";
+import { AppButton, DateTimeField, KeyboardSafeView } from "@/components";
 import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
 import { SERVICE_CATEGORIES } from "@/constants/service-categories";
 import { formatDateTime } from "@/utils/format";
@@ -235,16 +235,10 @@ export const QuoteRequestView = () => {
       )}
 
       <View style={styles.footer}>
-        <Button
-          mode="text"
-          onPress={goBack}
-          disabled={isSubmitting}
-          textColor={colors.textSecondary}
-        >
+        <AppButton variant="tertiary" onPress={goBack} disabled={isSubmitting}>
           {QUOTE_REQUEST_COPY.back}
-        </Button>
-        <Button
-          mode="contained"
+        </AppButton>
+        <AppButton
           onPress={goNext}
           loading={isSubmitting}
           disabled={isSubmitting}
@@ -255,7 +249,7 @@ export const QuoteRequestView = () => {
             : isSubmitting
               ? QUOTE_REQUEST_COPY.submitting
               : QUOTE_REQUEST_COPY.submit}
-        </Button>
+        </AppButton>
       </View>
     </KeyboardSafeView>
   );

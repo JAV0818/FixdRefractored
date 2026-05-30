@@ -1,11 +1,12 @@
-// AuthInput — labeled text input with optional inline error helper.
+// AuthInput — labeled auth text field. Wraps the shared AppTextInput (which
+// owns the input styling) and adds the auth form's bottom spacing.
 //
 // Dumb component: props in, events out. No data fetching, no services.
 
 import { memo } from "react";
 import { View } from "react-native";
-import { HelperText, TextInput } from "react-native-paper";
 
+import { AppTextInput } from "@/components";
 import { spacing } from "@/theme";
 
 const containerStyle = { marginBottom: spacing.sm };
@@ -31,17 +32,15 @@ export const AuthInput = memo(function AuthInput({
 }: AuthInputProps) {
   return (
     <View style={containerStyle}>
-      <TextInput
-        mode="outlined"
+      <AppTextInput
         label={label}
         value={value}
         onChangeText={onChangeText}
         autoCapitalize={autoCapitalize}
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
-        error={!!error}
+        error={error}
       />
-      {error ? <HelperText type="error">{error}</HelperText> : null}
     </View>
   );
 });

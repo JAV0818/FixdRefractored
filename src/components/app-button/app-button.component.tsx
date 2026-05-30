@@ -11,7 +11,7 @@ import { colors } from "@/theme";
 
 type PaperButtonProps = ComponentProps<typeof Button>;
 
-export type AppButtonVariant = "primary" | "secondary" | "danger";
+export type AppButtonVariant = "primary" | "secondary" | "danger" | "tertiary";
 
 type AppButtonProps = Omit<PaperButtonProps, "mode" | "buttonColor" | "textColor"> & {
   variant?: AppButtonVariant;
@@ -19,7 +19,7 @@ type AppButtonProps = Omit<PaperButtonProps, "mode" | "buttonColor" | "textColor
 
 const VARIANTS: Record<
   AppButtonVariant,
-  { mode: PaperButtonProps["mode"]; buttonColor: string; textColor: string; bordered?: boolean }
+  { mode: PaperButtonProps["mode"]; buttonColor?: string; textColor: string; bordered?: boolean }
 > = {
   // Filled purple — the default, highest-emphasis action.
   primary: { mode: "contained", buttonColor: colors.primary, textColor: colors.onPrimary },
@@ -27,6 +27,8 @@ const VARIANTS: Record<
   secondary: { mode: "contained", buttonColor: colors.surface, textColor: colors.primary, bordered: true },
   // Filled red with white text — destructive actions (cancel / decline).
   danger: { mode: "contained", buttonColor: colors.danger, textColor: colors.onPrimary },
+  // Text-only, muted — lowest-emphasis (Back, dismiss).
+  tertiary: { mode: "text", textColor: colors.textSecondary },
 };
 
 export const AppButton = ({ variant = "primary", style, ...props }: AppButtonProps) => {
