@@ -69,6 +69,7 @@ See `guidelines/styling.md`.
 - Prefer `type` over `interface` for object shapes.
 - Use `import type { Foo }` for type-only imports.
 - No `any` without a comment.
+- **Order object-type members alphabetically.** For small/flat types, sort every member A–Z. For large domain types, keep the labeled logical groups (e.g. `RepairOrder`'s Parties / Pricing / Timestamps) and sort members A–Z *within* each group. A new field goes in its alphabetical slot — never appended to the end.
 
 ## Imports
 

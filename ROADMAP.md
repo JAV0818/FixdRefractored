@@ -8,16 +8,33 @@
 
 | # | Milestone | Status | Notes |
 |---|-----------|--------|-------|
-| M1 | Foundation: Theme, Real Firebase, CometChat Init | DONE (commit 17ffd4f) | Verify CometChat is fully wired vs still a stub. |
-| M2 | Onboarding Flow | NOT STARTED | Role selection -> slides -> profile setup -> notifications. |
-| M3 | Customer: Services Tab & Quote Request | NOT STARTED | Depends on M2. |
-| M4 | Customer: Requests/Orders Tab & Profile Tab | NOT STARTED | Depends on M3. |
-| M5 | Provider: Marketplace Tab & Queue Tab | NOT STARTED | Depends on M3. |
+| M1 | Foundation: Theme, Real Firebase, CometChat Init | DONE | Theme + real Firebase live. CometChat still a stub — not wired yet. |
+| M2 | Onboarding Flow | DONE | Role selection -> slides -> profile setup -> notifications. |
+| M3 | Customer: Services Tab & Quote Request | DONE | customer-home + multi-step quote-request (branch `feat/order-flow`). |
+| M4 | Customer: Requests/Orders Tab & Profile Tab | PARTIAL | Requests tab + shared order-detail done; Profile tab still a placeholder (sign-out only). |
+| M5 | Provider: Marketplace Tab & Queue Tab | PARTIAL | Marketplace (pool) + Queue (accepted jobs) + quote-builder done; inspection-checklist / custom-charge / update-status not built. |
 | M6 | Provider: Profile Tab & Performance | NOT STARTED | Depends on M5. |
 | M7 | Messaging (CometChat) | NOT STARTED | Depends on M4 + M6. |
 | M8 | Admin Flow | NOT STARTED | Can start after M3 + M5. |
-| M9 | Payments | NOT STARTED | Depends on M4 + M5. |
-| M10 | Polish: Cloud Functions, Push, Security Rules | NOT STARTED | Last — after everything. |
+| M9 | Payments | NOT STARTED | Order lifecycle already models the $20 deposit hold (authorize/capture/release); Stripe not wired. |
+| M10 | Polish: Cloud Functions, Push, Security Rules | NOT STARTED | `acceptOrder` has a client-side expiry guard until the expire function exists. Firestore composite indexes created ad-hoc; `firestore.indexes.json` holds the canonical set. |
+
+> **Lifecycle note:** the order flow was reworked into an explicit quote
+> propose/approve model (`Pending → Accepted → QuoteProposed → Scheduled →
+> InProgress → Completed`, with a 24h claim window + 2-day quote-approval
+> window). See `BACKEND_DESIGN.md` and `src/types/order.interface.ts`. The M3/M5
+> notes above predate that rework.
+
+---
+
+## Cross-cutting follow-ups (revisit)
+
+- **Empty-state UX.** Standardize how pages render when a fetch returns nothing
+  (empty array / missing doc) vs. loading vs. error. Today each success view
+  handles its own empty case inline; we want one consistent empty-state pattern
+  (illustration + copy + CTA) reused across Requests, Queue, the mechanic pool,
+  messages, etc. Make sure "loaded but empty" never looks like a broken/loading
+  screen.
 
 ---
 

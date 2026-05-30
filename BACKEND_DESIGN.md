@@ -7,6 +7,7 @@
 ---
 
 ## Table of Contents
+
 1. [User Roles & Hierarchy](#1-user-roles--hierarchy)
 2. [Firestore Collections Schema](#2-firestore-collections-schema)
 3. [Order Lifecycle & States](#3-order-lifecycle--states)
@@ -24,13 +25,14 @@
 
 ### Role Definitions
 
-| Role | Description | Access Level |
-|------|-------------|--------------|
-| **Customer** | End users who request vehicle services | Limited to own data |
-| **Mechanic** (Provider) | Service providers who fulfill orders | Access to assigned/available orders |
-| **Owner** | Platform owner with full administrative control | Full system access |
+| Role                    | Description                                     | Access Level                        |
+| ----------------------- | ----------------------------------------------- | ----------------------------------- |
+| **Customer**            | End users who request vehicle services          | Limited to own data                 |
+| **Mechanic** (Provider) | Service providers who fulfill orders            | Access to assigned/available orders |
+| **Owner**               | Platform owner with full administrative control | Full system access                  |
 
 ### Role Hierarchy
+
 ```
 Owner (Super Admin)
     ├── Can manage all mechanics
@@ -65,21 +67,21 @@ users/{userId}
   lastName: string | null,
   phone: string | null,
   photoUrl: string | null,
-  
+
   // Role & Status
   role: "customer" | "provider" | "owner",
   isActive: boolean,                    // Account enabled/disabled
-  
+
   // Timestamps
   createdAt: Timestamp,
   updatedAt: Timestamp,
   lastLoginAt: Timestamp,
-  
+
   // Customer-specific fields
   completedOrdersCount: number,         // Incremented on order completion
   averageRating: number | null,         // Average rating received (1-5)
   totalRatingsCount: number,
-  
+
   // Mechanic-specific fields (when role === "provider")
   providerProfile: {
     bio: string,
@@ -92,14 +94,14 @@ users/{userId}
     totalJobsCompleted: number,
     totalEarnings: number,              // Lifetime earnings
   } | null,
-  
+
   // Settings & Preferences
   notificationPreferences: {
     pushEnabled: boolean,
     emailEnabled: boolean,
     smsEnabled: boolean,
   },
-  
+
   // FCM Token for push notifications
   fcmToken: string | null,
 }
@@ -113,7 +115,7 @@ repair-orders/{orderId}
   // Order Identity
   orderType: "standard" | "custom_quote",
   status: OrderStatus,                  // See Order States below
-  
+
   // Parties
   customerId: string,                   // User ID of customer
   customerName: string,                 // Denormalized for display
@@ -121,12 +123,12 @@ repair-orders/{orderId}
   providerId: string | null,            // Assigned mechanic (null = unassigned)
   providerName: string | null,          // Denormalized for display
   assignedBy: string | null,            // Owner ID if manually assigned
-  
+
   // Service Details
   description: string,
   categories: string[],                 // ["Oil Change", "Diagnostics"]
   vehicleInfo: string,                  // "2020 Toyota Camry"
-  
+
   // Location
   locationDetails: {
     address: string,
@@ -135,7 +137,7 @@ repair-orders/{orderId}
     zip: string | null,
     coordinates: GeoPoint | null,       // For distance calculations
   },
-  
+
   // Pricing (for custom quotes)
   items: [
     {
@@ -151,10 +153,10 @@ repair-orders/{orderId}
   depositAmount: 20,                    // FIXED $20 platform fee (always $20)
   depositPaid: boolean,
   remainingBalance: number,             // totalPrice - 20 (goes to mechanic)
-  
+
   // Media
   mediaUrls: string[],                  // Customer-uploaded photos
-  
+
   // Timestamps
   createdAt: Timestamp,
   updatedAt: Timestamp,
@@ -164,16 +166,16 @@ repair-orders/{orderId}
   startedAt: Timestamp | null,
   completedAt: Timestamp | null,
   cancelledAt: Timestamp | null,
-  
+
   // Cancellation
   cancellationReason: string | null,
   cancelledBy: string | null,           // userId who cancelled
-  
+
   // Payment
   paymentMethod: "stripe" | "cash" | null,
   paymentStatus: "pending" | "deposit_paid" | "paid" | "refunded",
   stripePaymentIntentId: string | null,
-  
+
   // Rating (after completion)
   customerRating: number | null,        // 1-5 stars
   customerReview: string | null,
@@ -188,7 +190,7 @@ order-forms/{formId}
 {
   orderId: string,                      // Reference to repair-orders
   providerId: string,                   // Mechanic who filled it
-  
+
   // Pre-service checklist
   preServiceChecklist: {
     vehicleConditionNotes: string,
@@ -198,7 +200,7 @@ order-forms/{formId}
     customerSignature: string | null,   // Base64 or URL
     photos: string[],                   // Before photos
   },
-  
+
   // Work performed
   workPerformed: [
     {
@@ -208,7 +210,7 @@ order-forms/{formId}
       timeSpent: number,                // minutes
     }
   ],
-  
+
   // Post-service
   postServiceChecklist: {
     testDriveCompleted: boolean,
@@ -217,7 +219,7 @@ order-forms/{formId}
     photos: string[],                   // After photos
     customerSignature: string | null,
   },
-  
+
   // Timestamps
   createdAt: Timestamp,
   updatedAt: Timestamp,
@@ -233,11 +235,11 @@ chats/{chatId}
   orderId: string,
   participants: string[],               // [customerId, providerId]
   type: "pre_acceptance" | "active_order",
-  
+
   createdAt: Timestamp,
   lastMessageAt: Timestamp,
   lastMessage: string,                  // Preview text
-  
+
   // Unread counts per user
   unreadCount: {
     [userId]: number,
@@ -252,7 +254,7 @@ chats/{chatId}/messages/{messageId}
   text: string,
   attachmentUrl: string | null,
   attachmentType: "image" | "document" | null,
-  
+
   createdAt: Timestamp,
   readBy: string[],                     // User IDs who have read
 }
@@ -266,24 +268,24 @@ transactions/{transactionId}
   orderId: string,
   customerId: string,
   providerId: string | null,
-  
+
   type: "deposit" | "final_payment" | "refund",
   amount: number,
   method: "stripe" | "cash",
-  
+
   // Stripe details (if applicable)
   stripePaymentIntentId: string | null,
   stripeChargeId: string | null,
-  
+
   // Distribution
   platformFee: 20,                      // FIXED $20 owner's cut (deposit = platform fee)
   providerEarnings: number,             // Mechanic's cut (totalPrice - 20)
-  
+
   status: "pending" | "completed" | "failed" | "refunded",
-  
+
   createdAt: Timestamp,
   completedAt: Timestamp | null,
-  
+
   notes: string | null,
 }
 ```
@@ -298,11 +300,11 @@ analytics/daily/{date}                  // e.g., "2026-01-10"
   cancelledOrders: number,
   totalRevenue: number,
   platformFees: number,
-  
+
   ordersByCategory: {
     [category]: number,
   },
-  
+
   ordersByMechanic: {
     [providerId]: {
       completed: number,
@@ -370,15 +372,15 @@ analytics/mechanics/{providerId}
 
 ### Status Definitions
 
-| Status | Description | Actions Available |
-|--------|-------------|-------------------|
-| `Pending` | New order, awaiting mechanic | Customer: Cancel, Edit; Mechanic: Accept, Chat |
-| `Expired` | 24 hours passed, auto-expired | Customer: Resubmit; Mechanic: None |
-| `Accepted` | Mechanic accepted the job | Customer: Chat, Cancel (fees may apply); Mechanic: Schedule, Chat |
-| `Scheduled` | Date/time confirmed | Customer: Chat; Mechanic: Start, Chat |
-| `InProgress` | Work has begun | Customer: Chat; Mechanic: Complete, Fill Forms, Chat |
-| `Completed` | Work finished, payment collected | Customer: Rate, Chat (view only); Mechanic: View Forms |
-| `Cancelled` | Order cancelled | View only for both parties |
+| Status       | Description                      | Actions Available                                                 |
+| ------------ | -------------------------------- | ----------------------------------------------------------------- |
+| `Pending`    | New order, awaiting mechanic     | Customer: Cancel, Edit; Mechanic: Accept, Chat                    |
+| `Expired`    | 24 hours passed, auto-expired    | Customer: Resubmit; Mechanic: None                                |
+| `Accepted`   | Mechanic accepted the job        | Customer: Chat, Cancel (fees may apply); Mechanic: Schedule, Chat |
+| `Scheduled`  | Date/time confirmed              | Customer: Chat; Mechanic: Start, Chat                             |
+| `InProgress` | Work has begun                   | Customer: Chat; Mechanic: Complete, Fill Forms, Chat              |
+| `Completed`  | Work finished, payment collected | Customer: Rate, Chat (view only); Mechanic: View Forms            |
+| `Cancelled`  | Order cancelled                  | View only for both parties                                        |
 
 ### Expiration Logic
 
@@ -392,47 +394,47 @@ analytics/mechanics/{providerId}
 
 ### 4.1 Customer Features
 
-| Feature | Screen | Backend Requirements |
-|---------|--------|---------------------|
-| Create Order | CustomQuoteRequestForm | Write to `repair-orders`, upload to Storage |
-| View Orders | OrdersScreen | Query `repair-orders` where `customerId == uid` |
-| View Order Details | OrderDetailScreen | Read single `repair-orders` doc |
-| Accept/Decline Quote | CustomerQuotesScreen | Update `repair-orders` status |
-| Chat with Mechanic | ChatScreen | Read/Write `chats` subcollection |
-| Make Deposit | PaymentScreen | Stripe integration, create `transaction` |
-| Rate Mechanic | RatingModal | Update `repair-orders`, update mechanic's avg rating |
-| View Profile Stats | ProfileScreen | Read own `users` doc (completedOrdersCount, etc.) |
-| View Service Schedule | ServiceScheduleScreen | Query `repair-orders` where `status in [Scheduled, Completed]` |
-| Privacy Settings | PrivacySettingsScreen | Update `users` preferences |
+| Feature               | Screen                 | Backend Requirements                                           |
+| --------------------- | ---------------------- | -------------------------------------------------------------- |
+| Create Order          | CustomQuoteRequestForm | Write to `repair-orders`, upload to Storage                    |
+| View Orders           | OrdersScreen           | Query `repair-orders` where `customerId == uid`                |
+| View Order Details    | OrderDetailScreen      | Read single `repair-orders` doc                                |
+| Accept/Decline Quote  | CustomerQuotesScreen   | Update `repair-orders` status                                  |
+| Chat with Mechanic    | ChatScreen             | Read/Write `chats` subcollection                               |
+| Make Deposit          | PaymentScreen          | Stripe integration, create `transaction`                       |
+| Rate Mechanic         | RatingModal            | Update `repair-orders`, update mechanic's avg rating           |
+| View Profile Stats    | ProfileScreen          | Read own `users` doc (completedOrdersCount, etc.)              |
+| View Service Schedule | ServiceScheduleScreen  | Query `repair-orders` where `status in [Scheduled, Completed]` |
+| Privacy Settings      | PrivacySettingsScreen  | Update `users` preferences                                     |
 
 ### 4.2 Mechanic Features
 
-| Feature | Screen | Backend Requirements |
-|---------|--------|---------------------|
-| View Available Orders | RequestsScreen | Query `repair-orders` where `providerId == null && status == Pending` |
-| View Assigned Orders | RepairOrdersScreen | Query `repair-orders` where `providerId == uid` |
-| Accept Order | RequestDetailScreen | Update `repair-orders.providerId`, `status` |
-| Create Custom Quote | CreateCustomChargeScreen | Write to `repair-orders` with `orderType: 'custom_quote'` |
-| Pre-Order Chat | PreAcceptanceChatScreen | Write to `chats` with type `pre_acceptance` |
-| Schedule Order | UpdateStatusScreen | Update `repair-orders.scheduledAt` |
-| Start Order | RequestStartScreen | Update status to `InProgress`, create `order-forms` |
-| Fill Work Forms | InspectionChecklistScreen | Write to `order-forms` |
-| Complete Order | - | Update status, trigger payment collection |
-| Collect Payment | PaymentCollectionModal | Create `transaction`, update `repair-orders.paymentStatus` |
-| View Earnings | PerformanceDetailsScreen | Query `transactions` where `providerId == uid` |
+| Feature               | Screen                    | Backend Requirements                                                  |
+| --------------------- | ------------------------- | --------------------------------------------------------------------- |
+| View Available Orders | RequestsScreen            | Query `repair-orders` where `providerId == null && status == Pending` |
+| View Assigned Orders  | RepairOrdersScreen        | Query `repair-orders` where `providerId == uid`                       |
+| Accept Order          | RequestDetailScreen       | Update `repair-orders.providerId`, `status`                           |
+| Create Custom Quote   | CreateCustomChargeScreen  | Write to `repair-orders` with `orderType: 'custom_quote'`             |
+| Pre-Order Chat        | PreAcceptanceChatScreen   | Write to `chats` with type `pre_acceptance`                           |
+| Schedule Order        | UpdateStatusScreen        | Update `repair-orders.scheduledAt`                                    |
+| Start Order           | RequestStartScreen        | Update status to `InProgress`, create `order-forms`                   |
+| Fill Work Forms       | InspectionChecklistScreen | Write to `order-forms`                                                |
+| Complete Order        | -                         | Update status, trigger payment collection                             |
+| Collect Payment       | PaymentCollectionModal    | Create `transaction`, update `repair-orders.paymentStatus`            |
+| View Earnings         | PerformanceDetailsScreen  | Query `transactions` where `providerId == uid`                        |
 
 ### 4.3 Owner Features
 
-| Feature | Screen | Backend Requirements |
-|---------|--------|---------------------|
-| View All Orders | AdminRequestsScreen | Query all `repair-orders` |
-| Assign Orders | - | Update `repair-orders.providerId`, `assignedBy` |
-| View All Mechanics | MechanicsListScreen | Query `users` where `role == 'provider'` |
-| Manage Mechanics | MechanicDetailScreen | Update `users.isActive`, etc. |
-| View Earnings | EarningsDashboard | Query `transactions`, `analytics` |
-| View Analytics | AnalyticsScreen | Read `analytics` collection |
-| Send Announcements | - | Write to notifications system |
-| Manage Platform Settings | SettingsScreen | Update `config` collection |
+| Feature                  | Screen               | Backend Requirements                            |
+| ------------------------ | -------------------- | ----------------------------------------------- |
+| View All Orders          | AdminRequestsScreen  | Query all `repair-orders`                       |
+| Assign Orders            | -                    | Update `repair-orders.providerId`, `assignedBy` |
+| View All Mechanics       | MechanicsListScreen  | Query `users` where `role == 'provider'`        |
+| Manage Mechanics         | MechanicDetailScreen | Update `users.isActive`, etc.                   |
+| View Earnings            | EarningsDashboard    | Query `transactions`, `analytics`               |
+| View Analytics           | AnalyticsScreen      | Read `analytics` collection                     |
+| Send Announcements       | -                    | Write to notifications system                   |
+| Manage Platform Settings | SettingsScreen       | Update `config` collection                      |
 
 ---
 
@@ -488,9 +490,8 @@ Payment Collection Options:
   - Cash: Mechanic collects $180 directly from customer
 ```
 
-> **Key Point:** The $20 deposit IS the platform fee. This simplifies accounting - 
+> **Key Point:** The $20 deposit IS the platform fee. This simplifies accounting -
 > the owner receives $20 per completed job, mechanics receive the full remaining balance.
-
 
 ---
 
@@ -498,20 +499,20 @@ Payment Collection Options:
 
 ### Notification Types
 
-| Event | Recipients | Channels |
-|-------|------------|----------|
-| New order in area | Available Mechanics | Push, Email |
-| Order accepted | Customer | Push, Email |
-| Quote received | Customer | Push, Email |
-| Quote accepted | Mechanic | Push |
-| Order scheduled | Both | Push, Email |
-| Service started | Customer | Push |
-| Service completed | Customer | Push, Email |
-| Payment received | Mechanic | Push |
-| New message | Recipient | Push |
-| Order expiring (1hr warning) | Customer | Push |
-| Order expired | Customer | Push, Email |
-| Order assigned (by owner) | Mechanic | Push |
+| Event                        | Recipients          | Channels    |
+| ---------------------------- | ------------------- | ----------- |
+| New order in area            | Available Mechanics | Push, Email |
+| Order accepted               | Customer            | Push, Email |
+| Quote received               | Customer            | Push, Email |
+| Quote accepted               | Mechanic            | Push        |
+| Order scheduled              | Both                | Push, Email |
+| Service started              | Customer            | Push        |
+| Service completed            | Customer            | Push, Email |
+| Payment received             | Mechanic            | Push        |
+| New message                  | Recipient           | Push        |
+| Order expiring (1hr warning) | Customer            | Push        |
+| Order expired                | Customer            | Push, Email |
+| Order assigned (by owner)    | Mechanic            | Push        |
 
 ### Implementation
 
@@ -561,30 +562,30 @@ function isOrderParticipant(orderId) {
 
 ### Scheduled Functions
 
-| Function | Schedule | Purpose |
-|----------|----------|---------|
-| `expireOrders` | Every hour | Find and expire orders past 24hrs |
-| `generateDailyAnalytics` | Daily at midnight | Aggregate daily stats |
-| `cleanupExpiredData` | Weekly | Remove old data per retention policy |
+| Function                 | Schedule          | Purpose                              |
+| ------------------------ | ----------------- | ------------------------------------ |
+| `expireOrders`           | Every hour        | Find and expire orders past 24hrs    |
+| `generateDailyAnalytics` | Daily at midnight | Aggregate daily stats                |
+| `cleanupExpiredData`     | Weekly            | Remove old data per retention policy |
 
 ### Trigger Functions
 
-| Function | Trigger | Purpose |
-|----------|---------|---------|
-| `onUserCreate` | `auth.user().onCreate` | Initialize user document with defaults |
-| `onOrderCreate` | `repair-orders.onCreate` | Set `expiresAt`, notify mechanics |
-| `onOrderStatusChange` | `repair-orders.onUpdate` | Send notifications, update analytics |
-| `onPaymentComplete` | `transactions.onCreate` | Update order payment status, mechanic earnings |
-| `onRatingSubmit` | `repair-orders.onUpdate` (rating field) | Recalculate mechanic's average rating |
+| Function              | Trigger                                 | Purpose                                        |
+| --------------------- | --------------------------------------- | ---------------------------------------------- |
+| `onUserCreate`        | `auth.user().onCreate`                  | Initialize user document with defaults         |
+| `onOrderCreate`       | `repair-orders.onCreate`                | Set `expiresAt`, notify mechanics              |
+| `onOrderStatusChange` | `repair-orders.onUpdate`                | Send notifications, update analytics           |
+| `onPaymentComplete`   | `transactions.onCreate`                 | Update order payment status, mechanic earnings |
+| `onRatingSubmit`      | `repair-orders.onUpdate` (rating field) | Recalculate mechanic's average rating          |
 
 ### Callable Functions
 
-| Function | Called By | Purpose |
-|----------|-----------|---------|
-| `createStripePaymentIntent` | Customer | Initialize Stripe payment |
-| `recordCashPayment` | Mechanic | Log cash collection |
-| `assignOrderToMechanic` | Owner | Manually assign order |
-| `getEarningsReport` | Mechanic, Owner | Generate earnings summary |
+| Function                    | Called By       | Purpose                   |
+| --------------------------- | --------------- | ------------------------- |
+| `createStripePaymentIntent` | Customer        | Initialize Stripe payment |
+| `recordCashPayment`         | Mechanic        | Log cash collection       |
+| `assignOrderToMechanic`     | Owner           | Manually assign order     |
+| `getEarningsReport`         | Mechanic, Owner | Generate earnings summary |
 
 ---
 
@@ -631,13 +632,13 @@ Firebase Storage
 
 ### Required Third-Party Services
 
-| Service | Purpose | Implementation |
-|---------|---------|----------------|
-| **Stripe** | Payments, payouts | Stripe SDK, Connect for mechanics |
-| **Firebase Auth** | Authentication | Email/password, potentially Google/Apple |
-| **Firebase Cloud Messaging** | Push notifications | FCM SDK |
-| **Google Maps** | Address validation, distance | Maps SDK or Geocoding API |
-| **SendGrid** (optional) | Transactional emails | Firebase Extension or direct API |
+| Service                      | Purpose                      | Implementation                           |
+| ---------------------------- | ---------------------------- | ---------------------------------------- |
+| **Stripe**                   | Payments, payouts            | Stripe SDK, Connect for mechanics        |
+| **Firebase Auth**            | Authentication               | Email/password, potentially Google/Apple |
+| **Firebase Cloud Messaging** | Push notifications           | FCM SDK                                  |
+| **Google Maps**              | Address validation, distance | Maps SDK or Geocoding API                |
+| **SendGrid** (optional)      | Transactional emails         | Firebase Extension or direct API         |
 
 ### Stripe Connect Flow
 
@@ -651,38 +652,44 @@ Firebase Storage
 ## Implementation Priority
 
 ### Phase 1: Core Order Flow ⬅️ START HERE
+
 - [ ] Order creation with media upload (Storage)
 - [ ] Order expiration (24hr Cloud Function)
 - [ ] Mechanic order acceptance
 - [ ] Basic status updates
 
 ### Phase 2: Communication
+
 - [ ] Pre-acceptance chat
 - [ ] Active order chat
 - [ ] Push notifications
 
 ### Phase 3: Work Documentation
+
 - [ ] Pre-service forms
 - [ ] Post-service forms
 - [ ] Photo documentation
 
 ### Phase 4: Analytics & Rating
+
 - [ ] Customer ratings
 - [ ] Mechanic performance tracking
 - [ ] Owner dashboard
 
 ### Phase 5: Owner Features
+
 - [ ] Order assignment
 - [ ] Mechanic management
 - [ ] Earnings reports
 
 ### Phase 6: Payments ⬅️ LAST PRIORITY
+
 - [ ] Stripe integration for $20 deposit collection
 - [ ] Cash payment recording for remaining balance
 - [ ] Payment status tracking
 - [ ] Owner earnings dashboard
 
-> **Note:** Payments deferred to last phase. Core functionality works without payments 
+> **Note:** Payments deferred to last phase. Core functionality works without payments
 > (can test full flow, add payment integration when ready for production).
 
 ---
@@ -694,7 +701,7 @@ Firebase Storage
 1. ~~**Deposit percentage:**~~ ✅ RESOLVED - Flat $20 fee
 2. ~~**Platform fee:**~~ ✅ RESOLVED - $20 deposit IS the platform fee
 3. **Cash handling:** Mechanic collects remaining balance in cash - no platform fee owed (already collected as deposit)
-4. **Refund policy:** What happens if customer cancels after deposit?
+4. ~~**Refund policy:**~~ ✅ RESOLVED — The $20 deposit is a Stripe **manual-capture hold**: captured on quote approval, released (never charged) on decline/expiry. A real refund only occurs as a fallback when the deposit was already captured and the job is then cancelled. See "Revised order & payment lifecycle" below.
 5. **Service radius:** Should mechanics set a service radius?
 
 ### Technical Decisions Made
@@ -706,5 +713,67 @@ Firebase Storage
 
 ---
 
-*This document should be updated as development progresses and new requirements are identified.*
+## Revised order & payment lifecycle (2026-05)
 
+> This section supersedes the lifecycle in §3 and the deposit timing in §5. It
+> reflects the production design for the catalog/custom-quote flow with a
+> customer quote-approval gate and a Stripe manual-capture deposit hold.
+
+### Three independent clocks
+
+| Clock                     | Limits                                                                   | Default    |
+| ------------------------- | ------------------------------------------------------------------------ | ---------- |
+| **Mechanic-claim window** | `Pending → Expired` if no mechanic accepts                               | 24h        |
+| **Quote-approval window** | `QuoteProposed → Expired` if the customer doesn't approve (the $20 hold) | 2 days     |
+| **Scheduling lead time**  | how far out the appointment can be booked                                | open-ended |
+
+### Order status machine
+
+```
+  [checkout → authorize $20 hold]
+         │
+         ▼
+      Pending ──(mechanic accepts)──► Accepted ──(mechanic submits quote)──► QuoteProposed
+         │                               │                                        │
+         │ 24h, no mechanic              │ cancel                  ┌──────────────┼───────────────┐
+         ▼                               ▼                     approve         decline      window lapses
+      Expired                        Cancelled                    │              │           (≤2 days)
+   [release hold]                  [release hold]                  ▼              ▼              ▼
+                                                              Scheduled      Cancelled        Expired
+                                                            [capture $20]  (quote_declined) [release hold]
+                                                                  │          [release hold]
+                                                                  ▼
+                                                             InProgress ──► Completed
+                                                                          [balance settled → paid]
+```
+
+States: `Pending · Accepted · QuoteProposed · Scheduled · InProgress · Completed · Expired · Cancelled`.
+Decline is modeled as `Cancelled` + `cancellationReason: "quote_declined"` (no separate status).
+
+### Deposit = Stripe manual-capture hold
+
+`paymentStatus`: `pending → authorized → deposit_paid` (captured) | `released` (cancelled) | `refunded` (captured-then-returned fallback); `paid` once the full balance settles.
+
+| Transition                         | Trigger                            | Actor             | Stripe side effect                                           |
+| ---------------------------------- | ---------------------------------- | ----------------- | ------------------------------------------------------------ |
+| → Pending                          | Checkout                           | Customer          | Create PI `capture_method: manual`, confirm → **authorized** |
+| Pending → Accepted                 | Mechanic claims                    | Mechanic/Admin    | —                                                            |
+| Accepted → QuoteProposed           | Mechanic submits quote             | Mechanic          | sets `quoteExpiresAt = now + 2d`                             |
+| QuoteProposed → Scheduled          | Customer **approves** + picks date | Customer          | **Capture** PI → **deposit_paid**                            |
+| QuoteProposed → Cancelled          | Customer **declines**              | Customer          | **Cancel** PI → **released**                                 |
+| QuoteProposed → Expired            | Approval window lapses             | System (Cloud Fn) | **Cancel** PI → **released**                                 |
+| Pending → Expired                  | 24h, no mechanic                   | System            | **Cancel** PI → **released**                                 |
+| Scheduled → InProgress → Completed | Work proceeds                      | Mechanic          | balance settled → **paid**                                   |
+| any (after capture) → Cancelled    | Late cancellation                  | Any               | **Refund** PI → **refunded** (fallback)                      |
+
+### Where Stripe ops run (security)
+
+Secret-key operations never touch the client. **Create + capture + cancel + refund** run in **Firebase Cloud Functions**; only **confirm** (publishable key + client secret) runs in the app. Card auth holds last ~7 days — comfortably beyond the 2-day approval window, so re-authorization is never needed in practice (the 7-day limit is only a backstop).
+
+### Data model (see `src/types/order.interface.ts`)
+
+Added: `OrderStatus."QuoteProposed"`; `PaymentStatus."authorized"|"released"`; typed `CancellationReason`; fields `estimatedTotal`, `quoteProposedAt`, `quoteExpiresAt`, `quoteApprovedAt`, `depositAuthorizedAt`, `depositCapturedAt`, `depositReleasedAt`, `depositRefundedAt`. Window constants live in `src/services/order-service.ts` (`ORDER_EXPIRY_MS`, `QUOTE_APPROVAL_WINDOW_MS`).
+
+---
+
+_This document should be updated as development progresses and new requirements are identified._
