@@ -41,6 +41,9 @@ export const ORDER_DETAIL_COPY = {
     cancelConfirm: "Cancel job",
     keep: "Keep job",
     inProgress: "This job is in progress.",
+    inspect: "Do inspection",
+    editInspection: "Edit inspection",
+    complete: "Complete job",
   },
   depositNote: (deposit: string) =>
     `Includes a ${deposit} booking deposit, captured only when the customer approves.`,

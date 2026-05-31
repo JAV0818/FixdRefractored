@@ -43,4 +43,17 @@ export const storageService = {
     });
     return Promise.all(uploads);
   },
+
+  // Mechanic's inspection photos → inspectionReports/{orderId}/...
+  async uploadInspectionImages(orderId: string, uris: string[]): Promise<string[]> {
+    const uploads = uris.map(async (uri, index) => {
+      const blob = await uriToBlob(uri);
+      const contentType = blob.type || "image/jpeg";
+      const ext = EXT_BY_TYPE[contentType] ?? "jpg";
+      const fileRef = ref(storage, `inspectionReports/${orderId}/photo-${Date.now()}-${index}.${ext}`);
+      await uploadBytes(fileRef, blob, { contentType });
+      return getDownloadURL(fileRef);
+    });
+    return Promise.all(uploads);
+  },
 };

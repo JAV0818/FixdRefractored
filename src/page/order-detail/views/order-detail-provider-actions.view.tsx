@@ -15,6 +15,7 @@ import { ORDER_DETAIL_COPY } from "../order-detail.constants";
 import { useAcceptOrder } from "../hooks/use-accept-order";
 import { useStartOrder } from "../hooks/use-start-order";
 import { useCancelOrder } from "../hooks/use-cancel-order";
+import { useCompleteOrder } from "../hooks/use-complete-order";
 import { StatusHint } from "../components";
 
 type ProviderActionsProps = {
@@ -29,6 +30,7 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
   const acceptOrder = useAcceptOrder();
   const startOrder = useStartOrder();
   const cancelOrder = useCancelOrder();
+  const completeOrder = useCompleteOrder();
   const { provider } = ORDER_DETAIL_COPY;
   const isBusy = startOrder.isPending || cancelOrder.isPending;
 
@@ -74,6 +76,15 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
     ]);
   }, [provider, cancelOrder, order.id, currentUser]);
 
+  const onInspect = useCallback(() => {
+    router.push({ pathname: "/(provider-tabs)/queue/inspection", params: { orderId: order.id } });
+  }, [router, order.id]);
+
+  const onComplete = useCallback(() => {
+    if (!currentUser) return;
+    completeOrder.mutate({ orderId: order.id, providerId: currentUser.id });
+  }, [completeOrder, order.id, currentUser]);
+
   if (order.status === "Pending") {
     return (
       <View style={styles.actions}>
@@ -113,7 +124,27 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
   }
 
   if (order.status === "InProgress" && isOwner) {
-    return <StatusHint text={provider.inProgress} />;
+    if (!order.inspectionCompletedAt) {
+      return (
+        <View style={styles.actions}>
+          <AppButton onPress={onInspect}>{provider.inspect}</AppButton>
+        </View>
+      );
+    }
+    return (
+      <View style={styles.actions}>
+        <AppButton
+          onPress={onComplete}
+          loading={completeOrder.isPending}
+          disabled={completeOrder.isPending}
+        >
+          {provider.complete}
+        </AppButton>
+        <AppButton variant="secondary" onPress={onInspect} disabled={completeOrder.isPending}>
+          {provider.editInspection}
+        </AppButton>
+      </View>
+    );
   }
 
   return null;

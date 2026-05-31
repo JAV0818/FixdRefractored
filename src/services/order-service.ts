@@ -14,6 +14,8 @@ import {
   updateDoc,
   runTransaction,
   onSnapshot,
+  increment,
+  writeBatch,
   type Unsubscribe,
 } from "firebase/firestore";
 
@@ -89,6 +91,7 @@ export const orderService = {
       quoteApprovedAt: null,
       scheduledAt: input.scheduledAt, // customer's preferred time (mechanic may adjust)
       startedAt: null,
+      inspectionCompletedAt: null,
       completedAt: null,
       cancelledAt: null,
 
@@ -335,5 +338,18 @@ export const orderService = {
       cancelledAt: now,
       updatedAt: now,
     });
+  },
+
+  // Mechanic finishes the job → Completed. Bumps the mechanic's lifetime job
+  // count atomically in the same batch. (Rating averages are recalculated by a
+  // Cloud Function, not here — see slice 2 / M10.)
+  async completeOrder(id: string, providerId: string): Promise<void> {
+    const now = Date.now();
+    const batch = writeBatch(db);
+    batch.update(doc(db, ORDERS, id), { status: "Completed", completedAt: now, updatedAt: now });
+    batch.update(doc(db, "users", providerId), {
+      "providerProfile.totalJobsCompleted": increment(1),
+    });
+    await batch.commit();
   },
 };

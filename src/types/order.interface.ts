@@ -106,6 +106,7 @@ export type RepairOrder = {
   completedAt: number | null;
   createdAt: number;
   expiresAt: number; // mechanic-claim deadline: Pending auto-expires at this time
+  inspectionCompletedAt: number | null; // set when the mechanic saves the DVI
   quoteApprovedAt: number | null;
   quoteExpiresAt: number | null; // approval deadline, once a quote is proposed
   quoteProposedAt: number | null;

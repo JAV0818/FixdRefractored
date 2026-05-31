@@ -4,19 +4,19 @@
 // creates the order then attaches any photos before redirecting to Requests.
 
 import { useCallback, useState } from "react";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { HelperText, Text } from "react-native-paper";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import * as ImagePicker from "expo-image-picker";
 
-import { AppButton, DateTimeField, KeyboardSafeView } from "@/components";
+import { AppButton, DateTimeField, ImagePickerGrid, KeyboardSafeView } from "@/components";
 import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
 import { SERVICE_CATEGORIES } from "@/constants/service-categories";
 import { formatDateTime } from "@/utils/format";
+import { useImagePicker } from "@/hooks/use-image-picker";
 
-import { CategoryChips, FormTextField, ImagePickerGrid, StepIndicator } from "../components";
+import { CategoryChips, FormTextField, StepIndicator } from "../components";
 import { useCreateOrder } from "../hooks/use-create-order";
 import { useUploadImages } from "../hooks/use-upload-images";
 import { MAX_QUOTE_IMAGES, QUOTE_REQUEST_COPY } from "../quote-request.constants";
@@ -78,28 +78,13 @@ export const QuoteRequestView = () => {
     [getValues, setValue],
   );
 
+  const pickFromLibrary = useImagePicker();
   const pickImages = useCallback(async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert(
-        "Photo access needed",
-        "Allow photo library access to attach pictures to your request.",
-      );
-      return;
+    const picked = await pickFromLibrary(MAX_QUOTE_IMAGES - images.length);
+    if (picked.length) {
+      setImages((prev) => [...prev, ...picked].slice(0, MAX_QUOTE_IMAGES));
     }
-
-    const remaining = MAX_QUOTE_IMAGES - images.length;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsMultipleSelection: true,
-      selectionLimit: remaining,
-      quality: 0.7,
-    });
-    if (result.canceled) return;
-
-    const picked = result.assets.map((a) => a.uri);
-    setImages((prev) => [...prev, ...picked].slice(0, MAX_QUOTE_IMAGES));
-  }, [images.length]);
+  }, [pickFromLibrary, images.length]);
 
   const removeImage = useCallback((uri: string) => {
     setImages((prev) => prev.filter((u) => u !== uri));

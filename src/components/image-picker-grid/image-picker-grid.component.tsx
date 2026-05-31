@@ -1,6 +1,6 @@
 // ImagePickerGrid — thumbnails of the chosen photos plus an "Add" tile. Dumb:
-// it never opens the picker itself (that's a side effect the view owns). It
-// just renders the current uris and emits add/remove events.
+// it never opens the picker itself (that's a side effect the view owns, via
+// useImagePicker). It just renders the current uris and emits add/remove events.
 
 import { memo } from "react";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
