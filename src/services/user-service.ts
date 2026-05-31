@@ -3,7 +3,23 @@
 
 import { arrayUnion, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase";
-import type { UserProfile, UserRole } from "@/types/user.interface";
+import type { ProviderDetails, UserProfile, UserRole } from "@/types/user.interface";
+
+// Coerce a possibly-partial provider profile (older / hand-edited docs) into a
+// fully-formed ProviderDetails so the UI never reads an undefined field.
+const normalizeProviderProfile = (raw: unknown): ProviderDetails | undefined => {
+  if (!raw || typeof raw !== "object") return undefined;
+  const p = raw as Partial<ProviderDetails>;
+  return {
+    bio: p.bio ?? "",
+    isAvailable: p.isAvailable ?? true,
+    specialties: Array.isArray(p.specialties) ? p.specialties : [],
+    averageRating: p.averageRating ?? 0,
+    totalEarnings: p.totalEarnings ?? 0,
+    totalJobsCompleted: p.totalJobsCompleted ?? 0,
+    yearsExperience: p.yearsExperience ?? 0,
+  };
+};
 
 type Vehicle = {
   make: string;
@@ -32,6 +48,9 @@ export const userService = {
       completedOrdersCount: data.completedOrdersCount ?? 0,
       averageRating: data.averageRating ?? null,
       totalRatingsCount: data.totalRatingsCount ?? 0,
+      // A provider doc with a partial providerProfile would otherwise crash the
+      // profile screen (e.g. specialties missing → .map on undefined).
+      providerProfile: normalizeProviderProfile(data.providerProfile),
     };
   },
 
@@ -74,6 +93,41 @@ export const userService = {
     await updateDoc(ref, {
       role,
       hasCompletedOnboarding: true,
+      updatedAt: Date.now(),
+    });
+  },
+
+  // Profile edits — identity/contact fields the user can change from their
+  // profile screen.
+  async updateContactInfo(
+    userId: string,
+    info: { firstName: string | null; lastName: string | null; phone: string | null },
+  ): Promise<void> {
+    await updateDoc(doc(db, "users", userId), { ...info, updatedAt: Date.now() });
+  },
+
+  async updatePhotoUrl(userId: string, photoUrl: string): Promise<void> {
+    await updateDoc(doc(db, "users", userId), { photoUrl, updatedAt: Date.now() });
+  },
+
+  // Mechanic availability toggle. Dot-notation patches just the nested flag
+  // without clobbering the rest of providerProfile.
+  async setAvailability(userId: string, isAvailable: boolean): Promise<void> {
+    await updateDoc(doc(db, "users", userId), {
+      "providerProfile.isAvailable": isAvailable,
+      updatedAt: Date.now(),
+    });
+  },
+
+  // Mechanic edits their About section (bio + specialties). Dot-notation patches
+  // just these nested fields, leaving the rest of providerProfile intact.
+  async updateMechanicAbout(
+    userId: string,
+    about: { bio: string; specialties: string[] },
+  ): Promise<void> {
+    await updateDoc(doc(db, "users", userId), {
+      "providerProfile.bio": about.bio,
+      "providerProfile.specialties": about.specialties,
       updatedAt: Date.now(),
     });
   },

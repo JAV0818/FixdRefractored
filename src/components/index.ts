@@ -8,3 +8,4 @@ export { AppTextInput } from "./app-text-input";
 export { AppCard } from "./app-card";
 export { Avatar } from "./avatar";
 export { ImagePickerGrid } from "./image-picker-grid";
+export { FilterChips } from "./filter-chips";

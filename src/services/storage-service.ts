@@ -44,6 +44,17 @@ export const storageService = {
     return Promise.all(uploads);
   },
 
+  // A user's profile photo → profileImages/{userId}/profile.{ext} (one file per
+  // user; a new upload overwrites the old). Returns the public download URL.
+  async uploadAvatar(userId: string, uri: string): Promise<string> {
+    const blob = await uriToBlob(uri);
+    const contentType = blob.type || "image/jpeg";
+    const ext = EXT_BY_TYPE[contentType] ?? "jpg";
+    const fileRef = ref(storage, `profileImages/${userId}/profile.${ext}`);
+    await uploadBytes(fileRef, blob, { contentType });
+    return getDownloadURL(fileRef);
+  },
+
   // Mechanic's inspection photos → inspectionReports/{orderId}/...
   async uploadInspectionImages(orderId: string, uris: string[]): Promise<string[]> {
     const uploads = uris.map(async (uri, index) => {

@@ -24,8 +24,9 @@ we did ship.) Add to this file whenever you defer something.
 ## UI primitives sweep (not fully complete)
 
 - **Onboarding inline inputs** (`vehicle-setup.page`, `mechanic-profile.page`) and
-  the dense **`line-item-row`** inputs were not migrated to `AppTextInput`
-  (line-item needs a flex `containerStyle` escape hatch first).
+  the dense **`line-item-row`** inputs were not migrated to `AppTextInput`.
+  (`AppTextInput` now has the `containerStyle` flex escape hatch the line-item
+  needed, so that migration is unblocked.)
 - **`date-time-field` modal buttons** (Cancel/Next/Done) still use Paper `Button`,
   not `AppButton`.
 
@@ -50,6 +51,23 @@ we did ship.) Add to this file whenever you defer something.
   doc has no `providerProfile` map (never finished provider onboarding) could
   fail that nested update. In practice onboarded mechanics have it. **To finish:**
   guard / ensure the map exists (ties into the orphan-user item above).
+
+## Profile
+
+- **Profile edits don't yet cover everything.** The profile screen edits name +
+  phone, uploads an avatar, toggles availability, and (mechanic) edits bio +
+  specialties. **Deferred:** customer vehicle add/edit/remove, and mechanic
+  years-of-experience editing. **To finish:** edit UIs over `saveVehicle` (+ a
+  remove/update path) and add `yearsExperience` to the About editor.
+- **Onboarding specialties list diverges from the canonical taxonomy.** The
+  profile About editor picks from `SERVICE_CATEGORY_LABELS` (the canonical list
+  shared with order `categories[]`), but `mechanic-profile.page` (onboarding)
+  still uses its own inline 10-item list with different labels ("Brakes" vs
+  "Brake Service"). **To finish:** point onboarding at `SERVICE_CATEGORY_LABELS`
+  (or the new `FilterChips`) so specialties match the order taxonomy everywhere.
+- **Availability toggle writes a nested field on `providerProfile`.**
+  `setAvailability` patches `providerProfile.isAvailable`; same orphan/incomplete-
+  onboarding caveat as the `completeOrder` counter above (the map must exist).
 
 ## Cross-cutting
 

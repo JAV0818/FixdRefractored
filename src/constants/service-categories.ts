@@ -32,3 +32,9 @@ export const SERVICE_CATEGORIES: readonly ServiceCategory[] = [
 
 export const categoriesByGroup = (group: ServiceCategoryGroup): ServiceCategory[] =>
   SERVICE_CATEGORIES.filter((category) => category.group === group);
+
+// The canonical label set, handy as preset options for selecting a mechanic's
+// specialties (which share this taxonomy with order categories).
+export const SERVICE_CATEGORY_LABELS: readonly string[] = SERVICE_CATEGORIES.map(
+  (category) => category.label,
+);

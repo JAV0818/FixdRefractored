@@ -6,6 +6,7 @@
 import { StyleSheet, View } from "react-native";
 import { HelperText, TextInput } from "react-native-paper";
 import type { ComponentProps } from "react";
+import type { StyleProp, ViewStyle } from "react-native";
 
 import { colors, spacing } from "@/theme";
 
@@ -16,10 +17,13 @@ type AppTextInputProps = Omit<
   "mode" | "error" | "outlineColor" | "activeOutlineColor"
 > & {
   error?: string;
+  // Style for the wrapper View (e.g. `flex: 1` to share a row). `style` still
+  // goes to the inner TextInput.
+  containerStyle?: StyleProp<ViewStyle>;
 };
 
-export const AppTextInput = ({ error, style, ...props }: AppTextInputProps) => (
-  <View style={styles.field}>
+export const AppTextInput = ({ error, style, containerStyle, ...props }: AppTextInputProps) => (
+  <View style={[styles.field, containerStyle]}>
     <TextInput
       mode="outlined"
       outlineColor={colors.outline}
