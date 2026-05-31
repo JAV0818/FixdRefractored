@@ -33,6 +33,32 @@ Hooks return what `useQuery` returns. Views destructure `{ data, isLoading, isEr
 
 **Never** use raw `fetch` or `useEffect` for HTTP. If the data is on a server, it's React Query.
 
+### Live data — Firestore `onSnapshot`
+
+React Query is for **one-shot reads** (fetch, cache, refetch on demand). When a screen needs to reflect server changes *as they happen* — the marketplace order pool, the customer's request list, a single order's status — use a Firestore **`onSnapshot` listener** instead. It's pushed, latency-compensated (a local write updates the UI before the server acks), and removes the manual `invalidateQueries` choreography entirely: there's nothing to invalidate because the listener already has the new data.
+
+Don't hand-roll the listener in each hook. Use the shared engine, which owns the loading/error/retry state machine and the listener lifecycle, and returns the **same `{ data, isLoading, isError, refetch }` shape** the views already switch on:
+
+```tsx
+// src/page/provider-queue/hooks/use-provider-orders.ts
+export const useProviderOrders = (providerId: string | undefined) => {
+  const subscribe = useCallback<FirestoreSubscribe<RepairOrder[]>>(
+    (onData, onError) => {
+      if (!providerId) return; // returning nothing opts out (id not ready yet)
+      return orderService.subscribeToProviderOrders(providerId, onData, onError);
+    },
+    [providerId],
+  );
+  return useFirestoreSubscription(subscribe, "provider-orders");
+};
+```
+
+Memoize `subscribe` with `useCallback` so the listener isn't torn down and re-attached every render. The `subscribeTo*` functions live in the service layer (the only place `onSnapshot` for a collection is allowed).
+
+**Choosing between the two:** does the screen need to update without the user acting? → `onSnapshot`. Is a fetch-on-mount (with manual refetch) enough? → React Query. Mutations stay React Query `useMutation`, but when the lists they affect are live, they need **no** `onSuccess` invalidation — the listeners update themselves.
+
+The tradeoff `onSnapshot` accepts: no cross-screen shared cache (each mount opens its own listener). Fine at this scale; if it ever isn't, the lever is bridging snapshots into the React Query cache via `setQueryData` (noted in `DEFERRED.md`).
+
 ## Rule 2 — React Context for client state
 
 Client state is everything that doesn't come from a server: auth-aware UI flags, theme preferences, form drafts before submission, "is this menu open."

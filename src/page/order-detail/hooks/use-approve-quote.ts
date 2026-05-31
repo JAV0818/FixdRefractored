@@ -2,17 +2,14 @@
 // time. The $20 deposit capture happens server-side (payment Cloud Function)
 // once wired; this drives the order into Scheduled in the meantime.
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 import { orderService } from "@/services/order-service";
 
+// No cache invalidation: the order detail and customer Requests list are live
+// (onSnapshot), so the approval propagates to every listener on its own.
 export const useApproveQuote = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (orderId: string) => orderService.approveQuote(orderId),
-    onSuccess: (_data, orderId) => {
-      queryClient.invalidateQueries({ queryKey: ["order", orderId] });
-      queryClient.invalidateQueries({ queryKey: ["customer-orders"] });
-    },
   });
 };

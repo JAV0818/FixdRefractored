@@ -39,9 +39,12 @@ we did ship.) Add to this file whenever you defer something.
   `completeOnboarding` use `updateDoc`, which assumes the user doc exists.
   Covered for now by always using fresh accounts. **To finish:** ensure-doc-on-
   login in `AuthProvider`, or `setDoc(..., { merge: true })`.
-- **Provider lists not real-time.** Marketplace + Queue use React Query, not
-  `onSnapshot` (the customer Requests list + order-detail are live). **To finish:**
-  give them `subscribe*` hooks if live updates are wanted there.
+- **Live hooks have no cross-screen shared cache.** The `onSnapshot` hooks
+  (`useFirestoreSubscription`) each open their own listener per mount — two
+  components watching the same order = two listeners, no dedup, no React Query
+  devtools. Fine at current scale. **Scaling lever (only if needed):** bridge
+  snapshots into the React Query cache via `queryClient.setQueryData([...], data)`
+  inside the listener — keeps real-time updates *and* the shared cache.
 - **`completeOrder` job-counter assumes `providerProfile` exists.** It does
   `increment(1)` on `providerProfile.totalJobsCompleted`; a mechanic whose user
   doc has no `providerProfile` map (never finished provider onboarding) could

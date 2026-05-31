@@ -1,6 +1,6 @@
 // useCancelOrder — cancel an order, recording who cancelled and why.
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 import { orderService } from "@/services/order-service";
 import type { CancellationReason } from "@/types/order.interface";
@@ -11,14 +11,11 @@ type CancelOrderInput = {
   reason: CancellationReason;
 };
 
+// No cache invalidation: the order detail and provider Queue are live
+// (onSnapshot), so the cancellation propagates to every listener on its own.
 export const useCancelOrder = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ orderId, cancelledBy, reason }: CancelOrderInput) =>
       orderService.cancelOrder(orderId, cancelledBy, reason),
-    onSuccess: (_data, { orderId }) => {
-      queryClient.invalidateQueries({ queryKey: ["order", orderId] });
-      queryClient.invalidateQueries({ queryKey: ["provider-orders"] });
-    },
   });
 };

@@ -36,9 +36,9 @@ export const useSaveInspection = () => {
       });
     },
     onSuccess: (_data, { orderId }) => {
+      // Only the inspection report is React Query; the order detail and Queue are
+      // live (onSnapshot) and update themselves.
       queryClient.invalidateQueries({ queryKey: ["inspection", orderId] });
-      queryClient.invalidateQueries({ queryKey: ["order", orderId] });
-      queryClient.invalidateQueries({ queryKey: ["provider-orders"] });
     },
   });
 };

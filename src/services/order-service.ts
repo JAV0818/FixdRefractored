@@ -155,6 +155,47 @@ export const orderService = {
     return onSnapshot(q, (snap) => onData(snap.docs.map(snapToOrder)), onError);
   },
 
+  // Real-time: stream the marketplace pool so a newly created order shows up
+  // without a reload. Same query + client-side expiry filter as
+  // getAvailableOrders (see its TODO on the M10 expire function).
+  subscribeToAvailableOrders(
+    onData: (orders: RepairOrder[]) => void,
+    onError: (error: Error) => void,
+  ): Unsubscribe {
+    const q = query(
+      ordersCollection(),
+      where("providerId", "==", null),
+      where("status", "==", "Pending"),
+      orderBy("createdAt", "desc"),
+      limit(LIST_QUERY_LIMIT),
+    );
+    return onSnapshot(
+      q,
+      (snap) => {
+        const now = Date.now();
+        onData(snap.docs.map(snapToOrder).filter((o) => o.expiresAt > now));
+      },
+      onError,
+    );
+  },
+
+  // Real-time: stream the orders a mechanic has accepted/been assigned, newest
+  // first, so the Queue reflects new jobs and status changes without a reload.
+  // Same composite index as getOrdersByProvider.
+  subscribeToProviderOrders(
+    providerId: string,
+    onData: (orders: RepairOrder[]) => void,
+    onError: (error: Error) => void,
+  ): Unsubscribe {
+    const q = query(
+      ordersCollection(),
+      where("providerId", "==", providerId),
+      orderBy("createdAt", "desc"),
+      limit(LIST_QUERY_LIMIT),
+    );
+    return onSnapshot(q, (snap) => onData(snap.docs.map(snapToOrder)), onError);
+  },
+
   // A customer's own orders, newest first.
   async getOrdersByCustomer(customerId: string): Promise<RepairOrder[]> {
     const q = query(

@@ -3,7 +3,7 @@
 // Split from use-create-order because Storage paths are keyed by the order id,
 // so the order must exist first. The view calls this after createOrder resolves.
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 import { useAuthContext } from "@/providers/auth-provider";
 import { orderService } from "@/services/order-service";
@@ -15,7 +15,6 @@ type UploadImagesInput = {
 };
 
 export const useUploadImages = () => {
-  const queryClient = useQueryClient();
   const { currentUser } = useAuthContext();
 
   return useMutation({
@@ -30,8 +29,7 @@ export const useUploadImages = () => {
 
       return mediaUrls;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customer-orders"] });
-    },
+    // No cache invalidation: the order detail is live (onSnapshot), so the photo
+    // URLs appear there on their own.
   });
 };

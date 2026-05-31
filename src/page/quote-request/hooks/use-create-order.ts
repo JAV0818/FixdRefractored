@@ -4,7 +4,7 @@
 // Photos are attached separately by use-upload-images after this resolves
 // (Storage paths are keyed by the order id, which doesn't exist until now).
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 import { useAuthContext } from "@/providers/auth-provider";
 import { useUserProfile } from "@/page/auth/hooks/use-user-profile";
@@ -13,7 +13,6 @@ import { orderService } from "@/services/order-service";
 import type { QuoteRequestForm } from "../interfaces/quote-request.interface";
 
 export const useCreateOrder = () => {
-  const queryClient = useQueryClient();
   const { currentUser } = useAuthContext();
   const { data: profile } = useUserProfile(currentUser?.id);
 
@@ -41,9 +40,7 @@ export const useCreateOrder = () => {
         mediaUrls: [],
       });
     },
-    onSuccess: () => {
-      // Refresh the customer's order list (Requests tab, M4).
-      queryClient.invalidateQueries({ queryKey: ["customer-orders"] });
-    },
+    // No cache invalidation: the customer Requests list is live (onSnapshot), so
+    // the new order shows up there on its own.
   });
 };

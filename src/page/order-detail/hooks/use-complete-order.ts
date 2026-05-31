@@ -1,6 +1,6 @@
 // useCompleteOrder — mechanic finishes a job (InProgress → Completed).
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 import { orderService } from "@/services/order-service";
 
@@ -9,14 +9,11 @@ type CompleteOrderInput = {
   providerId: string;
 };
 
+// No cache invalidation: the order detail and provider Queue are live
+// (onSnapshot), so the completion propagates to every listener on its own.
 export const useCompleteOrder = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ orderId, providerId }: CompleteOrderInput) =>
       orderService.completeOrder(orderId, providerId),
-    onSuccess: (_data, { orderId }) => {
-      queryClient.invalidateQueries({ queryKey: ["order", orderId] });
-      queryClient.invalidateQueries({ queryKey: ["provider-orders"] });
-    },
   });
 };
