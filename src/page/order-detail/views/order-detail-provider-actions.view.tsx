@@ -36,6 +36,18 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
 
   const onAccept = useCallback(() => {
     acceptOrder.mutate(order.id, {
+      onSuccess: () => {
+        // The order is now ours: it leaves the marketplace pool and belongs to
+        // the Queue. Clear the marketplace stack (so returning to that tab shows
+        // the pool, not this now-stale detail) and continue managing the job
+        // from the Queue — which also keeps Build quote / inspection pushing onto
+        // the Queue stack instead of stranding the Marketplace tab on them.
+        if (router.canDismiss()) router.dismissAll();
+        router.navigate({
+          pathname: "/(provider-tabs)/queue/[orderId]",
+          params: { orderId: order.id },
+        });
+      },
       onError: (error) => {
         Alert.alert(
           provider.acceptErrorTitle,
@@ -43,7 +55,7 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
         );
       },
     });
-  }, [acceptOrder, order.id, provider]);
+  }, [acceptOrder, order.id, provider, router]);
 
   const onBuildQuote = useCallback(() => {
     router.push({
