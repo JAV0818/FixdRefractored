@@ -3,20 +3,32 @@
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 
+import { AppButton } from "@/components";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
 
 import { PROVIDER_MARKETPLACE_COPY } from "./provider-marketplace.constants";
 import { ProviderMarketplaceView } from "./views";
 
-export const ProviderMarketplacePage = () => (
-  <SafeAreaView style={styles.container} edges={["top"]}>
-    <View style={styles.header}>
-      <Text style={styles.title}>{PROVIDER_MARKETPLACE_COPY.title}</Text>
-    </View>
-    <ProviderMarketplaceView />
-  </SafeAreaView>
-);
+export const ProviderMarketplacePage = () => {
+  const router = useRouter();
+  return (
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <View style={styles.header}>
+        <Text style={styles.title}>{PROVIDER_MARKETPLACE_COPY.title}</Text>
+        <AppButton
+          variant="secondary"
+          icon="plus"
+          onPress={() => router.push("/(provider-tabs)/queue/custom-quote")}
+        >
+          {PROVIDER_MARKETPLACE_COPY.customQuote}
+        </AppButton>
+      </View>
+      <ProviderMarketplaceView />
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -24,6 +36,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.sm,

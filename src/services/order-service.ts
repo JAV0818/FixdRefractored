@@ -22,6 +22,7 @@ import {
 import { db } from "./firebase";
 import type {
   RepairOrder,
+  CreateCustomQuoteInput,
   CreateOrderInput,
   OrderItem,
   OrderStatus,
@@ -90,6 +91,76 @@ export const orderService = {
       quoteExpiresAt: null,
       quoteApprovedAt: null,
       scheduledAt: input.scheduledAt, // customer's preferred time (mechanic may adjust)
+      startedAt: null,
+      inspectionCompletedAt: null,
+      completedAt: null,
+      cancelledAt: null,
+
+      cancellationReason: null,
+      cancelledBy: null,
+
+      paymentMethod: null,
+      paymentStatus: "pending",
+      stripePaymentIntentId: null,
+      depositAuthorizedAt: null,
+      depositCapturedAt: null,
+      depositReleasedAt: null,
+      depositRefundedAt: null,
+
+      customerRating: null,
+      customerReview: null,
+      ratedAt: null,
+      ratingOfCustomer: null,
+      reviewOfCustomer: null,
+      customerRatedAt: null,
+    };
+
+    const ref = await addDoc(ordersCollection(), order);
+    return ref.id;
+  },
+
+  // Mechanic creates a custom quote for a specific customer (mechanic-initiated
+  // flow). The order skips Pending/Accepted and lands directly at QuoteProposed
+  // so the customer can immediately approve or decline.
+  async createCustomQuote(input: CreateCustomQuoteInput): Promise<string> {
+    const now = Date.now();
+    const order: Omit<RepairOrder, "id"> = {
+      orderType: "custom_quote",
+      status: "QuoteProposed",
+
+      customerId: input.customerId,
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      providerId: input.providerId,
+      providerName: input.providerName,
+      assignedBy: null,
+
+      description: input.description,
+      categories: input.categories,
+      vehicleInfo: input.vehicleInfo,
+      locationDetails: { address: "", city: null, state: null, zip: null },
+
+      estimatedTotal: input.totalPrice,
+      items: input.items,
+      laborCost: 0,
+      partsCost: 0,
+      totalPrice: input.totalPrice,
+      depositAmount: PLATFORM_DEPOSIT,
+      depositPaid: false,
+      remainingBalance: Math.max(input.totalPrice - PLATFORM_DEPOSIT, 0),
+
+      mediaUrls: [],
+
+      createdAt: now,
+      updatedAt: now,
+      // Custom quotes don't need a mechanic-claim window; use the approval window
+      // as the effective deadline for both fields.
+      expiresAt: now + QUOTE_APPROVAL_WINDOW_MS,
+      acceptedAt: now,
+      quoteProposedAt: now,
+      quoteExpiresAt: now + QUOTE_APPROVAL_WINDOW_MS,
+      quoteApprovedAt: null,
+      scheduledAt: input.scheduledAt,
       startedAt: null,
       inspectionCompletedAt: null,
       completedAt: null,

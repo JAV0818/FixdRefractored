@@ -1,4 +1,4 @@
-// Composition shell for the mechanic's inspection checklist.
+// Composition shell for the mechanic's custom-quote wizard.
 
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,15 +6,15 @@ import { Stack } from "expo-router";
 
 import { colors } from "@/theme";
 
-import { INSPECTION_COPY } from "./inspection-checklist.constants";
-import { InspectionChecklistView } from "./views";
+import { MECHANIC_CUSTOM_QUOTE_COPY } from "./mechanic-custom-quote.constants";
+import { MechanicCustomQuoteView } from "./views";
 
-export const InspectionChecklistPage = () => (
+export const MechanicCustomQuotePage = () => (
   <>
     <Stack.Screen
       options={{
         headerShown: true,
-        title: INSPECTION_COPY.title,
+        title: MECHANIC_CUSTOM_QUOTE_COPY.title,
         headerBackButtonDisplayMode: "minimal",
         headerTintColor: colors.textPrimary,
         headerShadowVisible: false,
@@ -22,7 +22,7 @@ export const InspectionChecklistPage = () => (
       }}
     />
     <SafeAreaView style={styles.container} edges={["bottom"]}>
-      <InspectionChecklistView />
+      <MechanicCustomQuoteView />
     </SafeAreaView>
   </>
 );
