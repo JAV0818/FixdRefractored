@@ -1,0 +1,18 @@
+export const CUSTOM_CHARGE_COPY = {
+  title: "Add charges",
+  loading: "Loading order…",
+  notFound: "This order no longer exists.",
+  hint: "Add any extra charges that came up during the job. The customer's total will update.",
+  existingItems: "Original quote",
+  newItems: "New charges",
+  addItem: "Add charge",
+  itemNamePlaceholder: "Item or service",
+  pricePlaceholder: "Price",
+  qtyPlaceholder: "Qty",
+  originalTotal: "Original total",
+  additionalCharges: "Additional charges",
+  newTotal: "New customer total",
+  submit: "Save charges",
+  submitting: "Saving…",
+  submitError: "We couldn't save the charges. Please try again.",
+} as const;

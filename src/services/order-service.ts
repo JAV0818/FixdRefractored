@@ -452,6 +452,30 @@ export const orderService = {
     });
   },
 
+  // Mechanic adds extra charges that came up during the job. Runs in a
+  // transaction so the running total is always consistent: reads the current
+  // items list, appends the new ones, and rewrites totalPrice + remainingBalance
+  // atomically. Only valid on InProgress orders.
+  async addCustomCharges(id: string, newItems: OrderItem[]): Promise<void> {
+    const ref = doc(db, ORDERS, id);
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error("Order not found");
+      const data = snap.data() as RepairOrder;
+      if (data.status !== "InProgress")
+        throw new Error("Charges can only be added to an in-progress order.");
+      const updatedItems: OrderItem[] = [...data.items, ...newItems];
+      const earnings = updatedItems.reduce((sum, it) => sum + it.price * it.quantity, 0);
+      const totalPrice = earnings + PLATFORM_DEPOSIT;
+      tx.update(ref, {
+        items: updatedItems,
+        totalPrice,
+        remainingBalance: Math.max(totalPrice - PLATFORM_DEPOSIT, 0),
+        updatedAt: Date.now(),
+      });
+    });
+  },
+
   // Mechanic finishes the job → Completed. Bumps the mechanic's lifetime job
   // count atomically in the same batch. (Rating averages are recalculated by a
   // Cloud Function, not here — see slice 2 / M10.)

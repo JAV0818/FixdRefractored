@@ -43,6 +43,7 @@ export const ORDER_DETAIL_COPY = {
     inProgress: "This job is in progress.",
     inspect: "Do inspection",
     editInspection: "Edit inspection",
+    addCharges: "Add charges",
     complete: "Complete job",
   },
   depositNote: (deposit: string) =>

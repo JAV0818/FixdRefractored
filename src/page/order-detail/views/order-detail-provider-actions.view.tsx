@@ -92,6 +92,10 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
     router.push({ pathname: "/(provider-tabs)/queue/inspection", params: { orderId: order.id } });
   }, [router, order.id]);
 
+  const onAddCharges = useCallback(() => {
+    router.push({ pathname: "/(provider-tabs)/queue/custom-charge", params: { orderId: order.id } });
+  }, [router, order.id]);
+
   const onComplete = useCallback(() => {
     if (!currentUser) return;
     completeOrder.mutate({ orderId: order.id, providerId: currentUser.id });
@@ -151,6 +155,9 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
           disabled={completeOrder.isPending}
         >
           {provider.complete}
+        </AppButton>
+        <AppButton variant="secondary" onPress={onAddCharges} disabled={completeOrder.isPending}>
+          {provider.addCharges}
         </AppButton>
         <AppButton variant="secondary" onPress={onInspect} disabled={completeOrder.isPending}>
           {provider.editInspection}
