@@ -11,15 +11,15 @@
 | M1 | Foundation: Theme, Real Firebase, CometChat Init | DONE | Theme + real Firebase live. CometChat still a stub — not wired yet. |
 | M2 | Onboarding Flow | DONE | Role selection -> slides -> profile setup -> notifications. |
 | M3 | Customer: Services Tab & Quote Request | DONE | customer-home + multi-step quote-request, now incl. a customer-picked appointment time. |
-| M4 | Customer: Requests/Orders Tab & Profile Tab | PARTIAL | Requests tab (live) + a rich shared order-detail (party info, photo lightbox, scheduled time, quote) done. **Still missing: Profile tab, vehicle management, account/privacy settings.** |
-| M5 | Provider: Marketplace Tab & Queue Tab | PARTIAL | Marketplace (pool) + Queue + quote-builder + accept + **start (Scheduled→InProgress) + cancel** done. **Remaining: Complete flow, inspection-checklist (`order-forms`), custom charges.** |
-| M6 | Provider: Profile Tab & Performance | NOT STARTED | Includes the mechanic photo upload — until then, avatars fall back to initials. |
+| M4 | Customer: Requests/Orders Tab & Profile Tab | PARTIAL | Requests tab (live) + shared order-detail + customer & mechanic profile screens done. **Still missing: vehicle management, account/privacy settings.** |
+| M5 | Provider: Marketplace Tab & Queue Tab | DONE | Marketplace + Queue + quote-builder + accept + start + cancel + inspection checklist + complete flow + custom charges all shipped. |
+| M6 | Provider: Profile Tab & Performance | PARTIAL | Profile tab built — availability toggle, about/bio editing, avatar hook, stats card. **Still missing: performance-details screen, full profile-edit screen, account/change-password.** |
 | M7 | Messaging (CometChat) | NOT STARTED | "Message" buttons currently show a "coming soon" Alert placeholder. |
 | M8 | Admin Flow | NOT STARTED | Can start after M3 + M5. |
 | M9 | Payments | NOT STARTED | Order lifecycle already models the $20 deposit hold (authorize/capture/release); Stripe not wired. |
 | M10 | Polish: Cloud Functions, Push, Security Rules | NOT STARTED | `acceptOrder` has a client-side expiry guard until the expire function exists. Firestore composite indexes created ad-hoc; `firestore.indexes.json` holds the canonical set. |
 
-## Divergences & additions beyond the original plan (as of 2026-05-30)
+## Divergences & additions beyond the original plan (as of 2026-06-08)
 
 The full plan below predates several reworks. Where it and the code on `main`
 disagree, **the code wins**; the key deltas:
@@ -46,13 +46,26 @@ disagree, **the code wins**; the key deltas:
   photo lightbox, the scheduled time, and the quote breakdown.
 - **Messaging is stubbed.** "Message" buttons show a "coming soon" Alert; M7
   (CometChat) is unbuilt.
+- **Mechanic-initiated custom quote.** Not in the original plan. Mechanic searches
+  for a customer by name/phone from the Marketplace tab, builds a priced quote,
+  and submits it as a `custom_quote` order at `QuoteProposed` status. Customer
+  sees it in their Requests tab to approve or decline. Entry point: "Custom quote"
+  button in the Marketplace header. See `src/page/mechanic-custom-quote/`.
+- **Custom charges mid-job.** Not in the original plan. Mechanic can append extra
+  line items to an `InProgress` order after inspection is complete. Runs a
+  Firestore transaction to atomically update `items`, `totalPrice`, and
+  `remainingBalance`. Entry point: "Add charges" button on the order-detail screen.
+  See `src/page/custom-charge/`.
+- **DEFERRED.md → TECH_DEBT.md.** Deferred work log renamed and all items
+  classified by priority (🔴 HIGH / 🟡 MEDIUM / 🟢 LOW). Customer search
+  client-side filter flagged as HIGH — needs Algolia before scale.
 
 ### Nearest remaining work
-- **Finish M5:** Complete flow (`InProgress → Completed`), inspection checklist
-  (`order-forms`), custom charges.
-- **Finish M4:** customer Profile tab, vehicle management, account/privacy.
-- **M6:** provider Profile tab (incl. photo upload — needed before mechanic
-  avatars show real images).
+- **Finish M4:** vehicle management screen, account/privacy settings.
+- **Finish M6:** performance-details screen, provider-profile-edit screen, account/change-password.
+- **M7 (Messaging):** CometChat conversation list + real-time chat — unblocked.
+- **M8 (Admin):** Can run in parallel with M7.
+- **M9 (Payments):** Stripe deposit + cash payment recording.
 
 ---
 
