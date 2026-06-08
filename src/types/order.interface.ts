@@ -138,6 +138,22 @@ export type RepairOrder = {
   reviewOfCustomer: string | null;
 };
 
+// What the mechanic supplies when creating a custom quote for a customer they
+// found via search. The service sets status → QuoteProposed and fills timestamps.
+export type CreateCustomQuoteInput = {
+  categories: string[];
+  customerId: string;
+  customerName: string;
+  customerPhone: string | null;
+  description: string;
+  items: OrderItem[];
+  providerId: string;
+  providerName: string;
+  scheduledAt: number;
+  totalPrice: number;
+  vehicleInfo: string;
+};
+
 // What the customer supplies when creating a request. The service fills in
 // status, timestamps, pricing defaults, and the rest.
 export type CreateOrderInput = {

@@ -1,5 +1,6 @@
 export const PROVIDER_MARKETPLACE_COPY = {
   title: "Marketplace",
+  customQuote: "Custom quote",
   loading: "Loading available jobs…",
   error: "We couldn't load the marketplace.",
   retry: "Try again",

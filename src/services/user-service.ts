@@ -1,7 +1,18 @@
 // User service — the only file that reads/writes the `users` Firestore collection.
 // Hooks call these; views and components never import this directly.
 
-import { arrayUnion, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import {
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { db } from "./firebase";
 import type { ProviderDetails, UserProfile, UserRole } from "@/types/user.interface";
 
@@ -117,6 +128,29 @@ export const userService = {
       "providerProfile.isAvailable": isAvailable,
       updatedAt: Date.now(),
     });
+  },
+
+  // Customer search — used by the mechanic's custom-quote flow to find a
+  // customer by name or phone. Firestore doesn't support full-text search so
+  // this fetches the first 100 customers and filters client-side.
+  // TODO(M10): swap for a proper search index (Algolia / Typesense) once the
+  // user base grows beyond a few hundred customers.
+  async searchCustomers(term: string): Promise<UserProfile[]> {
+    const q = query(
+      collection(db, "users"),
+      where("role", "==", "customer"),
+      where("hasCompletedOnboarding", "==", true),
+      limit(100),
+    );
+    const snap = await getDocs(q);
+    const lower = term.toLowerCase().trim();
+    return snap.docs
+      .map((d) => ({ ...(d.data() as UserProfile), id: d.id }))
+      .filter((u) => {
+        const name = `${u.firstName ?? ""} ${u.lastName ?? ""}`.toLowerCase();
+        const phone = u.phone ?? "";
+        return name.includes(lower) || phone.includes(lower);
+      });
   },
 
   // Mechanic edits their About section (bio + specialties). Dot-notation patches
