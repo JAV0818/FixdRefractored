@@ -391,6 +391,8 @@ export const orderService = {
       const snap = await tx.get(ref);
       if (!snap.exists()) throw new Error("Order not found");
       const data = snap.data() as RepairOrder;
+      if (data.status !== "InProgress")
+        throw new Error("Charges can only be added to an in-progress order.");
       const updatedItems: OrderItem[] = [...data.items, ...newItems];
       const earnings = updatedItems.reduce((sum, it) => sum + it.price * it.quantity, 0);
       const totalPrice = earnings + PLATFORM_DEPOSIT;
