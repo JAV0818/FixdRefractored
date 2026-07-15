@@ -6,6 +6,9 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   signOut,
+  reauthenticateWithCredential,
+  updatePassword,
+  EmailAuthProvider,
 } from "firebase/auth";
 import { auth } from "./firebase";
 import { userService } from "./user-service";
@@ -41,6 +44,15 @@ export const authService = {
       averageRating: null,
       totalRatingsCount: 0,
     });
+  },
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    const user = auth.currentUser;
+    if (!user || !user.email) throw new Error("No authenticated user");
+
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    await reauthenticateWithCredential(user, credential);
+    await updatePassword(user, newPassword);
   },
 
   async signOut(): Promise<void> {
