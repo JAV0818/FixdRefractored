@@ -1,3 +1,0 @@
-export type {{COMPONENT_NAME}}Props = {
-  {{PROPS_TYPE}}
-};

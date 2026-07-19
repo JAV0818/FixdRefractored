@@ -35,3 +35,6 @@ expo-env.d.ts
 # @end expo-cli
 # Local transcript recovery staging - not for commit
 .transcript-recovery/
+
+# Agent loop run artifacts (tickets, handoffs, QA reports — disposable per run)
+.agents/runs/

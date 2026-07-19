@@ -12,7 +12,7 @@ This file is the **index**. It tells any AI agent (or new teammate) where the ru
    - Choosing where state goes → `guidelines/state.md`
    - Adding or modifying a route → `guidelines/navigation.md`
    - Anything visual → `guidelines/styling.md`
-3. If a custom skill applies to your task, the `.agents/skills/<skill-name>/SKILL.md` files document them. (None ship by default — students add skills as they grow the codebase.)
+3. If a custom skill applies to your task, invoke it — see the **Skills** table below. The loop-engineering skills (orchestrator, devs, QA, handoff) drive multi-agent milestone work; the build skills bake in the conventions.
 
 ## Architecture in one diagram
 
@@ -44,6 +44,32 @@ For routing patterns, navigation helpers, and the recipe for adding a new screen
 ## Single source of truth
 
 `guidelines/` is the canonical location for all rules. AGENTS.md, the README, and any custom skills should **reference** these files, not duplicate them. When you add a rule, add it to `guidelines/` and link from here.
+
+## Skills
+
+Custom skills live in `.agents/skills/<skill-name>/SKILL.md`. Loop roles read their skill file as step 1 of every dispatch — the skills reference `guidelines/` rather than duplicating it.
+
+### Loop engineering
+
+| Skill | Role |
+|---|---|
+| `orchestrator` | Milestone → grill the user → tickets in `.agents/runs/` → dispatch/routing |
+| `frontend-dev` | UI tickets: pages, views, components (3-tier, primitives, tokens, memo) |
+| `firebase-dev` | Data tickets: services, hooks, types, rules drafts. Never deploys. |
+| `qa-code-reviewer` | Gate: `scripts/verify.sh` + guideline diff review + ponytail pass |
+| `agent-handoff` | Shared contract: HANDOFF/QA-REPORT/MANUAL-TEST files and statuses |
+
+### Build skills
+
+| Skill | Use for |
+|---|---|
+| `build-performant-component` | New presentational component (interactive scaffold + script) |
+| `data-hook-firebase` | New Firestore data path: service + React Query hooks (interactive scaffold + script) |
+| `scaffold-rn-project` | Fresh app scaffold |
+| `theme-setup` | Theme token setup/refresh |
+| `wire-up-agents-md` | AGENTS.md/guidelines wiring |
+| `ponytail` | Minimal-diff behavior mode (lazy senior dev ruleset) |
+| `ponytail-review` | Over-engineering review → delete-list (used by QA) |
 
 ## Conventions at a glance
 

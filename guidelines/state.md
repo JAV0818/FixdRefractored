@@ -57,6 +57,8 @@ Memoize `subscribe` with `useCallback` so the listener isn't torn down and re-at
 
 **Choosing between the two:** does the screen need to update without the user acting? → `onSnapshot`. Is a fetch-on-mount (with manual refetch) enough? → React Query. Mutations stay React Query `useMutation`, but when the lists they affect are live, they need **no** `onSuccess` invalidation — the listeners update themselves.
 
+**Hard rule — multi-role data must be live.** If a Firestore collection is **written by one role and read by another** (e.g. a mechanic toggles availability and an admin views the mechanics list, or a customer submits an order and a mechanic sees it in the marketplace), the reading side **must** use `onSnapshot`, not a one-shot `getDocs` query. One-shot reads are only acceptable for data owned and consumed by the same user (e.g. their own profile, their own vehicles). Violating this creates stale-data bugs where one user's action is invisible to another until they manually refresh — the #1 recurring bug in this codebase.
+
 The tradeoff `onSnapshot` accepts: no cross-screen shared cache (each mount opens its own listener). Fine at this scale; if it ever isn't, the lever is bridging snapshots into the React Query cache via `setQueryData` (noted in `DEFERRED.md`).
 
 ## Rule 2 — React Context for client state

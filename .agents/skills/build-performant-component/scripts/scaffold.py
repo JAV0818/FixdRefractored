@@ -92,10 +92,10 @@ def render_inline_component(args, kebab, name, memo_wrap, has_props):
 import {{ Card, Text }} from "react-native-paper";{memo_import}
 
 import {{ colors, spacing }} from "@/theme";
-
+{props_type_block}
 const containerStyle = {{ margin: spacing.md, padding: spacing.md }};
 const titleStyle = {{ color: colors.textPrimary }};
-{props_type_block}
+
 export const {name} = {open_wrap}{func_name}{args_signature} {{
   return (
     <Card mode="contained" style={{containerStyle}}>
