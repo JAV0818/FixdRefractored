@@ -15,6 +15,7 @@ import type { RepairOrder } from "@/types/order.interface";
 
 import { ORDER_DETAIL_COPY } from "../order-detail.constants";
 import { DetailSection, OrderParty, PhotoGallery, QuoteSummary } from "../components";
+import { AdminActions } from "./order-detail-admin-actions.view";
 import { CustomerActions } from "./order-detail-customer-actions.view";
 import { ProviderActions } from "./order-detail-provider-actions.view";
 
@@ -105,6 +106,7 @@ export const OrderDetailSuccessView = ({ order }: OrderDetailSuccessViewProps) =
         </DetailSection>
       )}
 
+      {role === "owner" && <AdminActions order={order} />}
       {role === "customer" && <CustomerActions order={order} />}
       {role === "provider" && <ProviderActions order={order} />}
     </ScrollView>
