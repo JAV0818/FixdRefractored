@@ -8,13 +8,16 @@ import {
   getDoc,
   getDocs,
   limit,
+  onSnapshot,
+  orderBy,
   query,
   setDoc,
   updateDoc,
   where,
+  type Unsubscribe,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import type { ProviderDetails, UserProfile, UserRole } from "@/types/user.interface";
+import type { MechanicProfile, ProviderDetails, UserProfile, UserRole } from "@/types/user.interface";
 
 // Coerce a possibly-partial provider profile (older / hand-edited docs) into a
 // fully-formed ProviderDetails so the UI never reads an undefined field.
@@ -29,6 +32,26 @@ const normalizeProviderProfile = (raw: unknown): ProviderDetails | undefined => 
     totalEarnings: p.totalEarnings ?? 0,
     totalJobsCompleted: p.totalJobsCompleted ?? 0,
     yearsExperience: p.yearsExperience ?? 0,
+  };
+};
+
+const mapToMechanicProfile = (id: string, data: Record<string, unknown>): MechanicProfile => {
+  const firstName = (data.firstName as string | null) ?? "";
+  const lastName = (data.lastName as string | null) ?? "";
+  return {
+    uid: id,
+    name: `${firstName} ${lastName}`.trim() || (data.email as string) || id,
+    email: (data.email as string) ?? "",
+    isActive: (data.isActive as boolean | undefined) ?? true,
+    providerProfile: normalizeProviderProfile(data.providerProfile) ?? {
+      averageRating: 0,
+      bio: "",
+      isAvailable: true,
+      specialties: [],
+      totalEarnings: 0,
+      totalJobsCompleted: 0,
+      yearsExperience: 0,
+    },
   };
 };
 
@@ -108,6 +131,17 @@ export const userService = {
     });
   },
 
+  // One-time test helper: promote an existing Firebase Auth user to owner so
+  // the admin tab group can be exercised locally. Never called from in-app UI.
+  async setOwnerRole(userId: string): Promise<void> {
+    const ref = doc(db, "users", userId);
+    await updateDoc(ref, {
+      role: "owner",
+      hasCompletedOnboarding: true,
+      updatedAt: Date.now(),
+    });
+  },
+
   // Profile edits — identity/contact fields the user can change from their
   // profile screen.
   async updateContactInfo(
@@ -162,6 +196,71 @@ export const userService = {
     await updateDoc(doc(db, "users", userId), {
       "providerProfile.bio": about.bio,
       "providerProfile.specialties": about.specialties,
+      updatedAt: Date.now(),
+    });
+  },
+
+  // Full provider profile edit — bio, specialties, and yearsExperience.
+  // Dot-notation patches each nested field individually so we don't clobber
+  // stats or availability.
+  async updateProviderProfile(
+    userId: string,
+    data: { bio: string; specialties: string[]; yearsExperience: number },
+  ): Promise<void> {
+    await updateDoc(doc(db, "users", userId), {
+      "providerProfile.bio": data.bio,
+      "providerProfile.specialties": data.specialties,
+      "providerProfile.yearsExperience": data.yearsExperience,
+      updatedAt: Date.now(),
+    });
+  },
+
+  // Owner/admin: list every mechanic account, newest first.
+  async getMechanics(): Promise<MechanicProfile[]> {
+    const q = query(
+      collection(db, "users"),
+      where("role", "==", "provider"),
+      orderBy("createdAt", "desc"),
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => mapToMechanicProfile(d.id, d.data()));
+  },
+
+  // Owner/admin: live stream the mechanics list so availability/status changes
+  // made by mechanics or other admins appear without a manual refresh.
+  subscribeToMechanics(
+    onData: (mechanics: MechanicProfile[]) => void,
+    onError: (error: Error) => void,
+  ): Unsubscribe {
+    const q = query(
+      collection(db, "users"),
+      where("role", "==", "provider"),
+      orderBy("createdAt", "desc"),
+    );
+    return onSnapshot(
+      q,
+      (snap) => onData(snap.docs.map((d) => mapToMechanicProfile(d.id, d.data()))),
+      onError,
+    );
+  },
+
+  // Owner/admin: live stream a single mechanic profile.
+  subscribeToMechanic(
+    providerId: string,
+    onData: (mechanic: MechanicProfile | undefined) => void,
+    onError: (error: Error) => void,
+  ): Unsubscribe {
+    return onSnapshot(
+      doc(db, "users", providerId),
+      (snap) => onData(snap.exists() ? mapToMechanicProfile(snap.id, snap.data()) : undefined),
+      onError,
+    );
+  },
+
+  // Owner/admin: enable or disable a mechanic account.
+  async toggleMechanicActive(providerId: string, isActive: boolean): Promise<void> {
+    await updateDoc(doc(db, "users", providerId), {
+      isActive,
       updatedAt: Date.now(),
     });
   },

@@ -23,11 +23,23 @@ export type Vehicle = {
 export type ProviderDetails = {
   averageRating: number; // rating the mechanic has received from customers (1–5)
   bio: string;
+  certifications?: string[];
   isAvailable: boolean;
+  serviceRadius?: number;
   specialties: string[];
   totalEarnings: number;
   totalJobsCompleted: number;
   yearsExperience: number;
+};
+
+// Admin-facing mechanic summary. Derived from the `users` collection where
+// `role === "provider"`.
+export type MechanicProfile = {
+  email: string;
+  isActive: boolean;
+  name: string;
+  providerProfile: ProviderDetails;
+  uid: string;
 };
 
 export type UserProfile = {

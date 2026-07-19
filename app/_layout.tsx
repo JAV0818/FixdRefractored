@@ -71,7 +71,7 @@ const InitialLayout = () => {
     } else if (role === "provider" && !inProvider) {
       router.replace("/(provider-tabs)/marketplace");
     } else if (role === "owner" && !inAdmin) {
-      router.replace("/(admin-tabs)");
+      router.replace("/(admin-tabs)/orders");
     }
   }, [currentUser, role, hasCompletedOnboarding, isHydrated, segments, router]);
 

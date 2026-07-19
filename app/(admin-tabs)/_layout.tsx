@@ -16,10 +16,24 @@ export default function AdminTabsLayout() {
       screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen
-        name="index"
+        name="orders"
         options={{
           title: "Orders",
           tabBarIcon: tabIcon("list", "list-outline"),
+        }}
+      />
+      <Tabs.Screen
+        name="mechanics"
+        options={{
+          title: "Mechanics",
+          tabBarIcon: tabIcon("build", "build-outline"),
+        }}
+      />
+      <Tabs.Screen
+        name="earnings"
+        options={{
+          title: "Earnings",
+          tabBarIcon: tabIcon("cash", "cash-outline"),
         }}
       />
     </Tabs>

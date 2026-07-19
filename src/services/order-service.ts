@@ -16,6 +16,7 @@ import {
   onSnapshot,
   increment,
   writeBatch,
+  type QueryConstraint,
   type Unsubscribe,
 } from "firebase/firestore";
 
@@ -288,6 +289,75 @@ export const orderService = {
     );
     const snap = await getDocs(q);
     return snap.docs.map(snapToOrder);
+  },
+
+  // Owner/admin: every order, optionally filtered by status. No client-side
+  // limit so the admin sees the full list; pagination can be added once volume
+  // justifies it.
+  async getAllOrders(filters?: { status?: OrderStatus }): Promise<RepairOrder[]> {
+    const constraints: QueryConstraint[] = [orderBy("createdAt", "desc")];
+    if (filters?.status) {
+      constraints.unshift(where("status", "==", filters.status));
+    }
+    const q = query(ordersCollection(), ...constraints);
+    const snap = await getDocs(q);
+    return snap.docs.map(snapToOrder);
+  },
+
+  // Owner/admin: live stream of every order, optionally filtered by status.
+  subscribeToAllOrders(
+    onData: (orders: RepairOrder[]) => void,
+    onError: (error: Error) => void,
+    filters?: { status?: OrderStatus },
+  ): Unsubscribe {
+    const constraints: QueryConstraint[] = [orderBy("createdAt", "desc")];
+    if (filters?.status) {
+      constraints.unshift(where("status", "==", filters.status));
+    }
+    const q = query(ordersCollection(), ...constraints);
+    return onSnapshot(
+      q,
+      (snap) => onData(snap.docs.map(snapToOrder)),
+      onError,
+    );
+  },
+
+  // Owner/admin assigns a mechanic to an order. Atomically updates provider
+  // details, the assigning owner, and bumps Pending → Accepted. The provider
+  // name is read from the users doc inside the transaction so the caller only
+  // needs the provider id.
+  async assignOrderToProvider(
+    orderId: string,
+    providerId: string,
+    assignedBy: string,
+  ): Promise<void> {
+    const orderRef = doc(db, ORDERS, orderId);
+    const providerRef = doc(db, "users", providerId);
+    await runTransaction(db, async (tx) => {
+      const orderSnap = await tx.get(orderRef);
+      const providerSnap = await tx.get(providerRef);
+      if (!orderSnap.exists()) throw new Error("Order not found");
+      if (!providerSnap.exists()) throw new Error("Provider not found");
+
+      const orderData = orderSnap.data();
+      const providerData = providerSnap.data();
+      const now = Date.now();
+      const firstName = (providerData.firstName as string | null) ?? "";
+      const lastName = (providerData.lastName as string | null) ?? "";
+      const providerName = `${firstName} ${lastName}`.trim() || (providerData.email as string) || providerId;
+
+      const update: Partial<RepairOrder> = {
+        providerId,
+        providerName,
+        assignedBy,
+        updatedAt: now,
+      };
+      if (orderData.status === "Pending") {
+        update.status = "Accepted";
+        update.acceptedAt = now;
+      }
+      tx.update(orderRef, update);
+    });
   },
 
   // The marketplace feed: unassigned, still-pending orders (M5).
