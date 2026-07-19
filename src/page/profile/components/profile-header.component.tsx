@@ -6,7 +6,7 @@ import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from "react-nat
 import { Text } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 
-import { Avatar } from "@/components";
+import { Avatar, GlassCard } from "@/components";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
 
 const AVATAR_SIZE = 96;
@@ -27,7 +27,7 @@ export const ProfileHeader = memo(function ProfileHeader({
   onChangePhoto,
 }: ProfileHeaderProps) {
   return (
-    <View style={styles.header}>
+    <GlassCard style={styles.header}>
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={onChangePhoto}
@@ -47,7 +47,7 @@ export const ProfileHeader = memo(function ProfileHeader({
       </TouchableOpacity>
       <Text style={styles.name}>{name}</Text>
       <Text style={styles.subtitle}>{subtitle}</Text>
-    </View>
+    </GlassCard>
   );
 });
 

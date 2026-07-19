@@ -6,13 +6,12 @@ import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
-import { AppCard } from "@/components";
+import { GlassCard, StatPill } from "@/components";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import type { Vehicle } from "@/types/user.interface";
 
 import { PROFILE_COPY } from "../profile.constants";
 import { formatRating } from "../utils/profile-format";
-import { StatTile } from "./stat-tile.component";
 
 type CustomerSectionsProps = {
   vehicles: Vehicle[];
@@ -33,7 +32,7 @@ export const CustomerSections = memo(function CustomerSections({
 }: CustomerSectionsProps) {
   return (
     <>
-      <AppCard style={styles.card}>
+      <GlassCard style={styles.card}>
         <Text style={styles.title}>{PROFILE_COPY.vehiclesTitle}</Text>
         {vehicles.length === 0 ? (
           <Text style={styles.muted}>{PROFILE_COPY.noVehicles}</Text>
@@ -48,18 +47,18 @@ export const CustomerSections = memo(function CustomerSections({
             );
           })
         )}
-      </AppCard>
+      </GlassCard>
 
-      <AppCard style={styles.card}>
+      <GlassCard style={styles.card}>
         <Text style={styles.title}>{PROFILE_COPY.customerStatsTitle}</Text>
         <View style={styles.stats}>
-          <StatTile
+          <StatPill
             label={`${PROFILE_COPY.rating}${totalRatingsCount ? ` (${totalRatingsCount})` : ""}`}
             value={formatRating(averageRating)}
           />
-          <StatTile label={PROFILE_COPY.completedOrders} value={String(completedOrdersCount)} />
+          <StatPill label={PROFILE_COPY.completedOrders} value={String(completedOrdersCount)} />
         </View>
-      </AppCard>
+      </GlassCard>
     </>
   );
 });

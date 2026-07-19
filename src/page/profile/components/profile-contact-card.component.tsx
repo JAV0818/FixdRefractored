@@ -6,7 +6,7 @@ import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
-import { AppButton, AppCard, AppTextInput } from "@/components";
+import { AppButton, AppTextInput, GlassCard } from "@/components";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
 
 import { PROFILE_COPY } from "../profile.constants";
@@ -44,7 +44,7 @@ export const ProfileContactCard = memo(function ProfileContactCard({
   onCancel,
 }: ProfileContactCardProps) {
   return (
-    <AppCard style={styles.card}>
+    <GlassCard style={styles.card}>
       <View style={styles.titleRow}>
         <Text style={styles.title}>{PROFILE_COPY.contactTitle}</Text>
         {!editing && (
@@ -91,7 +91,7 @@ export const ProfileContactCard = memo(function ProfileContactCard({
           <InfoRow label={PROFILE_COPY.phone} value={phone || PROFILE_COPY.notSet} />
         </>
       )}
-    </AppCard>
+    </GlassCard>
   );
 });
 

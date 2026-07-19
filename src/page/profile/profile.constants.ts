@@ -46,6 +46,12 @@ export const PROFILE_COPY = {
   viewPerformance: "Performance",
   changePassword: "Change Password",
 
+  // Provider icon toolbar
+  editProfileLabel: "Edit",
+  performanceLabel: "Stats",
+  changePasswordLabel: "Security",
+  signOutLabel: "Sign out",
+
   // Shared stats
   rating: "Rating",
   noRatingYet: "—",

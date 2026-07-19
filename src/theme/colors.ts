@@ -24,6 +24,19 @@ export const lightColors = {
   scrim: "#111111",
   overlayDark: "rgba(0,0,0,0.55)",
 
+  // Glass surfaces
+  glassSurface: "rgba(255,255,255,0.72)",
+  glassSurfaceHighlight: "rgba(255,255,255,0.88)",
+  glassBorder: "rgba(255,255,255,0.40)",
+  glassBorderStrong: "rgba(255,255,255,0.60)",
+  glassText: "#14142B",
+  glassTextMuted: "#4E4B66",
+  glassShadow: "rgba(20,20,43,0.12)",
+
+  // Rich page backgrounds
+  backgroundGradientStart: "#E8E9F3",
+  backgroundGradientEnd: "#D1D3E8",
+
   outline: "#D9DBE9",
   shadow: "#14142B",
 
@@ -46,6 +59,19 @@ export const darkColors = {
   textPrimary: "#FFFFFF",
   textSecondary: "#A0A0B8",
   textDisabled: "#5A5A75",
+
+  // Glass surfaces (dark)
+  glassSurface: "rgba(30,24,40,0.72)",
+  glassSurfaceHighlight: "rgba(45,38,60,0.88)",
+  glassBorder: "rgba(255,255,255,0.12)",
+  glassBorderStrong: "rgba(255,255,255,0.22)",
+  glassText: "#FFFFFF",
+  glassTextMuted: "#A0A0B8",
+  glassShadow: "rgba(0,0,0,0.40)",
+
+  // Rich page backgrounds (dark)
+  backgroundGradientStart: "#0A0612",
+  backgroundGradientEnd: "#1E1828",
 
   outline: "#2A2540",
   shadow: "#000000",

@@ -5,7 +5,7 @@ import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { Switch, Text } from "react-native-paper";
 
-import { AppCard } from "@/components";
+import { GlassCard } from "@/components";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
 
 import { PROFILE_COPY } from "../profile.constants";
@@ -22,7 +22,7 @@ export const MechanicAvailabilityCard = memo(function MechanicAvailabilityCard({
   onToggle,
 }: MechanicAvailabilityCardProps) {
   return (
-    <AppCard>
+    <GlassCard>
       <View style={styles.row}>
         <View style={styles.text}>
           <Text style={styles.label}>{PROFILE_COPY.availabilityLabel}</Text>
@@ -35,7 +35,7 @@ export const MechanicAvailabilityCard = memo(function MechanicAvailabilityCard({
           color={colors.primary}
         />
       </View>
-    </AppCard>
+    </GlassCard>
   );
 });
 

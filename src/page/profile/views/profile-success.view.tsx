@@ -3,10 +3,10 @@
 // render the customer or mechanic sections. The page header lives in the page.
 
 import { useCallback, useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 
-import { AppButton, KeyboardSafeView } from "@/components";
+import { AppButton, GlassCard, IconActionButton, KeyboardSafeView } from "@/components";
 import { spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { useImagePicker } from "@/hooks/use-image-picker";
@@ -115,49 +115,58 @@ export const ProfileSuccessView = ({ profile }: ProfileSuccessViewProps) => {
           />
           <MechanicAboutView provider={profile.providerProfile} />
           <MechanicStatsCard provider={profile.providerProfile} />
-          <AppButton
-            variant="secondary"
-            icon="pencil-outline"
-            onPress={() => router.push("/(provider-tabs)/profile/edit")}
-          >
-            {PROFILE_COPY.editProfile}
-          </AppButton>
-          <AppButton
-            variant="secondary"
-            icon="chart-bar"
-            onPress={() => router.push("/(provider-tabs)/profile/performance")}
-          >
-            {PROFILE_COPY.viewPerformance}
-          </AppButton>
-          <AppButton
-            variant="secondary"
-            icon="lock-outline"
-            onPress={() => router.push("/(provider-tabs)/profile/change-password")}
-          >
-            {PROFILE_COPY.changePassword}
-          </AppButton>
+
+          <GlassCard style={styles.toolbarCard}>
+            <View style={styles.toolbar}>
+              <IconActionButton
+                icon="pencil-outline"
+                label={PROFILE_COPY.editProfileLabel}
+                onPress={() => router.push("/(provider-tabs)/profile/edit")}
+              />
+              <IconActionButton
+                icon="chart-bar"
+                label={PROFILE_COPY.performanceLabel}
+                onPress={() => router.push("/(provider-tabs)/profile/performance")}
+              />
+              <IconActionButton
+                icon="lock-outline"
+                label={PROFILE_COPY.changePasswordLabel}
+                onPress={() => router.push("/(provider-tabs)/profile/change-password")}
+              />
+              <IconActionButton
+                icon="logout"
+                label={PROFILE_COPY.signOutLabel}
+                onPress={onSignOut}
+                destructive
+                loading={signOut.isPending}
+                disabled={signOut.isPending}
+              />
+            </View>
+          </GlassCard>
         </>
       ) : null}
 
       {profile.role === "customer" ? (
-        <CustomerSections
-          vehicles={profile.vehicles ?? []}
-          averageRating={profile.averageRating}
-          totalRatingsCount={profile.totalRatingsCount}
-          completedOrdersCount={profile.completedOrdersCount}
-        />
-      ) : null}
+        <>
+          <CustomerSections
+            vehicles={profile.vehicles ?? []}
+            averageRating={profile.averageRating}
+            totalRatingsCount={profile.totalRatingsCount}
+            completedOrdersCount={profile.completedOrdersCount}
+          />
 
-      <AppButton
-        variant="secondary"
-        icon="logout"
-        onPress={onSignOut}
-        loading={signOut.isPending}
-        disabled={signOut.isPending}
-        style={styles.signOut}
-      >
-        {PROFILE_COPY.signOut}
-      </AppButton>
+          <AppButton
+            variant="secondary"
+            icon="logout"
+            onPress={onSignOut}
+            loading={signOut.isPending}
+            disabled={signOut.isPending}
+            style={styles.signOut}
+          >
+            {PROFILE_COPY.signOut}
+          </AppButton>
+        </>
+      ) : null}
     </KeyboardSafeView>
   );
 };
@@ -167,6 +176,14 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.md,
     paddingBottom: TAB_BAR_CLEARANCE,
+  },
+  toolbarCard: {
+    paddingVertical: spacing.md,
+  },
+  toolbar: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "flex-start",
   },
   signOut: {
     marginTop: spacing.sm,

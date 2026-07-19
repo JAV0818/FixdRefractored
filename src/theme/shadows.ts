@@ -7,6 +7,8 @@
 import { Platform } from "react-native";
 import type { ViewStyle } from "react-native";
 
+import { lightColors } from "./colors";
+
 type Shadow = Pick<ViewStyle, "shadowColor" | "shadowOffset" | "shadowOpacity" | "shadowRadius" | "elevation">;
 
 const make = (offsetY: number, blur: number, opacity: number, elevation: number): Shadow => ({
@@ -29,6 +31,13 @@ export const shadows = {
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 16,
+    elevation: Platform.OS === "android" ? 8 : 0,
+  } satisfies Shadow,
+  glass: {
+    shadowColor: lightColors.glassShadow,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 24,
     elevation: Platform.OS === "android" ? 8 : 0,
   } satisfies Shadow,
 } as const;

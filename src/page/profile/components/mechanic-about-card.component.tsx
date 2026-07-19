@@ -7,7 +7,7 @@ import { memo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
-import { AppButton, AppCard, AppTextInput, FilterChips } from "@/components";
+import { AppButton, AppTextInput, FilterChips, GlassCard } from "@/components";
 import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
 
 import { PROFILE_COPY } from "../profile.constants";
@@ -53,7 +53,7 @@ export const MechanicAboutCard = memo(function MechanicAboutCard({
   };
 
   return (
-    <AppCard style={styles.card}>
+    <GlassCard style={styles.card}>
       <View style={styles.titleRow}>
         <Text style={styles.title}>{PROFILE_COPY.aboutTitle}</Text>
         {!editing && (
@@ -126,7 +126,7 @@ export const MechanicAboutCard = memo(function MechanicAboutCard({
           )}
         </>
       )}
-    </AppCard>
+    </GlassCard>
   );
 });
 
