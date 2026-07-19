@@ -4,7 +4,8 @@ import { FloatingTabBar } from "@/components";
 
 type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
 
-const tabIcon = (active: IoniconName, inactive: IoniconName) =>
+const tabIcon =
+  (active: IoniconName, inactive: IoniconName) =>
   ({ color, focused }: { color: string; focused: boolean }) => (
     <Ionicons name={focused ? active : inactive} size={22} color={color} />
   );
@@ -27,6 +28,13 @@ export default function ProviderTabsLayout() {
         options={{
           title: "Queue",
           tabBarIcon: tabIcon("clipboard", "clipboard-outline"),
+        }}
+      />
+      <Tabs.Screen
+        name="custom-quote"
+        options={{
+          title: "Quote",
+          tabBarIcon: tabIcon("add-circle", "add-circle"),
         }}
       />
       <Tabs.Screen

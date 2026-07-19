@@ -12,7 +12,10 @@ const tabIcon =
 
 export default function CustomerTabsLayout() {
   return (
-    <Tabs tabBar={(props) => <FloatingTabBar {...props} />} screenOptions={{ headerShown: false }}>
+    <Tabs
+      tabBar={(props) => <FloatingTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
+    >
       <Tabs.Screen
         name="services"
         options={{
@@ -25,6 +28,13 @@ export default function CustomerTabsLayout() {
         options={{
           title: "Requests",
           tabBarIcon: tabIcon("document-text", "document-text-outline"),
+        }}
+      />
+      <Tabs.Screen
+        name="create-request"
+        options={{
+          title: "Create",
+          tabBarIcon: tabIcon("add-circle", "add-circle"),
         }}
       />
       <Tabs.Screen

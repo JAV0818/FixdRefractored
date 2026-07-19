@@ -4,7 +4,8 @@ import { FloatingTabBar } from "@/components";
 
 type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
 
-const tabIcon = (active: IoniconName, inactive: IoniconName) =>
+const tabIcon =
+  (active: IoniconName, inactive: IoniconName) =>
   ({ color, focused }: { color: string; focused: boolean }) => (
     <Ionicons name={focused ? active : inactive} size={22} color={color} />
   );
@@ -23,17 +24,17 @@ export default function AdminTabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="mechanics"
-        options={{
-          title: "Mechanics",
-          tabBarIcon: tabIcon("build", "build-outline"),
-        }}
-      />
-      <Tabs.Screen
         name="earnings"
         options={{
           title: "Earnings",
           tabBarIcon: tabIcon("cash", "cash-outline"),
+        }}
+      />
+      <Tabs.Screen
+        name="mechanics"
+        options={{
+          title: "Mechanics",
+          tabBarIcon: tabIcon("build", "build-outline"),
         }}
       />
     </Tabs>
