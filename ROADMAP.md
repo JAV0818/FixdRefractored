@@ -13,7 +13,7 @@
 | M3 | Customer: Services Tab & Quote Request | DONE | customer-home + multi-step quote-request, now incl. a customer-picked appointment time. |
 | M4 | Customer: Requests/Orders Tab & Profile Tab | PARTIAL | Requests tab (live) + shared order-detail + customer & mechanic profile screens done. **Still missing: vehicle management, account/privacy settings.** |
 | M5 | Provider: Marketplace Tab & Queue Tab | DONE | Marketplace + Queue + quote-builder + accept + start + cancel + inspection checklist + complete flow + custom charges all shipped. |
-| M6 | Provider: Profile Tab & Performance | PARTIAL | Profile tab built — availability toggle, about/bio editing, avatar hook, stats card. **Still missing: performance-details screen, full profile-edit screen, account/change-password.** |
+| M6 | Provider: Profile Tab & Performance | DONE | Profile tab, availability toggle, about/bio editing, avatar, stats card, performance-details, provider-profile-edit, change-password all shipped. Nav buttons on profile index link to sub-screens. |
 | M7 | Messaging (CometChat) | NOT STARTED | "Message" buttons currently show a "coming soon" Alert placeholder. |
 | M8 | Admin Flow | NOT STARTED | Can start after M3 + M5. |
 | M9 | Payments | NOT STARTED | Order lifecycle already models the $20 deposit hold (authorize/capture/release); Stripe not wired. |
@@ -62,7 +62,6 @@ disagree, **the code wins**; the key deltas:
 
 ### Nearest remaining work
 - **Finish M4:** vehicle management screen, account/privacy settings.
-- **Finish M6:** performance-details screen, provider-profile-edit screen, account/change-password.
 - **M7 (Messaging):** CometChat conversation list + real-time chat — unblocked.
 - **M8 (Admin):** Can run in parallel with M7.
 - **M9 (Payments):** Stripe deposit + cash payment recording.

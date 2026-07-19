@@ -4,6 +4,7 @@
 
 import { useCallback, useState } from "react";
 import { StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 
 import { AppButton, KeyboardSafeView } from "@/components";
 import { spacing } from "@/theme";
@@ -34,6 +35,7 @@ type ProfileSuccessViewProps = {
 const EMPTY_DRAFT: ContactDraft = { firstName: "", lastName: "", phone: "" };
 
 export const ProfileSuccessView = ({ profile }: ProfileSuccessViewProps) => {
+  const router = useRouter();
   const pickImage = useImagePicker();
   const updateAvatar = useUpdateAvatar();
   const updateContact = useUpdateContact();
@@ -113,6 +115,27 @@ export const ProfileSuccessView = ({ profile }: ProfileSuccessViewProps) => {
           />
           <MechanicAboutView provider={profile.providerProfile} />
           <MechanicStatsCard provider={profile.providerProfile} />
+          <AppButton
+            variant="secondary"
+            icon="pencil-outline"
+            onPress={() => router.push("/(provider-tabs)/profile/edit")}
+          >
+            {PROFILE_COPY.editProfile}
+          </AppButton>
+          <AppButton
+            variant="secondary"
+            icon="chart-bar"
+            onPress={() => router.push("/(provider-tabs)/profile/performance")}
+          >
+            {PROFILE_COPY.viewPerformance}
+          </AppButton>
+          <AppButton
+            variant="secondary"
+            icon="lock-outline"
+            onPress={() => router.push("/(provider-tabs)/profile/change-password")}
+          >
+            {PROFILE_COPY.changePassword}
+          </AppButton>
         </>
       ) : null}
 

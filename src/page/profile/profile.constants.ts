@@ -41,6 +41,11 @@ export const PROFILE_COPY = {
   jobsCompleted: "Jobs completed",
   earnings: "Earnings",
 
+  // Navigation
+  editProfile: "Edit Profile",
+  viewPerformance: "Performance",
+  changePassword: "Change Password",
+
   // Shared stats
   rating: "Rating",
   noRatingYet: "—",
