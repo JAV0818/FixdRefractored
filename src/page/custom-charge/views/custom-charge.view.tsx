@@ -10,8 +10,8 @@ import { StyleSheet, View } from "react-native";
 import { ActivityIndicator, HelperText, Text } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
-import { AppButton, AppCard, KeyboardSafeView } from "@/components";
-import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
+import { AppButton, GlassCard, KeyboardSafeView } from "@/components";
+import { colors, fontSize, fontWeight, radii, shadows, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatCurrency } from "@/utils/format";
 import { useOrder } from "@/hooks/use-order";
@@ -107,7 +107,7 @@ export const CustomChargeView = () => {
       </View>
 
       {order.items.length > 0 && (
-        <AppCard>
+        <GlassCard>
           <Text style={styles.sectionLabel}>{CUSTOM_CHARGE_COPY.existingItems}</Text>
           {order.items.map((item, index) => (
             <View key={index} style={styles.existingRow}>
@@ -120,7 +120,7 @@ export const CustomChargeView = () => {
               </Text>
             </View>
           ))}
-        </AppCard>
+        </GlassCard>
       )}
 
       <Text style={styles.sectionLabel}>{CUSTOM_CHARGE_COPY.newItems}</Text>
@@ -190,11 +190,11 @@ const styles = StyleSheet.create({
   vehicle: {
     fontSize: fontSize.xl,
     fontWeight: fontWeight.bold,
-    color: colors.textPrimary,
+    color: colors.glassText,
   },
   hint: {
     fontSize: fontSize.xs,
-    color: colors.textSecondary,
+    color: colors.glassTextMuted,
   },
   muted: {
     fontSize: fontSize.sm,
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: fontSize.sm,
     fontWeight: fontWeight.semibold,
-    color: colors.textSecondary,
+    color: colors.glassTextMuted,
   },
   existingRow: {
     flexDirection: "row",
@@ -214,19 +214,22 @@ const styles = StyleSheet.create({
   existingName: {
     flex: 1,
     fontSize: fontSize.sm,
-    color: colors.textPrimary,
+    color: colors.glassText,
     marginRight: spacing.sm,
   },
   existingPrice: {
     fontSize: fontSize.sm,
-    color: colors.textSecondary,
+    color: colors.glassTextMuted,
   },
   summary: {
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    backgroundColor: colors.surfaceVariant,
+    backgroundColor: colors.glassSurface,
     borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
     gap: spacing.xs,
+    ...shadows.glass,
   },
   summaryRow: {
     flexDirection: "row",
@@ -235,21 +238,21 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: fontSize.sm,
-    color: colors.textSecondary,
+    color: colors.glassTextMuted,
   },
   summaryValue: {
     fontSize: fontSize.sm,
-    color: colors.textPrimary,
+    color: colors.glassText,
   },
   summaryDivider: {
     height: 1,
-    backgroundColor: colors.outline,
+    backgroundColor: colors.glassBorderStrong,
     marginVertical: spacing.xxs,
   },
   totalLabel: {
     fontSize: fontSize.base,
     fontWeight: fontWeight.semibold,
-    color: colors.textPrimary,
+    color: colors.glassText,
   },
   totalValue: {
     fontSize: fontSize.xl,

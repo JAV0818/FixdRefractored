@@ -7,7 +7,7 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { Text } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 
-import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
+import { colors, fontSize, fontWeight, radii, shadows, spacing } from "@/theme";
 import type { OrderStatus } from "@/types/order.interface";
 
 import { OrderStatusBadge } from "../order-status-badge";
@@ -41,7 +41,7 @@ export const OrderListItem = memo(function OrderListItem({
         </Text>
         {!!trailing && <Text style={styles.trailing}>{trailing}</Text>}
       </View>
-      <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+      <Ionicons name="chevron-forward" size={18} color={colors.glassTextMuted} />
     </TouchableOpacity>
   );
 });
@@ -51,13 +51,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
-    padding: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
+    padding: spacing.lg,
+    backgroundColor: colors.glassSurface,
+    borderRadius: radii.xl,
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+    ...shadows.glass,
   },
   body: {
     flex: 1,
-    gap: spacing.xs,
+    gap: spacing.md,
   },
   headerRow: {
     flexDirection: "row",
@@ -69,15 +72,15 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: fontSize.base,
     fontWeight: fontWeight.semibold,
-    color: colors.textPrimary,
+    color: colors.glassText,
   },
   subtitle: {
     fontSize: fontSize.sm,
-    color: colors.textSecondary,
+    color: colors.glassTextMuted,
   },
   trailing: {
     fontSize: fontSize.sm,
-    fontWeight: fontWeight.semibold,
-    color: colors.textPrimary,
+    fontWeight: fontWeight.bold,
+    color: colors.primary,
   },
 });

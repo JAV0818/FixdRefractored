@@ -6,7 +6,7 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { TextInput } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 
-import { colors, radii, spacing } from "@/theme";
+import { colors, radii, shadows, spacing } from "@/theme";
 
 import { CUSTOM_CHARGE_COPY } from "../custom-charge.constants";
 
@@ -41,7 +41,7 @@ export const LineItemRow = memo(function LineItemRow({
           mode="outlined"
           dense
           style={styles.name}
-          outlineColor={colors.outline}
+          outlineColor={colors.glassBorderStrong}
           activeOutlineColor={colors.primary}
         />
         <View style={styles.numbers}>
@@ -53,7 +53,7 @@ export const LineItemRow = memo(function LineItemRow({
             dense
             keyboardType="decimal-pad"
             style={styles.price}
-            outlineColor={colors.outline}
+            outlineColor={colors.glassBorderStrong}
             activeOutlineColor={colors.primary}
           />
           <TextInput
@@ -64,7 +64,7 @@ export const LineItemRow = memo(function LineItemRow({
             dense
             keyboardType="number-pad"
             style={styles.qty}
-            outlineColor={colors.outline}
+            outlineColor={colors.glassBorderStrong}
             activeOutlineColor={colors.primary}
           />
         </View>
@@ -84,16 +84,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     gap: spacing.sm,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.glassSurface,
     borderRadius: radii.lg,
-    padding: spacing.md,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+    ...shadows.glass,
   },
   fields: {
     flex: 1,
     gap: spacing.sm,
   },
   name: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.glassSurfaceHighlight,
   },
   numbers: {
     flexDirection: "row",
@@ -101,11 +104,11 @@ const styles = StyleSheet.create({
   },
   price: {
     flex: 2,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.glassSurfaceHighlight,
   },
   qty: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.glassSurfaceHighlight,
   },
   remove: {
     paddingTop: spacing.sm,

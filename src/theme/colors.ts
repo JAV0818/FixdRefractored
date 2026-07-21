@@ -32,6 +32,7 @@ export const lightColors = {
   glassText: "#14142B",
   glassTextMuted: "#4E4B66",
   glassShadow: "rgba(20,20,43,0.12)",
+  glassPrimaryTint: "rgba(91,87,245,0.15)",
 
   // Rich page backgrounds
   backgroundGradientStart: "#E8E9F3",
@@ -68,6 +69,7 @@ export const darkColors = {
   glassText: "#FFFFFF",
   glassTextMuted: "#A0A0B8",
   glassShadow: "rgba(0,0,0,0.40)",
+  glassPrimaryTint: "rgba(61,219,255,0.18)",
 
   // Rich page backgrounds (dark)
   backgroundGradientStart: "#0A0612",
