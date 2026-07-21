@@ -16,7 +16,7 @@
 | M6 | Provider: Profile Tab & Performance | DONE | Profile tab, availability toggle, about/bio editing, avatar, stats card, performance-details, provider-profile-edit, change-password all shipped. Nav buttons on profile index link to sub-screens. |
 | M7 | Messaging (CometChat) | DONE | Customer + provider conversation lists, shared real-time chat, CometChat auth wiring, and order-detail Message buttons all shipped. Requires dev client build + CometChat credentials for runtime testing. |
 | M8 | Admin Flow | NOT STARTED | Can start after M3 + M5. |
-| M9 | Payments | NOT STARTED | Order lifecycle already models the $20 deposit hold (authorize/capture/release); Stripe not wired. |
+| M9 | Payments | CODE LANDED | Stripe SDK installed, `payment-service` + `transaction-service` created, Firebase Callable stubs added, customer payment + provider collect-payment screens landed, and order-detail CTAs wired. Requires dev client build + deployed Cloud Functions (M10) for end-to-end testing. |
 | M10 | Polish: Cloud Functions, Push, Security Rules | NOT STARTED | `acceptOrder` has a client-side expiry guard until the expire function exists. Firestore composite indexes created ad-hoc; `firestore.indexes.json` holds the canonical set. |
 
 ## Divergences & additions beyond the original plan (as of 2026-06-08)

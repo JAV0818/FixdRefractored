@@ -56,6 +56,13 @@ export const CustomerActions = ({ order }: CustomerActionsProps) => {
     ]);
   }, [customer, declineQuote, order.id]);
 
+  const onPayDeposit = useCallback(() => {
+    router.push({
+      pathname: "/(customer-tabs)/requests/[orderId]/payment",
+      params: { orderId: order.id },
+    });
+  }, [router, order.id]);
+
   if (order.status === "Pending") return <StatusHint text={customer.waitingMechanic} />;
   if (order.status === "Accepted") return <StatusHint text={customer.waitingQuote} />;
   if (order.status === "Scheduled" && order.scheduledAt) {
@@ -83,9 +90,15 @@ export const CustomerActions = ({ order }: CustomerActionsProps) => {
     return (
       <View style={styles.actions}>
         <Text style={styles.depositNote}>{depositNote(formatCurrency(PLATFORM_DEPOSIT))}</Text>
-        <AppButton onPress={onApprove} loading={isBusy} disabled={isBusy}>
-          {customer.approve}
-        </AppButton>
+        {order.paymentStatus === "pending" ? (
+          <AppButton onPress={onPayDeposit} disabled={isBusy}>
+            {customer.payDeposit}
+          </AppButton>
+        ) : (
+          <AppButton onPress={onApprove} loading={isBusy} disabled={isBusy}>
+            {customer.approve}
+          </AppButton>
+        )}
         <AppButton variant="danger" onPress={onDecline} disabled={isBusy}>
           {customer.decline}
         </AppButton>

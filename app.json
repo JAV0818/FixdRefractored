@@ -27,7 +27,24 @@
     },
     "plugins": [
       "expo-router",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 36,
+            "kotlinVersion": "2.0.21"
+          }
+        }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "stripePublishableKey": "process.env.STRIPE_PUBLISHABLE_KEY",
+          "merchantIdentifier": null,
+          "enableGooglePay": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

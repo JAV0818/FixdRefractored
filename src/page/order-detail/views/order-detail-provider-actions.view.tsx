@@ -107,6 +107,18 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
     completeOrder.mutate({ orderId: order.id, providerId: currentUser.id });
   }, [completeOrder, order.id, currentUser]);
 
+  const onRecordCashPayment = useCallback(() => {
+    router.push({
+      pathname: "/(provider-tabs)/queue/[orderId]/collect-payment",
+      params: { orderId: order.id },
+    });
+  }, [router, order.id]);
+
+  const showRecordCashPayment =
+    (order.status === "Completed" || order.status === "InProgress") &&
+    order.remainingBalance > 0 &&
+    order.paymentStatus !== "paid";
+
   if (order.status === "Pending") {
     return (
       <View style={styles.actions}>
@@ -157,6 +169,11 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
       return (
         <View style={styles.actions}>
           <AppButton onPress={onInspect}>{provider.inspect}</AppButton>
+          {showRecordCashPayment && (
+            <AppButton variant="secondary" onPress={onRecordCashPayment}>
+              {provider.recordCashPayment}
+            </AppButton>
+          )}
           <AppButton variant="secondary" onPress={onChat}>
             {provider.chat}
           </AppButton>
@@ -172,6 +189,15 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
         >
           {provider.complete}
         </AppButton>
+        {showRecordCashPayment && (
+          <AppButton
+            variant="secondary"
+            onPress={onRecordCashPayment}
+            disabled={completeOrder.isPending}
+          >
+            {provider.recordCashPayment}
+          </AppButton>
+        )}
         <AppButton variant="secondary" onPress={onAddCharges} disabled={completeOrder.isPending}>
           {provider.addCharges}
         </AppButton>
@@ -188,6 +214,11 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
   if (order.status === "Completed" && isOwner) {
     return (
       <View style={styles.actions}>
+        {showRecordCashPayment && (
+          <AppButton variant="secondary" onPress={onRecordCashPayment}>
+            {provider.recordCashPayment}
+          </AppButton>
+        )}
         <AppButton variant="secondary" onPress={onChat}>
           {provider.chat}
         </AppButton>
