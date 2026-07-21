@@ -6,7 +6,7 @@ import { useCallback, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 
-import { AppButton, GlassCard, IconActionButton, KeyboardSafeView } from "@/components";
+import { GlassCard, IconActionButton, KeyboardSafeView } from "@/components";
 import { spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { useImagePicker } from "@/hooks/use-image-picker";
@@ -155,17 +155,34 @@ export const ProfileSuccessView = ({ profile }: ProfileSuccessViewProps) => {
             completedOrdersCount={profile.completedOrdersCount}
           />
 
-          <AppButton
-            variant="secondary"
-            icon="logout"
-            onPress={onSignOut}
-            loading={signOut.isPending}
-            disabled={signOut.isPending}
-            style={styles.signOut}
-          >
-            {PROFILE_COPY.signOut}
-          </AppButton>
+          <GlassCard style={styles.toolbarCard}>
+            <View style={styles.toolbar}>
+              <IconActionButton
+                icon="logout"
+                label={PROFILE_COPY.signOutLabel}
+                onPress={onSignOut}
+                destructive
+                loading={signOut.isPending}
+                disabled={signOut.isPending}
+              />
+            </View>
+          </GlassCard>
         </>
+      ) : null}
+
+      {profile.role === "owner" ? (
+        <GlassCard style={styles.toolbarCard}>
+          <View style={styles.toolbar}>
+            <IconActionButton
+              icon="logout"
+              label={PROFILE_COPY.signOutLabel}
+              onPress={onSignOut}
+              destructive
+              loading={signOut.isPending}
+              disabled={signOut.isPending}
+            />
+          </View>
+        </GlassCard>
       ) : null}
     </KeyboardSafeView>
   );
@@ -184,8 +201,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "flex-start",
-  },
-  signOut: {
-    marginTop: spacing.sm,
   },
 });
