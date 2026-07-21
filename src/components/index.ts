@@ -13,4 +13,3 @@ export { Avatar } from "./avatar";
 export { ImagePickerGrid } from "./image-picker-grid";
 export { FilterChips } from "./filter-chips";
 export { FilterChipRow } from "./filter-chip-row";
-export { SignOutButton } from "./sign-out-button";

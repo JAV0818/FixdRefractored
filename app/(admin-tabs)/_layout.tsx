@@ -37,6 +37,13 @@ export default function AdminTabsLayout() {
           tabBarIcon: tabIcon("build", "build-outline"),
         }}
       />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: tabIcon("person", "person-outline"),
+        }}
+      />
     </Tabs>
   );
 }
