@@ -8,14 +8,8 @@
 //
 // NOTE: CometChat requires native modules. This app must be run with a
 // dev client build (eas build --profile development), NOT Expo Go.
-//
-// TODO: Run `npm install @cometchat/chat-sdk-react-native` and uncomment
-// the real imports below once you have your CometChat App ID from
-// https://app.cometchat.com
 
-// ─── Uncomment once SDK is installed ────────────────────────────────────────
-// import { CometChat } from "@cometchat/chat-sdk-react-native";
-// ────────────────────────────────────────────────────────────────────────────
+import { CometChat } from "@cometchat/chat-sdk-react-native";
 
 const APP_ID = process.env.EXPO_PUBLIC_COMET_CHAT_APP_ID ?? "";
 const AUTH_KEY = process.env.EXPO_PUBLIC_COMET_CHAT_AUTH_KEY ?? "";
@@ -43,55 +37,87 @@ export type MessageListenerCallbacks = {
   onTextMessageReceived: (message: CometChatMessage) => void;
 };
 
+const isTextMessage = (message: CometChat.BaseMessage): message is CometChat.TextMessage => {
+  return message.getType() === "text";
+};
+
+const mapMessage = (message: CometChat.BaseMessage): CometChatMessage => {
+  const sender = message.getSender();
+  const text = isTextMessage(message) ? message.getText() : "";
+
+  return {
+    id: String(message.getId()),
+    text,
+    senderUid: sender.getUid(),
+    senderName: sender.getName(),
+    sentAt: message.getSentAt(),
+  };
+};
+
+const isUser = (value: CometChat.User | CometChat.Group): value is CometChat.User => {
+  return value instanceof CometChat.User;
+};
+
+const mapConversation = (conversation: CometChat.Conversation): CometChatConversation => {
+  const conversationWith = conversation.getConversationWith();
+  const sdkLastMessage = conversation.getLastMessage();
+
+  return {
+    conversationId: conversation.getConversationId(),
+    conversationWith: {
+      uid: isUser(conversationWith) ? conversationWith.getUid() : conversationWith.getGuid(),
+      name: conversationWith.getName(),
+    },
+    lastMessage: sdkLastMessage && isTextMessage(sdkLastMessage) ? mapMessage(sdkLastMessage) : undefined,
+    unreadMessageCount: conversation.getUnreadMessageCount(),
+  };
+};
+
 export const cometChatService = {
   async init(): Promise<void> {
     if (!APP_ID) {
       console.warn("[CometChat] No APP_ID set — messaging will be unavailable.");
       return;
     }
-    // Uncomment once SDK is installed:
-    // const appSetting = new CometChat.AppSettingsBuilder()
-    //   .subscribePresenceForAllUsers()
-    //   .setRegion(REGION)
-    //   .autoEstablishSocketConnection(true)
-    //   .build();
-    // await CometChat.init(APP_ID, appSetting);
-    console.log("[CometChat] Init stub called — SDK not yet installed.");
+
+    const appSetting = new CometChat.AppSettingsBuilder()
+      .subscribePresenceForAllUsers()
+      .setRegion(REGION)
+      .autoEstablishSocketConnection(true)
+      .build();
+
+    await CometChat.init(APP_ID, appSetting);
   },
 
   async login(uid: string): Promise<void> {
     if (!APP_ID) return;
-    // Uncomment once SDK is installed:
-    // await CometChat.login(uid, AUTH_KEY);
-    console.log("[CometChat] Login stub called for uid:", uid);
+    await CometChat.login(uid, AUTH_KEY);
   },
 
   async logout(): Promise<void> {
     if (!APP_ID) return;
-    // Uncomment once SDK is installed:
-    // await CometChat.logout();
-    console.log("[CometChat] Logout stub called.");
+    await CometChat.logout();
   },
 
   async getConversations(): Promise<CometChatConversation[]> {
     if (!APP_ID) return [];
-    // Uncomment once SDK is installed:
-    // const builder = new CometChat.ConversationsRequestBuilder().setLimit(30).build();
-    // const conversations = await builder.fetchNext();
-    // return conversations.map(mapConversation);
-    return [];
+
+    const builder = new CometChat.ConversationsRequestBuilder().setLimit(30).build();
+    const conversations = await builder.fetchNext();
+    return conversations.map(mapConversation);
   },
 
   async getMessages(conversationUID: string): Promise<CometChatMessage[]> {
     if (!APP_ID) return [];
-    // Uncomment once SDK is installed:
-    // const builder = new CometChat.MessagesRequestBuilder()
-    //   .setUID(conversationUID)
-    //   .setLimit(50)
-    //   .build();
-    // const messages = await builder.fetchPrevious();
-    // return messages.map(mapMessage);
-    return [];
+
+    const builder = new CometChat.MessagesRequestBuilder()
+      .setUID(conversationUID)
+      .setLimit(50)
+      .build();
+
+    const messages = await builder.fetchPrevious();
+    // CometChat returns newest-first; the app contract expects oldest-first.
+    return messages.map(mapMessage).reverse();
   },
 
   async sendTextMessage(
@@ -100,28 +126,26 @@ export const cometChatService = {
     receiverType: "user" | "group" = "user",
   ): Promise<CometChatMessage | undefined> {
     if (!APP_ID) return undefined;
-    // Uncomment once SDK is installed:
-    // const message = new CometChat.TextMessage(receiverUID, text, receiverType);
-    // const sent = await CometChat.sendMessage(message);
-    // return mapMessage(sent);
-    console.log("[CometChat] sendTextMessage stub:", { receiverUID, text });
-    return undefined;
+
+    const message = new CometChat.TextMessage(receiverUID, text, receiverType);
+    const sent = await CometChat.sendMessage(message);
+    return mapMessage(sent);
   },
 
   addMessageListener(id: string, callbacks: MessageListenerCallbacks): void {
     if (!APP_ID) return;
-    // Uncomment once SDK is installed:
-    // CometChat.addMessageListener(
-    //   id,
-    //   new CometChat.MessageListener({
-    //     onTextMessageReceived: (msg) => callbacks.onTextMessageReceived(mapMessage(msg)),
-    //   }),
-    // );
+
+    CometChat.addMessageListener(
+      id,
+      new CometChat.MessageListener({
+        onTextMessageReceived: (msg: CometChat.TextMessage) =>
+          callbacks.onTextMessageReceived(mapMessage(msg)),
+      }),
+    );
   },
 
   removeMessageListener(id: string): void {
     if (!APP_ID) return;
-    // Uncomment once SDK is installed:
-    // CometChat.removeMessageListener(id);
+    CometChat.removeMessageListener(id);
   },
 };

@@ -8,12 +8,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { authService } from "@/services/auth-service";
+import { cometChatService } from "@/services/comet-chat-service";
 
 export const useSignOut = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => authService.signOut(),
-    onSuccess: () => {
+    onSuccess: async () => {
+      try {
+        await cometChatService.logout();
+      } catch (err) {
+        console.warn("[CometChat] Logout failed:", err);
+      }
+
       queryClient.clear();
     },
   });

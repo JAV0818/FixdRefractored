@@ -8,13 +8,13 @@
 
 | # | Milestone | Status | Notes |
 |---|-----------|--------|-------|
-| M1 | Foundation: Theme, Real Firebase, CometChat Init | DONE | Theme + real Firebase live. CometChat still a stub — not wired yet. |
+| M1 | Foundation: Theme, Real Firebase, CometChat Init | DONE | Theme + real Firebase live. CometChat SDK installed and initialized; full messaging implementation deferred to and completed in M7. |
 | M2 | Onboarding Flow | DONE | Role selection -> slides -> profile setup -> notifications. |
 | M3 | Customer: Services Tab & Quote Request | DONE | customer-home + multi-step quote-request, now incl. a customer-picked appointment time. |
 | M4 | Customer: Requests/Orders Tab & Profile Tab | PARTIAL | Requests tab (live) + shared order-detail + customer & mechanic profile screens done. **Still missing: vehicle management, account/privacy settings.** |
 | M5 | Provider: Marketplace Tab & Queue Tab | DONE | Marketplace + Queue + quote-builder + accept + start + cancel + inspection checklist + complete flow + custom charges all shipped. |
 | M6 | Provider: Profile Tab & Performance | DONE | Profile tab, availability toggle, about/bio editing, avatar, stats card, performance-details, provider-profile-edit, change-password all shipped. Nav buttons on profile index link to sub-screens. |
-| M7 | Messaging (CometChat) | NOT STARTED | "Message" buttons currently show a "coming soon" Alert placeholder. |
+| M7 | Messaging (CometChat) | DONE | Customer + provider conversation lists, shared real-time chat, CometChat auth wiring, and order-detail Message buttons all shipped. Requires dev client build + CometChat credentials for runtime testing. |
 | M8 | Admin Flow | NOT STARTED | Can start after M3 + M5. |
 | M9 | Payments | NOT STARTED | Order lifecycle already models the $20 deposit hold (authorize/capture/release); Stripe not wired. |
 | M10 | Polish: Cloud Functions, Push, Security Rules | NOT STARTED | `acceptOrder` has a client-side expiry guard until the expire function exists. Firestore composite indexes created ad-hoc; `firestore.indexes.json` holds the canonical set. |

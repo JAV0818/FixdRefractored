@@ -66,10 +66,16 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
 
   const onStart = useCallback(() => startOrder.mutate(order.id), [startOrder, order.id]);
 
-  // Placeholder until CometChat is wired (M7).
   const onChat = useCallback(() => {
-    Alert.alert(provider.chat, provider.chatComingSoon);
-  }, [provider]);
+    if (!order.customerId) return;
+    router.push({
+      pathname: "/(provider-tabs)/messages/[conversationId]",
+      params: {
+        conversationId: order.customerId,
+        orderId: order.id,
+      },
+    });
+  }, [order.customerId, order.id, router]);
 
   const onCancel = useCallback(() => {
     if (!currentUser) return;
@@ -120,7 +126,14 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
   }
 
   if (order.status === "QuoteProposed" && isOwner) {
-    return <StatusHint text={provider.waitingApproval} />;
+    return (
+      <View style={styles.actions}>
+        <StatusHint text={provider.waitingApproval} />
+        <AppButton variant="secondary" onPress={onChat}>
+          {provider.chat}
+        </AppButton>
+      </View>
+    );
   }
 
   if (order.status === "Scheduled" && isOwner) {
@@ -144,6 +157,9 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
       return (
         <View style={styles.actions}>
           <AppButton onPress={onInspect}>{provider.inspect}</AppButton>
+          <AppButton variant="secondary" onPress={onChat}>
+            {provider.chat}
+          </AppButton>
         </View>
       );
     }
@@ -161,6 +177,19 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
         </AppButton>
         <AppButton variant="secondary" onPress={onInspect} disabled={completeOrder.isPending}>
           {provider.editInspection}
+        </AppButton>
+        <AppButton variant="secondary" onPress={onChat} disabled={completeOrder.isPending}>
+          {provider.chat}
+        </AppButton>
+      </View>
+    );
+  }
+
+  if (order.status === "Completed" && isOwner) {
+    return (
+      <View style={styles.actions}>
+        <AppButton variant="secondary" onPress={onChat}>
+          {provider.chat}
         </AppButton>
       </View>
     );

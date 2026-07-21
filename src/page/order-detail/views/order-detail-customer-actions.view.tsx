@@ -7,6 +7,7 @@
 import { useCallback } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
+import { useRouter } from "expo-router";
 
 import { AppButton } from "@/components";
 import { colors, fontSize, spacing } from "@/theme";
@@ -24,6 +25,7 @@ type CustomerActionsProps = {
 };
 
 export const CustomerActions = ({ order }: CustomerActionsProps) => {
+  const router = useRouter();
   const approveQuote = useApproveQuote();
   const declineQuote = useDeclineQuote();
   const isBusy = approveQuote.isPending || declineQuote.isPending;
@@ -31,6 +33,17 @@ export const CustomerActions = ({ order }: CustomerActionsProps) => {
   const { customer, depositNote } = ORDER_DETAIL_COPY;
 
   const onApprove = useCallback(() => approveQuote.mutate(order.id), [approveQuote, order.id]);
+
+  const onMessageProvider = useCallback(() => {
+    if (!order.providerId) return;
+    router.push({
+      pathname: "/(customer-tabs)/messages/[conversationId]",
+      params: {
+        conversationId: order.providerId,
+        orderId: order.id,
+      },
+    });
+  }, [order.providerId, order.id, router]);
 
   const onDecline = useCallback(() => {
     Alert.alert(customer.declineTitle, customer.declineBody, [
@@ -46,7 +59,24 @@ export const CustomerActions = ({ order }: CustomerActionsProps) => {
   if (order.status === "Pending") return <StatusHint text={customer.waitingMechanic} />;
   if (order.status === "Accepted") return <StatusHint text={customer.waitingQuote} />;
   if (order.status === "Scheduled" && order.scheduledAt) {
-    return <StatusHint text={customer.scheduledFor(formatDateTime(order.scheduledAt))} />;
+    return (
+      <View style={styles.actions}>
+        <StatusHint text={customer.scheduledFor(formatDateTime(order.scheduledAt))} />
+        <AppButton variant="secondary" onPress={onMessageProvider}>
+          {customer.messageProvider}
+        </AppButton>
+      </View>
+    );
+  }
+
+  if (order.status === "InProgress" || order.status === "Completed") {
+    return (
+      <View style={styles.actions}>
+        <AppButton variant="secondary" onPress={onMessageProvider}>
+          {customer.messageProvider}
+        </AppButton>
+      </View>
+    );
   }
 
   if (order.status === "QuoteProposed") {
@@ -58,6 +88,9 @@ export const CustomerActions = ({ order }: CustomerActionsProps) => {
         </AppButton>
         <AppButton variant="danger" onPress={onDecline} disabled={isBusy}>
           {customer.decline}
+        </AppButton>
+        <AppButton variant="secondary" onPress={onMessageProvider} disabled={isBusy}>
+          {customer.messageProvider}
         </AppButton>
       </View>
     );
