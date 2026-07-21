@@ -3,6 +3,7 @@ import { StyleSheet, View, TouchableOpacity } from "react-native";
 import { Text } from "react-native-paper";
 import { useRouter } from "expo-router";
 
+import { KeyboardSafeView } from "@/components";
 import { AuthButton, AuthInput } from "../components";
 import { useSignIn } from "../hooks/use-sign-in";
 import { AUTH_COPY } from "../auth.constants";
@@ -15,46 +16,55 @@ export const SignInView = () => {
   const signIn = useSignIn();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome Back</Text>
-      <Text style={styles.subtitle}>Sign in to your Fixd account</Text>
+    <KeyboardSafeView contentContainerStyle={styles.contentContainer}>
+      <View style={styles.spacer} />
+      <View style={styles.container}>
+        <Text style={styles.title}>Welcome Back</Text>
+        <Text style={styles.subtitle}>Sign in to your Fixd account</Text>
 
-      <AuthInput
-        label={AUTH_COPY.signIn.emailLabel}
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
-      <AuthInput
-        label={AUTH_COPY.signIn.passwordLabel}
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+        <AuthInput
+          label={AUTH_COPY.signIn.emailLabel}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+        />
+        <AuthInput
+          label={AUTH_COPY.signIn.passwordLabel}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
 
-      {signIn.isError ? (
-        <Text style={styles.errorText}>{AUTH_COPY.signIn.genericError}</Text>
-      ) : null}
+        {signIn.isError ? (
+          <Text style={styles.errorText}>{AUTH_COPY.signIn.genericError}</Text>
+        ) : null}
 
-      <AuthButton
-        label={AUTH_COPY.signIn.submit}
-        isLoading={signIn.isPending}
-        disabled={!email || !password}
-        onPress={() => signIn.mutate({ email, password })}
-      />
+        <AuthButton
+          label={AUTH_COPY.signIn.submit}
+          isLoading={signIn.isPending}
+          disabled={!email || !password}
+          onPress={() => signIn.mutate({ email, password })}
+        />
 
-      <TouchableOpacity
-        style={styles.signUpRow}
-        onPress={() => router.push("/(auth)/sign-up")}
-      >
-        <Text style={styles.signUpText}>Don't have an account? </Text>
-        <Text style={[styles.signUpText, styles.signUpLink]}>Sign up</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={styles.signUpRow}
+          onPress={() => router.push("/(auth)/sign-up")}
+        >
+          <Text style={styles.signUpText}>Don't have an account? </Text>
+          <Text style={[styles.signUpText, styles.signUpLink]}>Sign up</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardSafeView>
   );
 };
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    flexGrow: 1,
+  },
+  spacer: {
+    flex: 1,
+  },
   container: {
     backgroundColor: colors.overlayDark,
     borderTopLeftRadius: radii.xl,

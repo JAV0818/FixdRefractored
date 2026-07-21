@@ -5,7 +5,7 @@
 // customer immediately sees it in their Requests tab to approve or decline.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
 import { HelperText, Text, TextInput } from "react-native-paper";
 import { useRouter } from "expo-router";
 
@@ -163,19 +163,15 @@ export const MechanicCustomQuoteView = () => {
 
   // ── Step 0 render ───────────────────────────────────────────────────────────
   // FlatList must NOT be nested inside a ScrollView (KeyboardSafeView).
-  // Step 0 uses its own KeyboardAvoidingView + plain View header so the
-  // FlatList owns the vertical scroll.
+  // Step 0 uses KeyboardSafeView with scrollable={false} so the FlatList owns
+  // the vertical scroll while still getting the shared KeyboardAvoidingView.
   if (step === 0) {
     const showResults = debouncedTerm.length >= 2;
     const showPrompt = !showResults;
     const empty = showResults && !searching && (results?.length ?? 0) === 0;
 
     return (
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
-      >
+      <KeyboardSafeView scrollable={false} style={styles.flex}>
         <View style={styles.searchHeader}>
           <View style={styles.stepHeader}>
             <Text style={styles.stepTitle}>{MECHANIC_CUSTOM_QUOTE_COPY.searchTitle}</Text>
@@ -211,6 +207,7 @@ export const MechanicCustomQuoteView = () => {
             data={results}
             keyExtractor={(u) => u.id}
             contentContainerStyle={styles.resultsList}
+            keyboardDismissMode="on-drag"
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
@@ -218,7 +215,7 @@ export const MechanicCustomQuoteView = () => {
             )}
           />
         )}
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     );
   }
 

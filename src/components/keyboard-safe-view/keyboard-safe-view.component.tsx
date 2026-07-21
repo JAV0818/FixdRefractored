@@ -39,6 +39,7 @@ export const KeyboardSafeView = memo(function KeyboardSafeView({
             { paddingBottom: insets.bottom + 16 },
             contentContainerStyle,
           ]}
+          keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
