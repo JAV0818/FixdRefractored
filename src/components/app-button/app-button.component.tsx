@@ -3,9 +3,11 @@
 // of that kind updates. Passes through all other Paper Button props
 // (onPress, loading, disabled, icon, style, children, ...).
 
-import { StyleSheet } from "react-native";
-import { Button } from "react-native-paper";
+import { memo } from "react";
+import { Keyboard, StyleSheet } from "react-native";
 import type { ComponentProps } from "react";
+import type { GestureResponderEvent } from "react-native";
+import { Button } from "react-native-paper";
 
 import { colors } from "@/theme";
 
@@ -31,7 +33,17 @@ const VARIANTS: Record<
   tertiary: { mode: "text", textColor: colors.textSecondary },
 };
 
-export const AppButton = ({ variant = "primary", style, ...props }: AppButtonProps) => {
+export const AppButton = memo(function AppButton({
+  onPress,
+  variant = "primary",
+  style,
+  ...props
+}: AppButtonProps) {
+  const onPressWrapper = (event: GestureResponderEvent) => {
+    Keyboard.dismiss();
+    onPress?.(event);
+  };
+
   const v = VARIANTS[variant];
   return (
     <Button
@@ -39,10 +51,11 @@ export const AppButton = ({ variant = "primary", style, ...props }: AppButtonPro
       buttonColor={v.buttonColor}
       textColor={v.textColor}
       style={[v.bordered && styles.bordered, style]}
+      onPress={onPressWrapper}
       {...props}
     />
   );
-};
+});
 
 const styles = StyleSheet.create({
   bordered: {
