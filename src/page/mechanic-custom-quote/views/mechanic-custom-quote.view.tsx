@@ -9,7 +9,7 @@ import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
 import { HelperText, Text, TextInput } from "react-native-paper";
 import { useRouter } from "expo-router";
 
-import { AppButton, AppTextInput, DateTimeField, FilterChips, KeyboardSafeView } from "@/components";
+import { AppButton, AppTextInput, DateTimeField, FilterChips, KeyboardSafeView, MultilineTextInput } from "@/components";
 import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatCurrency } from "@/utils/format";
@@ -256,12 +256,11 @@ export const MechanicCustomQuoteView = () => {
         autoCapitalize="words"
       />
 
-      <AppTextInput
+      <MultilineTextInput
         label={MECHANIC_CUSTOM_QUOTE_COPY.descriptionLabel}
         value={description}
         onChangeText={setDescription}
         placeholder={MECHANIC_CUSTOM_QUOTE_COPY.descriptionPlaceholder}
-        multiline
         numberOfLines={3}
       />
 

@@ -6,7 +6,7 @@ import { memo } from "react";
 import { StyleSheet } from "react-native";
 import { Controller, type Control } from "react-hook-form";
 
-import { AppTextInput } from "@/components";
+import { AppTextInput, MultilineTextInput } from "@/components";
 
 import type { QuoteRequestForm } from "../interfaces/quote-request.interface";
 
@@ -36,21 +36,34 @@ export const FormTextField = memo(function FormTextField({
     <Controller
       control={control}
       name={name}
-      render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
-        <AppTextInput
-          label={label}
-          placeholder={placeholder}
-          value={value ?? ""}
-          onChangeText={onChange}
-          onBlur={onBlur}
-          error={error?.message}
-          multiline={multiline}
-          numberOfLines={multiline ? 4 : 1}
-          keyboardType={keyboardType}
-          autoCapitalize={autoCapitalize}
-          style={multiline ? styles.multiline : undefined}
-        />
-      )}
+      render={({ field: { value, onChange, onBlur }, fieldState: { error } }) =>
+        multiline ? (
+          <MultilineTextInput
+            label={label}
+            placeholder={placeholder}
+            value={value ?? ""}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            error={error?.message}
+            numberOfLines={4}
+            keyboardType={keyboardType}
+            autoCapitalize={autoCapitalize}
+            style={styles.multiline}
+          />
+        ) : (
+          <AppTextInput
+            label={label}
+            placeholder={placeholder}
+            value={value ?? ""}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            error={error?.message}
+            numberOfLines={1}
+            keyboardType={keyboardType}
+            autoCapitalize={autoCapitalize}
+          />
+        )
+      }
     />
   );
 });

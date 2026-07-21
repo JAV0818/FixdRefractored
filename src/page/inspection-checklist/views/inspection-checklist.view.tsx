@@ -8,7 +8,7 @@ import { StyleSheet, View } from "react-native";
 import { ActivityIndicator, HelperText, Text } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
-import { AppButton, AppCard, AppTextInput, ImagePickerGrid, KeyboardSafeView } from "@/components";
+import { AppButton, AppCard, ImagePickerGrid, KeyboardSafeView, MultilineTextInput } from "@/components";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { useOrder } from "@/hooks/use-order";
@@ -139,10 +139,9 @@ export const InspectionChecklistView = () => {
 
       <AppCard>
         <Text style={styles.sectionTitle}>{INSPECTION_COPY.summaryLabel}</Text>
-        <AppTextInput
+        <MultilineTextInput
           value={summaryNotes}
           onChangeText={setSummaryNotes}
-          multiline
           numberOfLines={4}
           style={styles.summary}
         />

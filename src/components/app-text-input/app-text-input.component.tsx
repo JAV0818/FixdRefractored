@@ -12,7 +12,7 @@ import { colors, spacing } from "@/theme";
 
 type PaperInputProps = ComponentProps<typeof TextInput>;
 
-type AppTextInputProps = Omit<
+export type AppTextInputProps = Omit<
   PaperInputProps,
   "mode" | "error" | "outlineColor" | "activeOutlineColor"
 > & {

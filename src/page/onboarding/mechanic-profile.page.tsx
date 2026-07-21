@@ -4,7 +4,7 @@ import { Text, TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
-import { KeyboardSafeView } from "@/components";
+import { KeyboardSafeView, MultilineTextInput } from "@/components";
 import { colors, fontSize, fontWeight, spacing, radii } from "@/theme";
 import type { UserRole } from "@/types/user.interface";
 import { useSaveMechanicProfile } from "./hooks/use-save-mechanic-profile";
@@ -68,17 +68,14 @@ export const MechanicProfilePage = () => {
             keyboardType="numeric"
             maxLength={2}
           />
-          <TextInput
+          <MultilineTextInput
             label="Short Bio (optional)"
             value={bio}
             onChangeText={setBio}
-            mode="outlined"
-            style={styles.input}
-            outlineColor={colors.outline}
-            activeOutlineColor={colors.primary}
-            multiline
+            placeholder=""
             numberOfLines={3}
             autoCapitalize="sentences"
+            style={styles.input}
           />
 
           <Text style={styles.sectionLabel}>Specialties</Text>

@@ -7,7 +7,7 @@ import { Alert, StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import { useRouter } from "expo-router";
 
-import { AppButton, AppCard, AppTextInput, FilterChips, KeyboardSafeView } from "@/components";
+import { AppButton, AppCard, AppTextInput, FilterChips, KeyboardSafeView, MultilineTextInput } from "@/components";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import { SERVICE_CATEGORY_LABELS } from "@/constants/service-categories";
 import { useImagePicker } from "@/hooks/use-image-picker";
@@ -93,12 +93,11 @@ export const ProviderProfileEditSuccessView = ({
       />
 
       <AppCard style={styles.card}>
-        <AppTextInput
+        <MultilineTextInput
           label={PROFILE_EDIT_COPY.bioLabel}
           value={bio}
           onChangeText={setBio}
           placeholder={PROFILE_EDIT_COPY.bioPlaceholder}
-          multiline
           numberOfLines={4}
           autoCapitalize="sentences"
         />

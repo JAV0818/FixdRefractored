@@ -7,7 +7,7 @@ import { memo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
-import { AppButton, AppTextInput, FilterChips, GlassCard } from "@/components";
+import { AppButton, AppTextInput, FilterChips, GlassCard, MultilineTextInput } from "@/components";
 import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
 
 import { PROFILE_COPY } from "../profile.constants";
@@ -65,11 +65,10 @@ export const MechanicAboutCard = memo(function MechanicAboutCard({
 
       {editing ? (
         <View style={styles.form}>
-          <AppTextInput
+          <MultilineTextInput
             label={PROFILE_COPY.bioLabel}
             value={draftBio}
             onChangeText={onChangeBio}
-            multiline
             numberOfLines={4}
             autoCapitalize="sentences"
           />
