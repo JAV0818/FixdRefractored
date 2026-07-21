@@ -12,7 +12,8 @@ This file is the **index**. It tells any AI agent (or new teammate) where the ru
    - Choosing where state goes → `guidelines/state.md`
    - Adding or modifying a route → `guidelines/navigation.md`
    - Anything visual → `guidelines/styling.md`
-3. If a custom skill applies to your task, invoke it — see the **Skills** table below. The loop-engineering skills (orchestrator, devs, QA, handoff) drive multi-agent milestone work; the build skills bake in the conventions.
+3. **All feature work, bug fixes, and refactors must be routed through the `orchestrator` skill.** The orchestrator writes tickets in `.agents/runs/`, dispatches frontend-dev / firebase-dev / qa-code-reviewer, and produces HANDOFF/QA-REPORT files. Direct implementation is only allowed when the subagent quota is exhausted or for true emergencies. If in doubt, spawn the orchestrator.
+4. If a custom skill applies to your task, invoke it — see the **Skills** table below. The loop-engineering skills (orchestrator, devs, QA, handoff) drive multi-agent milestone work; the build skills bake in the conventions.
 
 ## Architecture in one diagram
 
