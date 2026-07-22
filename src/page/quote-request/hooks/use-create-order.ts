@@ -18,27 +18,32 @@ export const useCreateOrder = () => {
 
   return useMutation({
     // Returns the new order id so the caller can attach photos to it.
-    mutationFn: (form: QuoteRequestForm): Promise<string> => {
+    mutationFn: async (form: QuoteRequestForm): Promise<string> => {
       if (!currentUser) throw new Error("Not authenticated");
 
       const fullName = [profile?.firstName, profile?.lastName].filter(Boolean).join(" ").trim();
 
-      return orderService.createOrder({
-        customerId: currentUser.id,
-        customerName: fullName || currentUser.email || "Customer",
-        customerPhone: profile?.phone ?? null,
-        description: form.description,
-        categories: form.categories,
-        vehicleInfo: form.vehicleInfo,
-        scheduledAt: form.scheduledAt,
-        locationDetails: {
-          address: form.address,
-          city: form.city || null,
-          state: form.state || null,
-          zip: form.zip || null,
-        },
-        mediaUrls: [],
-      });
+      try {
+        return await orderService.createOrder({
+          customerId: currentUser.id,
+          customerName: fullName || currentUser.email || "Customer",
+          customerPhone: profile?.phone ?? null,
+          description: form.description,
+          categories: form.categories,
+          vehicleInfo: form.vehicleInfo,
+          scheduledAt: form.scheduledAt,
+          locationDetails: {
+            address: form.address,
+            city: form.city || null,
+            state: form.state || null,
+            zip: form.zip || null,
+          },
+          mediaUrls: [],
+        });
+      } catch (err) {
+        console.error("[useCreateOrder] failed:", err);
+        throw err;
+      }
     },
     // No cache invalidation: the customer Requests list is live (onSnapshot), so
     // the new order shows up there on its own.

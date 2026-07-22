@@ -89,9 +89,26 @@ export const cometChatService = {
     await CometChat.init(APP_ID, appSetting);
   },
 
-  async login(uid: string): Promise<void> {
+  async createUser(uid: string, name: string): Promise<void> {
     if (!APP_ID) return;
-    await CometChat.login(uid, AUTH_KEY);
+    const user = new CometChat.User(uid);
+    user.setName(name || uid);
+    await CometChat.createUser(user, AUTH_KEY);
+  },
+
+  async login(uid: string, name?: string): Promise<void> {
+    if (!APP_ID) return;
+    try {
+      await CometChat.login(uid, AUTH_KEY);
+    } catch (err: any) {
+      // UID doesn't exist in CometChat yet — create it and retry.
+      if (err?.code === "ERR_UID_NOT_FOUND") {
+        await this.createUser(uid, name || uid);
+        await CometChat.login(uid, AUTH_KEY);
+        return;
+      }
+      throw err;
+    }
   },
 
   async logout(): Promise<void> {

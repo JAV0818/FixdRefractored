@@ -26,7 +26,7 @@ export const useSignIn = () => {
 
       const uid = auth.currentUser?.uid;
       if (uid) {
-        cometChatLogin.mutate(uid);
+        cometChatLogin.mutate({ uid });
       }
     },
   });

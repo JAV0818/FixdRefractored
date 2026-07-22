@@ -216,6 +216,8 @@ export const QuoteRequestView = () => {
       {submitFailed && (
         <HelperText type="error" visible style={styles.submitError}>
           {QUOTE_REQUEST_COPY.submitError}
+          {"\n"}
+          {createOrder.error?.message || uploadImages.error?.message || ""}
         </HelperText>
       )}
 

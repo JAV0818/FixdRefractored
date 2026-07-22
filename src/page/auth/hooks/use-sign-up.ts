@@ -15,12 +15,12 @@ export const useSignUp = () => {
 
   return useMutation({
     mutationFn: (credentials: SignUpCredentials) => authService.signUp(credentials),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
 
       const uid = auth.currentUser?.uid;
       if (uid) {
-        cometChatLogin.mutate(uid);
+        cometChatLogin.mutate({ uid, name: variables.displayName || uid });
       }
     },
   });
