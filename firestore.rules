@@ -46,7 +46,13 @@ service cloud.firestore {
       allow update: if isAuthenticated() && (
         resource.data.customerId == currentUserId() ||
         resource.data.providerId == currentUserId() ||
-        isOwner()
+        isOwner() ||
+        (
+          currentUserRole() == 'provider' &&
+          resource.data.status == 'Pending' &&
+          resource.data.providerId == null &&
+          request.resource.data.providerId == currentUserId()
+        )
       );
 
       allow delete: if isOwner();
