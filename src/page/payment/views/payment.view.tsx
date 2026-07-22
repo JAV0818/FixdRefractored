@@ -84,8 +84,10 @@ export const PaymentView = () => {
       </GlassCard>
 
       {paymentError && (
-        <HelperText type="error" visible>
+        <HelperText type="error" visible style={styles.errorText}>
           {createPaymentIntent.error ? PAYMENT_COPY.createIntentError : PAYMENT_COPY.confirmPaymentError}
+          {"\n"}
+          {paymentError.message}
         </HelperText>
       )}
 
@@ -141,5 +143,8 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xl,
     fontWeight: fontWeight.bold,
     color: colors.glassText,
+  },
+  errorText: {
+    textAlign: "center",
   },
 });

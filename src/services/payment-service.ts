@@ -21,8 +21,13 @@ export const paymentService = {
       functions,
       "createStripePaymentIntent",
     );
-    const result = await callable({ orderId });
-    return result.data;
+    try {
+      const result = await callable({ orderId });
+      return result.data;
+    } catch (err) {
+      console.error("[paymentService.createStripePaymentIntent] failed:", err);
+      throw err;
+    }
   },
 
   // Initializes and presents the Stripe PaymentSheet using the supplied client secret.
