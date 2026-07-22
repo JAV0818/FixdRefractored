@@ -11,4 +11,6 @@ export const PAYMENT_COPY = {
   notFound: "This order no longer exists.",
   createIntentError: "We couldn't start the payment. Please try again.",
   confirmPaymentError: "The payment failed. Please try again.",
+  cardLabel: "Card details",
+  enterCard: "Enter card details",
 } as const;
