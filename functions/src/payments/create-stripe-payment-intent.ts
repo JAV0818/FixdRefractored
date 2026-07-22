@@ -44,8 +44,17 @@ export const createStripePaymentIntent = onCall<CreateStripePaymentIntentRequest
     throw new HttpsError("permission-denied", "Only the customer can pay this deposit.");
   }
 
-  if (order.paymentStatus && order.paymentStatus !== "pending") {
-    throw new HttpsError("failed-precondition", "Deposit has already been processed.");
+  // Reuse an existing PaymentIntent if one exists so the customer can retry
+  // the sheet without creating a new hold.
+  if (order.stripePaymentIntentId) {
+    try {
+      const existing = await stripe.paymentIntents.retrieve(order.stripePaymentIntentId);
+      if (existing.client_secret) {
+        return { clientSecret: existing.client_secret };
+      }
+    } catch {
+      // Ignore retrieve errors and fall through to create a new PaymentIntent.
+    }
   }
 
   try {
@@ -55,13 +64,12 @@ export const createStripePaymentIntent = onCall<CreateStripePaymentIntentRequest
       amount: amountCents,
       currency: CURRENCY,
       capture_method: "manual",
+      automatic_payment_methods: { enabled: true },
       metadata: { orderId, customerId: order.customerId },
     });
 
     await orderRef.update({
       stripePaymentIntentId: paymentIntent.id,
-      paymentStatus: "authorized",
-      depositAuthorizedAt: Date.now(),
       updatedAt: Date.now(),
     });
 

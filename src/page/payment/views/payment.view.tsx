@@ -11,7 +11,7 @@ import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatCurrency } from "@/utils/format";
 import { useOrder } from "@/hooks/use-order";
-import { PLATFORM_DEPOSIT } from "@/services/order-service";
+import { orderService, PLATFORM_DEPOSIT } from "@/services/order-service";
 
 import { PAYMENT_COPY } from "../payment.constants";
 import { useConfirmPayment } from "../hooks/use-confirm-payment";
@@ -33,7 +33,10 @@ export const PaymentView = () => {
     createPaymentIntent.mutate(orderId, {
       onSuccess: (intent) => {
         confirmPayment.mutate(intent.clientSecret, {
-          onSuccess: () => router.back(),
+          onSuccess: async () => {
+            await orderService.markDepositAuthorized(orderId);
+            router.back();
+          },
         });
       },
     });

@@ -407,6 +407,16 @@ export const orderService = {
   },
 
   // Customer approves and books an appointment (which may be far in the future).
+  // Customer successfully confirmed the card in the Stripe PaymentSheet.
+  // Mark the deposit hold as authorized on the order.
+  async markDepositAuthorized(id: string): Promise<void> {
+    await updateDoc(doc(db, ORDERS, id), {
+      paymentStatus: "authorized",
+      depositAuthorizedAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+  },
+
   // Capturing the $20 hold is done server-side by the payment Cloud Function,
   // which then sets paymentStatus → "deposit_paid" + depositCapturedAt.
   // The appointment time was set by the customer at request and confirmed by the
