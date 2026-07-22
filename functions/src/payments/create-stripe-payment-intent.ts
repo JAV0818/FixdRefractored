@@ -1,10 +1,6 @@
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
-import { initializeApp } from "firebase-admin/app";
 import Stripe from "stripe";
-
-// Initialize Firebase Admin if not already initialized.
-initializeApp();
 
 interface CreateStripePaymentIntentRequest {
   orderId: string;
