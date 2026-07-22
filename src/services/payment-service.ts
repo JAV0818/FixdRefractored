@@ -33,17 +33,24 @@ export const paymentService = {
   // Initializes and presents the Stripe PaymentSheet using the supplied client secret.
   // Throws if the sheet fails to initialize or the user cancels/fails payment.
   async confirmStripePayment(clientSecret: string): Promise<ConfirmStripePaymentResult> {
+    console.log("[confirmStripePayment] initializing sheet with client secret:", clientSecret.slice(0, 20) + "...");
+
     const initResult = await initPaymentSheet({
       paymentIntentClientSecret: clientSecret,
       merchantDisplayName: "Fixd",
       returnURL: "fixd://stripe-redirect",
     });
 
+    console.log("[confirmStripePayment] init result:", initResult);
+
     if (initResult.error) {
       throw new Error(initResult.error.message);
     }
 
+    console.log("[confirmStripePayment] presenting sheet...");
     const presentResult = await presentPaymentSheet();
+    console.log("[confirmStripePayment] present result:", presentResult);
+
     if (presentResult.error) {
       throw new Error(presentResult.error.message);
     }
