@@ -45,7 +45,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "@stripe/stripe-react-native",
       {
-        stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+        stripePublishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY,
         merchantIdentifier: null,
         enableGooglePay: false,
       },
