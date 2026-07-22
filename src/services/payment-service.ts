@@ -38,7 +38,6 @@ export const paymentService = {
     const initResult = await initPaymentSheet({
       paymentIntentClientSecret: clientSecret,
       merchantDisplayName: "Fixd",
-      returnURL: "fixd://stripe-redirect",
     });
 
     console.log("[confirmStripePayment] init result:", initResult);
