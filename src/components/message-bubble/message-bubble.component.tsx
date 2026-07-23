@@ -1,4 +1,5 @@
-// MessageBubble — A chat message bubble aligned by sender, showing text and timestamp.
+// MessageBubble — A chat message bubble aligned by sender.
+// Own messages on the right, other messages on the left.
 //
 // Dumb component: props in, JSX out. No data fetching. No services. No
 // load-bearing state. References theme tokens, never literal values.
@@ -23,22 +24,16 @@ export const MessageBubble = memo(function MessageBubble({
   message,
 }: MessageBubbleProps) {
   const { text, sentAt } = message;
+  const own = Boolean(isOwnMessage);
 
   return (
     <View
-      style={[styles.container, isOwnMessage ? styles.ownContainer : styles.otherContainer]}
+      style={[styles.container, own ? styles.ownContainer : styles.otherContainer]}
       testID="message-bubble"
     >
-      <View
-        style={[
-          styles.bubble,
-          isOwnMessage ? styles.ownBubble : styles.otherBubble,
-        ]}
-      >
-        <Text style={[styles.messageText, isOwnMessage ? styles.ownText : styles.otherText]}>
-          {text}
-        </Text>
-        <Text style={[styles.timestamp, isOwnMessage ? styles.ownTimestamp : styles.otherTimestamp]}>
+      <View style={[styles.bubble, own ? styles.ownBubble : styles.otherBubble]}>
+        <Text style={[styles.messageText, own ? styles.ownText : styles.otherText]}>{text}</Text>
+        <Text style={[styles.timestamp, own ? styles.ownTimestamp : styles.otherTimestamp]}>
           {formatMessageTime(sentAt)}
         </Text>
       </View>
@@ -48,9 +43,9 @@ export const MessageBubble = memo(function MessageBubble({
 
 const styles = StyleSheet.create({
   bubble: {
-    borderRadius: radii.lg,
-    gap: spacing.xs,
-    maxWidth: "80%",
+    borderRadius: radii.xl,
+    gap: spacing.xxs,
+    maxWidth: "78%",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
@@ -58,13 +53,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
+    width: "100%",
   },
   messageText: {
     fontSize: fontSize.base,
     lineHeight: fontSize.base * lineHeight.normal,
   },
   otherBubble: {
-    backgroundColor: colors.surfaceVariant,
+    backgroundColor: colors.glassSurface,
+    borderBottomLeftRadius: radii.sm,
+    borderColor: colors.glassBorder,
+    borderWidth: 1,
   },
   otherContainer: {
     justifyContent: "flex-start",
@@ -77,6 +76,7 @@ const styles = StyleSheet.create({
   },
   ownBubble: {
     backgroundColor: colors.primary,
+    borderBottomRightRadius: radii.sm,
   },
   ownContainer: {
     justifyContent: "flex-end",

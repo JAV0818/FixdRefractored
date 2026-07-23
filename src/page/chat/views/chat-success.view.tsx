@@ -1,16 +1,19 @@
 // Success state for the shared chat screen. Renders the conversation header,
-// message list, order snippet (when linked), and the message input bar.
+// message list, order context header (when linked), and the message input bar.
 
 import { useCallback, useMemo } from "react";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { Text } from "react-native-paper";
+import { Ionicons } from "@expo/vector-icons";
 
-import { AppCard, KeyboardSafeView, MessageBubble, MessageInputBar } from "@/components";
+import { GlassCard, KeyboardSafeView, MessageBubble, MessageInputBar } from "@/components";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { useConversations } from "@/page/chat/hooks/use-conversations";
+import { useOrder } from "@/hooks/use-order";
 import { useAuthContext } from "@/providers/auth-provider";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
+import { formatDateTime } from "@/utils/format";
 import type { CometChatMessage } from "@/services/comet-chat-service";
 
 import { CHAT_COPY } from "../chat.constants";
@@ -35,6 +38,7 @@ export const ChatSuccessView = ({
   const { role } = useAuthContext();
   const router = useRouter();
   const { data: conversations } = useConversations();
+  const { data: order } = useOrder(orderId);
 
   const otherPartyName = useMemo(() => {
     const match = conversations?.find(
@@ -62,6 +66,12 @@ export const ChatSuccessView = ({
     [currentUserId],
   );
 
+  const orderLocation = useMemo(() => {
+    if (!order?.locationDetails) return null;
+    const { address, city, state, zip } = order.locationDetails;
+    return [address, city, state, zip].filter(Boolean).join(", ");
+  }, [order?.locationDetails]);
+
   return (
     <>
       <Stack.Screen
@@ -75,16 +85,35 @@ export const ChatSuccessView = ({
         }}
       />
       <KeyboardSafeView scrollable={false} style={styles.container}>
-        {orderId ? (
+        {order ? (
           <TouchableOpacity activeOpacity={0.8} onPress={handleOrderPress}>
-            <AppCard style={styles.orderSnippet}>
-              <Text variant="bodySmall" style={styles.orderSnippetLabel}>
-                {CHAT_COPY.orderSnippetLabel}
-              </Text>
-              <Text variant="bodyMedium" style={styles.orderSnippetValue} numberOfLines={1}>
-                #{orderId}
-              </Text>
-            </AppCard>
+            <GlassCard style={styles.orderHeader}>
+              <View style={styles.orderHeaderRow}>
+                <Ionicons name="car-outline" size={20} color={colors.primary} />
+                <Text style={styles.orderHeaderTitle}>{order.vehicleInfo}</Text>
+              </View>
+
+              <View style={styles.orderHeaderRow}>
+                <Ionicons name="person-outline" size={16} color={colors.textSecondary} />
+                <Text style={styles.orderHeaderText}>{order.customerName}</Text>
+              </View>
+
+              {orderLocation ? (
+                <View style={styles.orderHeaderRow}>
+                  <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
+                  <Text style={styles.orderHeaderText} numberOfLines={1}>
+                    {orderLocation}
+                  </Text>
+                </View>
+              ) : null}
+
+              {order.scheduledAt ? (
+                <View style={styles.orderHeaderRow}>
+                  <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
+                  <Text style={styles.orderHeaderText}>{formatDateTime(order.scheduledAt)}</Text>
+                </View>
+              ) : null}
+            </GlassCard>
           </TouchableOpacity>
         ) : null}
 
@@ -145,15 +174,25 @@ const styles = StyleSheet.create({
   listContent: {
     paddingVertical: spacing.md,
   },
-  orderSnippet: {
+  orderHeader: {
+    gap: spacing.xs,
     margin: spacing.md,
     marginBottom: 0,
   },
-  orderSnippetLabel: {
-    color: colors.textSecondary,
+  orderHeaderRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm,
   },
-  orderSnippetValue: {
+  orderHeaderText: {
+    color: colors.textSecondary,
+    flex: 1,
+    fontSize: fontSize.sm,
+  },
+  orderHeaderTitle: {
     color: colors.textPrimary,
+    flex: 1,
+    fontSize: fontSize.base,
     fontWeight: fontWeight.semibold,
   },
 });
