@@ -68,6 +68,9 @@ export const createStripePaymentIntent = onCall<CreateStripePaymentIntentRequest
       metadata: { orderId, customerId: order.customerId },
     });
 
+    // eslint-disable-next-line no-console
+    console.log(`[createStripePaymentIntent] created ${paymentIntent.id} for order ${orderId}`);
+
     await orderRef.update({
       stripePaymentIntentId: paymentIntent.id,
       updatedAt: Date.now(),

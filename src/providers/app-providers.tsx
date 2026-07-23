@@ -17,6 +17,11 @@ import { CometChatProvider } from "./comet-chat-provider";
 
 const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 
+// eslint-disable-next-line no-console
+console.log("[StripeProvider] publishable key present:", STRIPE_PUBLISHABLE_KEY.length > 0);
+// eslint-disable-next-line no-console
+console.log("[StripeProvider] key prefix:", STRIPE_PUBLISHABLE_KEY.slice(0, 12));
+
 type AppProvidersProps = {
   children: ReactNode;
 };

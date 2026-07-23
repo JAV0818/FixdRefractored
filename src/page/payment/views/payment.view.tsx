@@ -36,7 +36,11 @@ export const PaymentView = () => {
     setPaymentError(null);
 
     createPaymentIntent.mutate(orderId, {
-      onSuccess: (intent) => setClientSecret(intent.clientSecret),
+      onSuccess: (intent) => {
+        // eslint-disable-next-line no-console
+        console.log("[PaymentView] received client secret:", intent.clientSecret.slice(0, 20) + "...");
+        setClientSecret(intent.clientSecret);
+      },
     });
   };
 
@@ -108,7 +112,11 @@ export const PaymentView = () => {
             placeholders={{ number: "4242 4242 4242 4242" }}
             cardStyle={cardFieldStyle}
             style={styles.cardFieldContainer}
-            onCardChange={(cardDetails) => setCardComplete(cardDetails.complete)}
+            onCardChange={(cardDetails) => {
+              // eslint-disable-next-line no-console
+              console.log("[PaymentView] card details changed. complete:", cardDetails.complete);
+              setCardComplete(cardDetails.complete);
+            }}
           />
         </GlassCard>
       ) : null}
