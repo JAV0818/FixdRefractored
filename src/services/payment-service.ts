@@ -13,6 +13,7 @@ export type CreateStripePaymentIntentResult = { clientSecret: string };
 export type ConfirmStripePaymentResult = { success: boolean };
 
 type CreateStripePaymentIntentData = { orderId: string };
+type CaptureDepositAndApproveQuoteData = { orderId: string };
 type RecordCashPaymentData = { orderId: string; amount: number };
 
 export const paymentService = {
@@ -56,6 +57,17 @@ export const paymentService = {
     }
 
     return { success: true };
+  },
+
+  // Calls the Firebase Callable Function `captureDepositAndApproveQuote` with { orderId }.
+  // Captures the authorized $20 hold and marks the order as Scheduled.
+  async captureDepositAndApproveQuote(orderId: string): Promise<void> {
+    const functions = getFunctions(firebaseApp);
+    const callable = httpsCallable<CaptureDepositAndApproveQuoteData, { success: boolean }>(
+      functions,
+      "captureDepositAndApproveQuote",
+    );
+    await callable({ orderId });
   },
 
   // Calls the Firebase Callable Function `recordCashPayment` with { orderId, amount }.

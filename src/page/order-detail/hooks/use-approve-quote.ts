@@ -4,12 +4,14 @@
 
 import { useMutation } from "@tanstack/react-query";
 
-import { orderService } from "@/services/order-service";
+import { paymentService } from "@/services/payment-service";
 
+// Customer approves the quote. The server captures the $20 Stripe hold and
+// moves the order to Scheduled atomically.
 // No cache invalidation: the order detail and customer Requests list are live
 // (onSnapshot), so the approval propagates to every listener on its own.
 export const useApproveQuote = () => {
   return useMutation({
-    mutationFn: (orderId: string) => orderService.approveQuote(orderId),
+    mutationFn: (orderId: string) => paymentService.captureDepositAndApproveQuote(orderId),
   });
 };
