@@ -18,6 +18,7 @@
 | M8 | Admin Flow | NOT STARTED | Can start after M3 + M5. |
 | M9 | Payments | CODE LANDED | Stripe SDK installed, `payment-service` + `transaction-service` created, Firebase Callable stubs added, customer payment + provider collect-payment screens landed, and order-detail CTAs wired. Requires dev client build + deployed Cloud Functions (M10) for end-to-end testing. |
 | M10 | Polish: Cloud Functions, Push, Security Rules | NOT STARTED | `acceptOrder` has a client-side expiry guard until the expire function exists. Firestore composite indexes created ad-hoc; `firestore.indexes.json` holds the canonical set. |
+| M11 | Stripe Connect: mechanic card final payments | NOT STARTED | Mechanics receive card final payments into their own Stripe Express accounts; Fixd collects an application fee; dispute liability stays with the mechanic. See `.agents/runs/stripe-connect/`. |
 
 ## Divergences & additions beyond the original plan (as of 2026-06-08)
 
@@ -527,6 +528,76 @@ Write `firestore.rules` per BACKEND_DESIGN.md section 7:
 
 ---
 
+## Milestone 11 — Stripe Connect: mechanic card final payments
+
+**Goal:** Mechanics can accept card final payments directly into their own Stripe
+Express accounts; Fixd collects an application fee as platform commission; dispute
+liability stays with the mechanic. Builds on M9 (platform deposit) and M10
+(Cloud Functions / security rules).
+
+### Run folder
+Tickets and routing state live in `.agents/runs/stripe-connect/`.
+
+### 11A — Provider Stripe Connect onboarding backend
+Create Stripe Express connected accounts, onboarding links, and a webhook handler
+in `functions/src/payments/stripe-connect/`:
+- `createStripeConnectAccount` — callable; creates the Express account and stores
+  `stripeConnectedAccountId` on `users/{uid}`.
+- `getStripeConnectOnboardingLink` — callable; returns a Stripe AccountLink URL.
+- `stripeConnectAccountUpdated` — HTTP webhook; handles `account.updated` and
+  updates onboarding/payout status fields.
+
+Add Stripe Connect fields to `ProviderDetails`:
+- `stripeConnectedAccountId`, `stripeConnectOnboardingComplete`,
+  `stripeConnectDetailsSubmitted`, `stripeConnectPayoutsEnabled`.
+
+Create a `stripe_accounts/{stripeAccountId}` reverse-lookup collection so the
+webhook can map a Stripe account ID to a Fixd provider UID.
+
+### 11B — Provider Stripe Connect onboarding UI
+Add `app/(provider-tabs)/profile/stripe-connect.tsx` and the
+`src/page/provider-stripe-connect/` feature folder:
+- Status-aware screen: connect / complete onboarding / connected.
+- Service wrappers in `src/services/payment-service.ts` for the callable functions.
+- React Query mutation hooks.
+- Deep-link handler at `app/stripe-connect.tsx` for Stripe's return/refresh URLs.
+- Entry row in the provider profile index.
+
+### 11C — Connected-account PaymentIntent + application fee
+Add final-payment functions in `functions/src/payments/`:
+- `createFinalPaymentIntent` — creates a PaymentIntent on the provider's connected
+  account with `transfer_data[destination]`, `application_fee_amount`, and
+  `on_behalf_of` so the mechanic is the merchant of record.
+- `captureFinalPayment` — captures the PI, writes a `final_payment` transaction,
+  marks the order `paid`, and credits provider earnings.
+
+Create `config/platform` for the application fee settings
+(`applicationFeePercent`, `applicationFeeMinimumCents`).
+
+Add final-payment fields to `RepairOrder`:
+- `finalPaymentIntentId`, `finalPaymentCapturedAt`, `finalPaymentMethod`,
+  `applicationFeeAmount`.
+
+Update `src/services/payment-service.ts` with `createFinalPaymentIntent`,
+`confirmFinalPayment`, and `captureFinalPayment`.
+
+### 11D — Owner earnings dashboard updates
+Extend `src/page/admin-earnings/` to show:
+- Application fees and card payment volume metric cards.
+- Per-mechanic table with Stripe Connect onboarding status.
+
+Update analytics types and service mapping for `applicationFees` and
+`stripeConnectVolume`.
+
+### 11E — Firestore security rules updates
+Update `firestore.rules` and `firestore.indexes.json`:
+- Clients cannot write `stripeConnectedAccountId` or onboarding status fields.
+- `stripe_accounts` is not client-readable.
+- `config/platform` is read-only for clients, owner-writeable.
+- `transactions` remain read-only for clients; writes only via Cloud Functions.
+
+---
+
 ## Complete Services Layer
 
 | File | Milestone | Purpose |
@@ -539,7 +610,7 @@ Write `firestore.rules` per BACKEND_DESIGN.md section 7:
 | `storage-service.ts` | M3 | Firebase Storage uploads |
 | `order-form-service.ts` | M5 | `order-forms` Firestore ops |
 | `transaction-service.ts` | M9 | `transactions` Firestore reads |
-| `payment-service.ts` | M9 | Stripe SDK + Firebase Callable Functions |
+| `payment-service.ts` | M9 / M11 | Stripe SDK + Firebase Callable Functions (deposit, Connect onboarding, final payment) |
 | `notification-service.ts` | M10 | Expo Notifications + FCM token |
 
 ---
@@ -557,10 +628,12 @@ M1 (Foundation: theme, Firebase real, CometChat init)
                 │    └── M7 (Messaging — provider side)
                 ├── M8 (Admin — can start after M3+M5)
                 └── M9 (Payments — after M4+M5)
-                     └── M10 (Polish — everything done)
+                     ├── M10 (Polish — everything done)
+                     └── M11 (Stripe Connect — card final payments)
 ```
 
-M7, M8, M9 can be worked in parallel once M5 is complete.
+M7, M8, M9 can be worked in parallel once M5 is complete. M11 can start once M9
+Cloud Functions are in place and depends on M10 security rules infrastructure.
 
 ---
 
@@ -573,5 +646,6 @@ Each milestone is verified by:
 4. Confirm services are the only files importing `firebase/*` or `@cometchat/*`
 5. For messaging (M7): verify real-time messages appear without app restart
 6. For payments (M9): use Stripe test cards, verify `transactions` doc created in Firestore
+7. For Stripe Connect (M11): verify Express onboarding completes, final PaymentIntent uses the connected account as destination, and application fee lands on the platform account
 
 **Theme showcase** (`/theme-showcase` route) is always available to visually verify token changes are reflected correctly.
