@@ -165,27 +165,14 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
   }
 
   if (order.status === "InProgress" && isOwner) {
-    if (!order.inspectionCompletedAt) {
-      return (
-        <View style={styles.actions}>
-          <AppButton onPress={onInspect}>{provider.inspect}</AppButton>
-          {showRecordCashPayment && (
-            <AppButton variant="secondary" onPress={onRecordCashPayment}>
-              {provider.recordCashPayment}
-            </AppButton>
-          )}
-          <AppButton variant="secondary" onPress={onChat}>
-            {provider.chat}
-          </AppButton>
-        </View>
-      );
-    }
+    const isPaymentBlocked = !order.inspectionCompletedAt;
+
     return (
       <View style={styles.actions}>
         <AppButton
           onPress={onComplete}
           loading={completeOrder.isPending}
-          disabled={completeOrder.isPending}
+          disabled={isPaymentBlocked || completeOrder.isPending}
         >
           {provider.complete}
         </AppButton>
@@ -193,20 +180,23 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
           <AppButton
             variant="secondary"
             onPress={onRecordCashPayment}
-            disabled={completeOrder.isPending}
+            disabled={isPaymentBlocked || completeOrder.isPending}
           >
             {provider.recordCashPayment}
           </AppButton>
         )}
-        <AppButton variant="secondary" onPress={onAddCharges} disabled={completeOrder.isPending}>
-          {provider.addCharges}
-        </AppButton>
+        {!isPaymentBlocked && (
+          <AppButton variant="secondary" onPress={onAddCharges} disabled={completeOrder.isPending}>
+            {provider.addCharges}
+          </AppButton>
+        )}
         <AppButton variant="secondary" onPress={onInspect} disabled={completeOrder.isPending}>
-          {provider.editInspection}
+          {isPaymentBlocked ? provider.inspect : provider.editInspection}
         </AppButton>
         <AppButton variant="secondary" onPress={onChat} disabled={completeOrder.isPending}>
           {provider.chat}
         </AppButton>
+        {isPaymentBlocked && <StatusHint text={provider.inspectionRequiredHint} />}
       </View>
     );
   }

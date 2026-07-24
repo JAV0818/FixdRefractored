@@ -17,10 +17,11 @@ const REGION = process.env.EXPO_PUBLIC_COMET_CHAT_REGION ?? "us";
 
 export type CometChatMessage = {
   id: string;
-  text: string;
-  senderUid: string;
+  senderAvatar?: string;
   senderName: string;
+  senderUid: string;
   sentAt: number;
+  text: string;
 };
 
 export type CometChatConversation = {
@@ -47,10 +48,11 @@ const mapMessage = (message: CometChat.BaseMessage): CometChatMessage => {
 
   return {
     id: String(message.getId()),
-    text,
-    senderUid: sender.getUid(),
+    senderAvatar: sender.getAvatar() || undefined,
     senderName: sender.getName(),
+    senderUid: sender.getUid(),
     sentAt: message.getSentAt(),
+    text,
   };
 };
 

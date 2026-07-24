@@ -8,4 +8,5 @@ export const COLLECT_PAYMENT_COPY = {
   recordCashPayment: "Record cash payment",
   recording: "Recording…",
   errorFallback: "Something went wrong. Please try again.",
+  inspectionRequiredHint: "Complete the inspection checklist before finishing payment.",
 } as const;

@@ -80,9 +80,16 @@ export const ChatSuccessView = ({
   const renderItem = useCallback(
     ({ item }: { item: CometChatMessage }) => {
       const isOwn = item.senderUid.toLowerCase() === (currentUserId ?? "").toLowerCase();
-      return <MessageBubble message={item} isOwnMessage={isOwn} />;
+      return (
+        <MessageBubble
+          message={item}
+          isOwnMessage={isOwn}
+          senderName={isOwn ? undefined : otherPartyName}
+          senderPhotoUrl={isOwn ? undefined : (item.senderAvatar ?? otherProfile?.photoUrl ?? undefined)}
+        />
+      );
     },
-    [currentUserId],
+    [currentUserId, otherPartyName, otherProfile?.photoUrl],
   );
 
   const orderLocation = useMemo(() => {

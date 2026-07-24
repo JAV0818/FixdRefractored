@@ -20,13 +20,15 @@ export const CollectPaymentView = () => {
   const { data: order, isLoading } = useOrder(orderId);
   const recordCashPayment = useRecordCashPayment();
 
+  const isPaymentBlocked = order?.status === "InProgress" && !order?.inspectionCompletedAt;
+
   const onRecordPayment = useCallback(() => {
-    if (!orderId || !order) return;
+    if (!orderId || !order || isPaymentBlocked) return;
     recordCashPayment.mutate(
       { orderId, amount: order.remainingBalance },
       { onSuccess: () => router.back() },
     );
-  }, [orderId, order, recordCashPayment, router]);
+  }, [orderId, order, isPaymentBlocked, recordCashPayment, router]);
 
   if (isLoading) {
     return (
@@ -53,6 +55,12 @@ export const CollectPaymentView = () => {
         <Text style={styles.balance}>{formatCurrency(order.remainingBalance)}</Text>
       </GlassCard>
 
+      {isPaymentBlocked && (
+        <HelperText type="info" visible>
+          {COLLECT_PAYMENT_COPY.inspectionRequiredHint}
+        </HelperText>
+      )}
+
       {recordCashPayment.isError && (
         <HelperText type="error" visible>
           {recordCashPayment.error?.message || COLLECT_PAYMENT_COPY.errorFallback}
@@ -62,7 +70,7 @@ export const CollectPaymentView = () => {
       <AppButton
         onPress={onRecordPayment}
         loading={recordCashPayment.isPending}
-        disabled={recordCashPayment.isPending}
+        disabled={isPaymentBlocked || recordCashPayment.isPending}
       >
         {recordCashPayment.isPending
           ? COLLECT_PAYMENT_COPY.recording

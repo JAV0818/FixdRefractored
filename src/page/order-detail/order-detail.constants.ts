@@ -43,6 +43,7 @@ export const ORDER_DETAIL_COPY = {
     keep: "Keep job",
     inProgress: "This job is in progress.",
     inspect: "Do inspection",
+    inspectionRequiredHint: "Complete the inspection checklist before finishing payment.",
     recordCashPayment: "Record cash payment",
     editInspection: "Edit inspection",
     addCharges: "Add charges",

@@ -8,6 +8,7 @@ import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
+import { Avatar } from "@/components/avatar";
 import { colors, fontSize, fontWeight, lineHeight, radii, spacing } from "@/theme";
 
 import type { MessageBubbleProps } from "./message-bubble.interface";
@@ -22,15 +23,24 @@ const formatMessageTime = (sentAt: number): string => {
 export const MessageBubble = memo(function MessageBubble({
   isOwnMessage,
   message,
+  senderName,
+  senderPhotoUrl,
 }: MessageBubbleProps) {
-  const { text, sentAt } = message;
+  const { senderAvatar, senderName: messageSenderName, sentAt, text } = message;
   const own = Boolean(isOwnMessage);
+  const displayName = senderName ?? messageSenderName;
+  const photoUrl = senderPhotoUrl ?? senderAvatar;
 
   return (
     <View
       style={[styles.container, own ? styles.ownContainer : styles.otherContainer]}
       testID="message-bubble"
     >
+      {!own && (
+        <View style={styles.avatar}>
+          <Avatar name={displayName} photoUrl={photoUrl} size={32} />
+        </View>
+      )}
       <View style={[styles.bubble, own ? styles.ownBubble : styles.otherBubble]}>
         <Text style={[styles.messageText, own ? styles.ownText : styles.otherText]}>{text}</Text>
         <Text style={[styles.timestamp, own ? styles.ownTimestamp : styles.otherTimestamp]}>
@@ -42,6 +52,9 @@ export const MessageBubble = memo(function MessageBubble({
 });
 
 const styles = StyleSheet.create({
+  avatar: {
+    marginRight: spacing.sm,
+  },
   bubble: {
     borderRadius: radii.xl,
     gap: spacing.xxs,
@@ -66,6 +79,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   otherContainer: {
+    alignItems: "flex-end",
     justifyContent: "flex-start",
   },
   otherText: {
