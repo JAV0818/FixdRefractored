@@ -1,0 +1,60 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function currentUserId() {
+      return request.auth.uid;
+    }
+
+    function currentUser() {
+      return get(/databases/$(database)/documents/users/$(currentUserId())).data;
+    }
+
+    function isOwner() {
+      return isAuthenticated() && currentUser().role == 'owner';
+    }
+
+    function orderData(orderId) {
+      return get(/databases/$(database)/documents/repair-orders/$(orderId)).data;
+    }
+
+    function orderExists(orderId) {
+      return exists(/databases/$(database)/documents/repair-orders/$(orderId));
+    }
+
+    function isOrderCustomer(orderId) {
+      return isAuthenticated() && orderExists(orderId) && orderData(orderId).customerId == currentUserId();
+    }
+
+    function isOrderProvider(orderId) {
+      return isAuthenticated() && orderExists(orderId) && orderData(orderId).providerId == currentUserId();
+    }
+
+    function isOrderParty(orderId) {
+      return isOrderCustomer(orderId) || isOrderProvider(orderId) || isOwner();
+    }
+
+    // Profile photos: visible to any signed-in user (avatars), writable only by the owner.
+    match /profileImages/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && currentUserId() == userId;
+    }
+
+    // Customer-uploaded order photos. Only the customer who created the order can upload.
+    // Providers assigned to the order, the customer, and owners can view.
+    match /repairOrders/{customerId}/{orderId}/{allPaths=**} {
+      allow write: if isAuthenticated() && currentUserId() == customerId;
+      allow read: if isOrderParty(orderId);
+    }
+
+    // Mechanic inspection photos. Only the assigned provider can upload.
+    // The customer, assigned provider, and owners can view.
+    match /inspectionReports/{orderId}/{allPaths=**} {
+      allow write: if isOrderProvider(orderId) || isOwner();
+      allow read: if isOrderParty(orderId);
+    }
+  }
+}
