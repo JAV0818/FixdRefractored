@@ -116,6 +116,18 @@ export const cometChatService = {
     await CometChat.logout();
   },
 
+  async updateCurrentUser(name: string, avatar?: string): Promise<void> {
+    if (!APP_ID) return;
+    const user = await CometChat.getLoggedinUser();
+    if (!user) return;
+
+    user.setName(name);
+    if (avatar) {
+      user.setAvatar(avatar);
+    }
+    await CometChat.updateUser(user, AUTH_KEY);
+  },
+
   async getConversations(): Promise<CometChatConversation[]> {
     if (!APP_ID) return [];
 

@@ -14,6 +14,7 @@ import { theme } from "@/theme";
 import { AuthProvider } from "./auth-provider";
 import { QueryProvider } from "./query-provider";
 import { CometChatProvider } from "./comet-chat-provider";
+import { SyncCometChatProfile } from "./sync-comet-chat-profile";
 
 const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 
@@ -31,7 +32,10 @@ export const AppProviders = ({ children }: AppProvidersProps) => (
     <QueryProvider>
       <CometChatProvider>
         <StripeProvider publishableKey={STRIPE_PUBLISHABLE_KEY}>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <SyncCometChatProfile />
+            {children}
+          </AuthProvider>
         </StripeProvider>
       </CometChatProvider>
     </QueryProvider>
