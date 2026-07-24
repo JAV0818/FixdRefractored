@@ -40,6 +40,9 @@ export const ChatSuccessView = ({
   const { data: conversations } = useConversations();
   const { data: order } = useOrder(orderId);
 
+  // eslint-disable-next-line no-console
+  console.log("[ChatSuccessView] orderId:", orderId, "order loaded:", !!order, "currentUserId:", currentUserId);
+
   const otherPartyName = useMemo(() => {
     const match = conversations?.find(
       (conversation) => conversation.conversationWith.uid === conversationId,
@@ -60,9 +63,11 @@ export const ChatSuccessView = ({
   }, [orderId, role, router]);
 
   const renderItem = useCallback(
-    ({ item }: { item: CometChatMessage }) => (
-      <MessageBubble message={item} isOwnMessage={item.senderUid === currentUserId} />
-    ),
+    ({ item }: { item: CometChatMessage }) => {
+      // eslint-disable-next-line no-console
+      console.log("[ChatSuccessView] message sender:", item.senderUid, "currentUser:", currentUserId);
+      return <MessageBubble message={item} isOwnMessage={item.senderUid === currentUserId} />;
+    },
     [currentUserId],
   );
 
