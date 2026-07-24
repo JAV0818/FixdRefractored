@@ -22,12 +22,21 @@ const formatMessageTime = (sentAt: number): string => {
   });
 };
 
+const UID_LENGTH = 28;
+
+const looksLikeUid = (value: string): boolean =>
+  value.length >= UID_LENGTH && !value.includes(" ");
+
+const displayName = (value: string): string =>
+  looksLikeUid(value) ? "User" : value;
+
 export const ConversationListItem = memo(function ConversationListItem({
   conversation,
   onPress,
 }: ConversationListItemProps) {
   const { conversationWith, lastMessage, unreadMessageCount } = conversation;
   const hasUnread = unreadMessageCount > 0;
+  const name = displayName(conversationWith.name);
 
   return (
     <TouchableOpacity
@@ -36,12 +45,12 @@ export const ConversationListItem = memo(function ConversationListItem({
       onPress={onPress}
       testID="conversation-list-item"
     >
-      <Avatar name={conversationWith.name} size={48} />
+      <Avatar name={name} size={48} />
 
       <View style={styles.content}>
         <View style={styles.topRow}>
           <Text style={styles.name} numberOfLines={1}>
-            {conversationWith.name}
+            {name}
           </Text>
           {lastMessage ? (
             <Text style={styles.timestamp}>{formatMessageTime(lastMessage.sentAt)}</Text>

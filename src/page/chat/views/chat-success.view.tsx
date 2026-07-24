@@ -43,6 +43,12 @@ export const ChatSuccessView = ({
   const { data: otherProfile } = useUserProfile(conversationId);
 
   const otherPartyName = useMemo(() => {
+    // Order-linked chats: always show the customer's name from the order,
+    // never the raw CometChat UID.
+    if (order?.customerName) {
+      return order.customerName;
+    }
+
     if (otherProfile) {
       const fullName = [otherProfile.firstName, otherProfile.lastName].filter(Boolean).join(" ").trim();
       return fullName || otherProfile.email || CHAT_COPY.headerPlaceholder;
@@ -52,8 +58,13 @@ export const ChatSuccessView = ({
       (conversation) => conversation.conversationWith.uid === conversationId,
     );
 
-    return match?.conversationWith.name ?? CHAT_COPY.headerPlaceholder;
-  }, [conversations, conversationId, otherProfile]);
+    const cometChatName = match?.conversationWith.name;
+    if (cometChatName && !cometChatName.includes("_") && cometChatName.length < 30) {
+      return cometChatName;
+    }
+
+    return CHAT_COPY.headerPlaceholder;
+  }, [conversations, conversationId, order?.customerName, otherProfile]);
 
   const handleOrderPress = useCallback(() => {
     if (!orderId) return;
