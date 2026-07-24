@@ -10,6 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { GlassCard, KeyboardSafeView, MessageBubble, MessageInputBar } from "@/components";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { useConversations } from "@/page/chat/hooks/use-conversations";
+import { useUserProfile } from "@/page/auth/hooks/use-user-profile";
 import { useOrder } from "@/hooks/use-order";
 import { useAuthContext } from "@/providers/auth-provider";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
@@ -39,17 +40,20 @@ export const ChatSuccessView = ({
   const router = useRouter();
   const { data: conversations } = useConversations();
   const { data: order } = useOrder(orderId);
-
-  // eslint-disable-next-line no-console
-  console.log("[ChatSuccessView] orderId:", orderId, "order loaded:", !!order, "currentUserId:", currentUserId);
+  const { data: otherProfile } = useUserProfile(conversationId);
 
   const otherPartyName = useMemo(() => {
+    if (otherProfile) {
+      const fullName = [otherProfile.firstName, otherProfile.lastName].filter(Boolean).join(" ").trim();
+      return fullName || otherProfile.email || CHAT_COPY.headerPlaceholder;
+    }
+
     const match = conversations?.find(
       (conversation) => conversation.conversationWith.uid === conversationId,
     );
 
     return match?.conversationWith.name ?? CHAT_COPY.headerPlaceholder;
-  }, [conversations, conversationId]);
+  }, [conversations, conversationId, otherProfile]);
 
   const handleOrderPress = useCallback(() => {
     if (!orderId) return;
@@ -64,9 +68,8 @@ export const ChatSuccessView = ({
 
   const renderItem = useCallback(
     ({ item }: { item: CometChatMessage }) => {
-      // eslint-disable-next-line no-console
-      console.log("[ChatSuccessView] message sender:", item.senderUid, "currentUser:", currentUserId);
-      return <MessageBubble message={item} isOwnMessage={item.senderUid === currentUserId} />;
+      const isOwn = item.senderUid.toLowerCase() === (currentUserId ?? "").toLowerCase();
+      return <MessageBubble message={item} isOwnMessage={isOwn} />;
     },
     [currentUserId],
   );

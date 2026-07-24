@@ -33,7 +33,7 @@ const mergeMessages = (
     byId.set(message.id, message);
   }
 
-  return Array.from(byId.values()).sort((a, b) => a.sentAt - b.sentAt);
+  return Array.from(byId.values()).sort((a, b) => b.sentAt - a.sentAt);
 };
 
 export const ChatView = ({ conversationId, orderId }: ChatViewProps) => {
