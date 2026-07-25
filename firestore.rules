@@ -58,6 +58,22 @@ service cloud.firestore {
       allow delete: if isOwner();
     }
 
+    match /repair-orders/{orderId}/inspectionReport/{reportId} {
+      function order() {
+        return get(/databases/$(database)/documents/repair-orders/$(orderId)).data;
+      }
+
+      allow read: if isAuthenticated() && (
+        order().customerId == currentUserId() ||
+        order().providerId == currentUserId() ||
+        isOwner()
+      );
+      allow write: if isAuthenticated() && (
+        order().providerId == currentUserId() ||
+        isOwner()
+      );
+    }
+
     match /transactions/{transactionId} {
       allow read: if isAuthenticated() && (
         resource.data.customerId == currentUserId() ||
