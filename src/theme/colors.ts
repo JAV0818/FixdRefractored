@@ -21,8 +21,8 @@ export const lightColors = {
   onDarkMuted: "rgba(255,255,255,0.7)",
 
   // Overlays & scrims
-  scrim: "#111111",
-  overlayDark: "rgba(0,0,0,0.55)",
+  scrim: "#F2EDE4",
+  overlayDark: "rgba(242,237,228,0.95)",
 
   // Glass surfaces
   glassSurface: "rgba(255,255,255,0.72)",
