@@ -75,16 +75,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32, // one-off display heading — no matching token
     fontFamily: fontFamily.displayBold,
-    color: colors.onPrimary,
+    color: colors.textPrimary,
     marginBottom: spacing.xs,
   },
   subtitle: {
     fontSize: fontSize.sm,
-    color: colors.onDarkMuted,
+    color: colors.textSecondary,
     marginBottom: spacing.xl,
   },
   errorText: {
-    color: colors.dangerOnDark,
+    color: colors.danger,
     fontSize: fontSize.xs,
     marginTop: spacing.xs,
     marginBottom: spacing.sm,
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   },
   signUpText: {
     fontSize: fontSize.sm,
-    color: colors.onDarkMuted,
+    color: colors.textSecondary,
   },
   signUpLink: {
     color: colors.primary,
