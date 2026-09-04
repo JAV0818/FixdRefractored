@@ -20,12 +20,12 @@ export const WelcomeView = () => {
   // AuthProvider hasn't hydrated yet, or the profile query is pending.
   if (!isHydrated || profile.isLoading) return <WelcomeLoadingView />;
 
-  // Error in the query (or there's no signed-in user — treat that as the
-  // same surface; the (tabs) group should never even render in that case
-  // once the auth gate is wired up, but be defensive).
-  if (profile.isError || !currentUser) {
-    return <WelcomeErrorView onRetry={profile.refetch} />;
-  }
+  // No signed-in user — in-transit state, auth gate is about to redirect.
+  // Treat as loading, never error.
+  if (!currentUser) return <WelcomeLoadingView />;
+
+  // Actual data error — profile fetch failed.
+  if (profile.isError) return <WelcomeErrorView onRetry={profile.refetch} />;
 
   // No profile document yet — pass null; the success view handles its own
   // "no data yet" sub-state.

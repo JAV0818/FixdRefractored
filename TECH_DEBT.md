@@ -16,6 +16,20 @@ Add to this file whenever you defer something.
 
 ---
 
+## ✅ RESOLVED — Auth gate flash / role cross-contamination (Sept 4 2026)
+
+**Files:** `app/_layout.tsx`, `src/page/auth/views/welcome.view.tsx`
+
+**Problem:** Auth gate used `useEffect` + `router.replace`, causing a one-render-cycle
+gap where the wrong screen (WelcomeErrorView "Something went wrong") flashed before
+redirect fired. Also risked mechanic/customer role cross-contamination on sign-in.
+
+**Fix:** Replaced `useEffect` redirects with render-time `<Redirect>` components.
+Stack never mounts until segments already match the correct destination. Separated
+`!currentUser` (in-transit loading) from `isError` (actual failure) in WelcomeView.
+
+---
+
 ## 🔴 HIGH — Customer search uses client-side filtering
 
 **File:** `src/services/user-service.ts` → `searchCustomers()`

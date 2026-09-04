@@ -1,18 +1,19 @@
 // Root layout — loads fonts, wires global providers, enforces the auth gate.
 //
-// Auth gate logic:
+// Auth gate logic (render-time, no useEffect gap):
 //   !isHydrated                → branded loading screen (prevents role-flicker)
-//   !currentUser               → sign-in
-//   !hasCompletedOnboarding    → onboarding flow
-//   role === 'customer'        → (customer-tabs)
-//   role === 'provider'        → (provider-tabs)
-//   role === 'owner'           → (admin-tabs)
+//   !currentUser               → <Redirect> to sign-in (Stack never mounts)
+//   !hasCompletedOnboarding    → <Redirect> to onboarding flow
+//   role === 'customer'        → <Redirect> to (customer-tabs)
+//   role === 'provider'        → <Redirect> to (provider-tabs)
+//   role === 'owner'           → <Redirect> to (admin-tabs)
 //
-// Flicker prevention: returning a loading screen (not null) while !isHydrated
-// ensures neither tab group ever mounts before the role is confirmed.
+// Anti-flash rule: redirects are computed at render time via <Redirect>, not
+// via useEffect + router.replace. The Stack only mounts when segments already
+// match the correct destination — zero-frame gap between state resolution and
+// navigation. See best_practices.md § Auth Gate.
 
-import { Stack, useRouter, useSegments } from "expo-router";
-import { useEffect } from "react";
+import { Redirect, Stack, useSegments } from "expo-router";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useTheme } from "react-native-paper";
@@ -42,45 +43,32 @@ const LoadingScreen = () => (
 );
 
 const InitialLayout = () => {
-  const router = useRouter();
   const segments = useSegments();
   const theme = useTheme();
   const { currentUser, role, hasCompletedOnboarding, isHydrated } = useAuthContext();
 
-  useEffect(() => {
-    if (!isHydrated) return;
+  // Auth state not yet resolved — hold here, Stack must not mount yet.
+  if (!isHydrated) return <LoadingScreen />;
 
-    const inAuth = segments[0] === "(auth)";
-    const inOnboarding = segments[0] === "(onboarding)";
-    const inCustomer = segments[0] === "(customer-tabs)";
-    const inProvider = segments[0] === "(provider-tabs)";
-    const inAdmin = segments[0] === "(admin-tabs)";
+  // Not signed in — redirect before Stack ever mounts.
+  if (!currentUser && segments[0] !== "(auth)")
+    return <Redirect href="/(auth)/sign-in" />;
 
-    if (!currentUser) {
-      if (!inAuth) router.replace("/(auth)/sign-in");
-      return;
-    }
+  // Signed in but onboarding incomplete.
+  if (currentUser && !hasCompletedOnboarding && segments[0] !== "(onboarding)")
+    return <Redirect href="/(onboarding)/role-selection" />;
 
-    if (!hasCompletedOnboarding) {
-      if (!inOnboarding) router.replace("/(onboarding)/role-selection");
-      return;
-    }
-
-    if (role === "customer" && !inCustomer) {
-      router.replace("/(customer-tabs)/services");
-    } else if (role === "provider" && !inProvider) {
-      router.replace("/(provider-tabs)/marketplace");
-    } else if (role === "owner" && !inAdmin) {
-      router.replace("/(admin-tabs)/orders");
-    }
-  }, [currentUser, role, hasCompletedOnboarding, isHydrated, segments, router]);
-
-  // Block rendering entirely until role is confirmed — prevents any tab group
-  // from flashing before the redirect fires.
-  if (!isHydrated) {
-    return <LoadingScreen />;
+  // Signed in + onboarded — route to the correct role group.
+  if (currentUser && hasCompletedOnboarding) {
+    if (role === "customer" && segments[0] !== "(customer-tabs)")
+      return <Redirect href="/(customer-tabs)/services" />;
+    if (role === "provider" && segments[0] !== "(provider-tabs)")
+      return <Redirect href="/(provider-tabs)/marketplace" />;
+    if (role === "owner" && segments[0] !== "(admin-tabs)")
+      return <Redirect href="/(admin-tabs)/orders" />;
   }
 
+  // Segments already match the correct destination — render the Stack.
   return (
     <>
       <StatusBar style={theme.dark ? "light" : "dark"} />
