@@ -27,7 +27,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: "#ffffff",
     },
     package: "com.kingjuju.fixd",
-    googleServicesFile: "./android/app/google-services.json",
+    googleServicesFile: "./google-services.json",
   },
   web: {
     bundler: "metro",
