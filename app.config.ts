@@ -38,7 +38,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "@react-native-firebase/app",
       {
-        ios_disable_swift_package_manager: true,
+        ios: {
+          disableSPM: true,
+        },
       },
     ],
     [
@@ -47,6 +49,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         android: {
           compileSdkVersion: 36,
           kotlinVersion: "2.0.21",
+        },
+        ios: {
+          useFrameworks: "static",
         },
       },
     ],
