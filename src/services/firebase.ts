@@ -10,7 +10,6 @@ import { initializeAuth, getAuth } from "firebase/auth";
 // @ts-expect-error — RN-only export, absent from the default web type defs.
 import { getReactNativePersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
@@ -34,4 +33,3 @@ export const auth = isFirstLoad
   : getAuth(firebaseApp);
 
 export const db = getFirestore(firebaseApp);
-export const storage = getStorage(firebaseApp);
