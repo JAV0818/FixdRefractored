@@ -35,7 +35,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     "expo-router",
     "@react-native-community/datetimepicker",
-    "@react-native-firebase/app",
+    [
+      "@react-native-firebase/app",
+      {
+        ios_disable_swift_package_manager: true,
+      },
+    ],
     [
       "expo-build-properties",
       {
