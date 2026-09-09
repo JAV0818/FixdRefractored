@@ -20,6 +20,10 @@
 | M10 | Polish: Cloud Functions, Push, Security Rules | NOT STARTED | `acceptOrder` has a client-side expiry guard until the expire function exists. Firestore composite indexes created ad-hoc; `firestore.indexes.json` holds the canonical set. |
 | M11 | Stripe Connect: mechanic card final payments | NOT STARTED | Mechanics receive card final payments into their own Stripe Express accounts; Fixd collects an application fee; dispute liability stays with the mechanic. See `.agents/runs/stripe-connect/`. |
 
+## Infrastructure migrations
+
+- **RN Firebase Storage migration** (in progress, `feat/rn-firebase-storage` branch): swap `firebase/storage` (JS SDK, hangs on `getDownloadURL` in RN) for `@react-native-firebase/storage` (native iOS/Android SDK). Fixes the customer photo upload bug where files land in Storage but URLs never persist to the order doc. Tracked in `.agents/runs/rn-firebase-storage-migration/`.
+
 ## Divergences & additions beyond the original plan (as of 2026-06-08)
 
 The full plan below predates several reworks. Where it and the code on `main`
