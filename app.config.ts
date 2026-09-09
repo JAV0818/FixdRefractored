@@ -43,9 +43,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           compileSdkVersion: 36,
           kotlinVersion: "2.0.21",
         },
-        ios: {
-          useFrameworks: "dynamic",
-        },
       },
     ],
     [
