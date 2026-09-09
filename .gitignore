@@ -39,3 +39,7 @@ expo-env.d.ts
 
 # Agent loop run artifacts (tickets, handoffs, QA reports — disposable per run)
 .agents/runs/
+
+# Local reference material and one-off scripts (not part of shipped code)
+ref images/
+screenshot.js
