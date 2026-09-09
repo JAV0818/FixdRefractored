@@ -17,6 +17,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: "com.kingjuju.fixd",
+    googleServicesFile: "./GoogleService-Info.plist",
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
@@ -26,6 +27,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: "#ffffff",
     },
     package: "com.kingjuju.fixd",
+    googleServicesFile: "./android/app/google-services.json",
   },
   web: {
     bundler: "metro",
@@ -33,12 +35,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     "expo-router",
     "@react-native-community/datetimepicker",
+    "@react-native-firebase/app",
     [
       "expo-build-properties",
       {
         android: {
           compileSdkVersion: 36,
           kotlinVersion: "2.0.21",
+        },
+        ios: {
+          useFrameworks: "dynamic",
         },
       },
     ],

@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "32689903748",
+    "project_id": "intfixd",
+    "storage_bucket": "intfixd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:32689903748:android:16b96ce535287e0b82cad1",
+        "android_client_info": {
+          "package_name": "com.kingjuju.fixd"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "32689903748-oampck33avts2etf1i2bcidbt22r0pjs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAepY7YvGaqNTlAA6fUWa_xGbom3m6-9GY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "32689903748-oampck33avts2etf1i2bcidbt22r0pjs.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "32689903748-bds1u94hba89034fs5ukr4df8l0t7m86.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.kingjuju.fixd"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
