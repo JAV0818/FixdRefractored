@@ -9,7 +9,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: "portrait",
   scheme: "fixd",
   userInterfaceStyle: "automatic",
-  newArchEnabled: true,
+  newArchEnabled: false,
   splash: {
     resizeMode: "contain",
     backgroundColor: "#ffffff",
