@@ -56,6 +56,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           forceStaticLinking: [
             "RNFBApp",
             "RNFBStorage",
+            "stripe-react-native",
           ],
         },
       },
