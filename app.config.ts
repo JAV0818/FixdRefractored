@@ -5,11 +5,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Fixd",
   slug: "fixd",
   version: "0.1.0",
-  sdkVersion: "54.0.0",
+  sdkVersion: "55.0.0",
   orientation: "portrait",
   scheme: "fixd",
   userInterfaceStyle: "automatic",
-  newArchEnabled: true,
+  // newArchEnabled removed — mandatory in SDK 55 (RN 0.82+)
   splash: {
     resizeMode: "contain",
     backgroundColor: "#ffffff",
@@ -35,7 +35,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     "expo-router",
     "@react-native-community/datetimepicker",
-    "@react-native-firebase/app",
+    [
+      "@react-native-firebase/app",
+      {
+        ios: {
+          disableSPM: true,
+        },
+      },
+    ],
     [
       "expo-build-properties",
       {
@@ -44,7 +51,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           kotlinVersion: "2.0.21",
         },
         ios: {
-          useFrameworks: "dynamic",
+          useFrameworks: "static",
         },
       },
     ],
