@@ -206,3 +206,24 @@ CTA) reused across Requests, Queue, Marketplace, Messages, etc.
 
 **Fix:** Add customer sign-off (signature pad library) if legally required before
 launch or at a partner's request.
+
+---
+
+## 🔴 HIGH — newArchEnabled must be explicit in expo-build-properties with useFrameworks: static
+
+**Noted from:** EAS build ae0f280c-047b-47c3-9a04-bf4a1d12e8a8 crash investigation
+
+**Problem:** SDK 55 defaults to New Architecture, but `expo-build-properties` with
+`useFrameworks: "static"` suppresses that default. The binary was compiled without
+`RN$Bridgeless`, causing `registerCallableModule.js` to fall through to the legacy
+bridge path and crash with "Property 'MessageQueue' doesn't exist" on device.
+
+**Fix:** `newArchEnabled: true` must be explicitly set in the `expo-build-properties`
+plugin iOS config even in SDK 55 when `useFrameworks: "static"` is active:
+
+```ts
+["expo-build-properties", { ios: { useFrameworks: "static", newArchEnabled: true } }]
+```
+
+A comment like `// newArchEnabled removed — mandatory in SDK 55` is NOT sufficient.
+The key must be present in the plugin config object.
