@@ -9,7 +9,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: "portrait",
   scheme: "fixd",
   userInterfaceStyle: "automatic",
-  // newArchEnabled removed — mandatory in SDK 55 (RN 0.82+)
+  newArchEnabled: true,
   splash: {
     resizeMode: "contain",
     backgroundColor: "#ffffff",
