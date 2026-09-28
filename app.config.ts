@@ -36,23 +36,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "@react-native-community/datetimepicker",
     [
-      "@react-native-firebase/app",
-      {
-        ios: {
-          disableSPM: true,
-        },
-      },
-    ],
-    [
       "expo-build-properties",
       {
         android: {
           compileSdkVersion: 36,
           kotlinVersion: "2.0.21",
         },
-        ios: {
-          useFrameworks: "static",
-        },
+        ios: {},
       },
     ],
     [

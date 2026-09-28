@@ -2,11 +2,13 @@
 // Hooks call these; views and components never import this directly.
 // Path layout follows BACKEND_DESIGN.md §9.
 //
-// Uses @react-native-firebase/storage (v26 modular API) — native iOS/Android
-// Firebase SDKs. No Blob conversion needed: putFile() accepts local file URIs
-// directly from expo-image-picker.
+// Uses Firebase JS SDK (firebase/storage) — works with both Expo Go and
+// production builds without requiring useFrameworks: static or New Architecture.
+// Unlike @react-native-firebase's putFile(), uploadBytes() requires a Blob —
+// we fetch() the local URI to convert it before uploading.
 
-import { getStorage, ref, putFile, getDownloadURL } from "@react-native-firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { firebaseApp } from "./firebase";
 
 // Canonical MIME-type → file extension mapping.
 // Preserved so storage path filenames accurately reflect image format.
@@ -29,7 +31,15 @@ const mimeFromUri = (uri: string): string => {
   return "image/jpeg";
 };
 
-const storage = getStorage();
+// Convert a local file URI (e.g. from expo-image-picker) to a Blob.
+// Firebase JS SDK's uploadBytes() requires a Blob; fetch() handles local
+// file:// URIs and content:// URIs on both iOS and Android in React Native.
+const uriToBlob = async (uri: string): Promise<Blob> => {
+  const response = await fetch(uri);
+  return response.blob();
+};
+
+const storage = getStorage(firebaseApp);
 
 export const storageService = {
   // Upload a customer's order photos to repairOrders/{userId}/{orderId}/...
@@ -46,7 +56,8 @@ export const storageService = {
         storage,
         `repairOrders/${userId}/${orderId}/customer-upload-${index}.${ext}`,
       );
-      await putFile(fileRef, uri, { contentType });
+      const blob = await uriToBlob(uri);
+      await uploadBytes(fileRef, blob, { contentType });
       return getDownloadURL(fileRef);
     });
     return Promise.all(uploads);
@@ -58,7 +69,8 @@ export const storageService = {
     const contentType = mimeFromUri(uri);
     const ext = EXT_BY_TYPE[contentType] ?? "jpg";
     const fileRef = ref(storage, `profileImages/${userId}/profile.${ext}`);
-    await putFile(fileRef, uri, { contentType });
+    const blob = await uriToBlob(uri);
+    await uploadBytes(fileRef, blob, { contentType });
     return getDownloadURL(fileRef);
   },
 
@@ -71,7 +83,8 @@ export const storageService = {
         storage,
         `inspectionReports/${orderId}/photo-${Date.now()}-${index}.${ext}`,
       );
-      await putFile(fileRef, uri, { contentType });
+      const blob = await uriToBlob(uri);
+      await uploadBytes(fileRef, blob, { contentType });
       return getDownloadURL(fileRef);
     });
     return Promise.all(uploads);
