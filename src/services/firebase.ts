@@ -35,3 +35,6 @@ export const auth = isFirstLoad
 
 export const db = getFirestore(firebaseApp);
 export const storage = getStorage(firebaseApp);
+// The SDK retries a stalled upload for 10 minutes by default. Fail after 1 so the
+// user sees the error and can retry, instead of a spinner that never resolves.
+storage.maxUploadRetryTime = 60_000;

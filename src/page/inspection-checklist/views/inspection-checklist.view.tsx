@@ -13,6 +13,8 @@ import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { useOrder } from "@/hooks/use-order";
 import { useImagePicker } from "@/hooks/use-image-picker";
+import type { Photo } from "@/types/photo.interface";
+import { toPhotos } from "@/utils/photos";
 import type { InspectionItemResult, InspectionRating } from "@/types/inspection.interface";
 
 import {
@@ -35,7 +37,7 @@ export const InspectionChecklistView = () => {
 
   const [ratings, setRatings] = useState<Ratings>({});
   const [summaryNotes, setSummaryNotes] = useState("");
-  const [existingPhotoUrls, setExistingPhotoUrls] = useState<string[]>([]);
+  const [existingPhotos, setExistingPhotos] = useState<Photo[]>([]);
   const [newPhotoUris, setNewPhotoUris] = useState<string[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
@@ -44,7 +46,7 @@ export const InspectionChecklistView = () => {
     if (!hydrated && existing) {
       setRatings(existing.ratings ?? {});
       setSummaryNotes(existing.summaryNotes ?? "");
-      setExistingPhotoUrls(existing.photoUrls ?? []);
+      setExistingPhotos(toPhotos(existing.photoUrls, existing.photoThumbUrls));
       setHydrated(true);
     }
   }, [existing, hydrated]);
@@ -68,21 +70,22 @@ export const InspectionChecklistView = () => {
   );
 
   const pickFromLibrary = useImagePicker();
+  // Grid shows small thumbs for saved photos and the local file for new ones.
   const photos = useMemo(
-    () => [...existingPhotoUrls, ...newPhotoUris],
-    [existingPhotoUrls, newPhotoUris],
+    () => [...existingPhotos.map((p) => p.thumbUrl), ...newPhotoUris],
+    [existingPhotos, newPhotoUris],
   );
   const addPhotos = useCallback(async () => {
-    const picked = await pickFromLibrary(MAX_INSPECTION_PHOTOS - existingPhotoUrls.length - newPhotoUris.length);
+    const picked = await pickFromLibrary(MAX_INSPECTION_PHOTOS - existingPhotos.length - newPhotoUris.length);
     if (picked.length) {
       setNewPhotoUris((prev) =>
-        [...prev, ...picked].slice(0, MAX_INSPECTION_PHOTOS - existingPhotoUrls.length),
+        [...prev, ...picked].slice(0, MAX_INSPECTION_PHOTOS - existingPhotos.length),
       );
     }
-  }, [pickFromLibrary, existingPhotoUrls.length, newPhotoUris.length]);
+  }, [pickFromLibrary, existingPhotos.length, newPhotoUris.length]);
 
   const removePhoto = useCallback((uri: string) => {
-    setExistingPhotoUrls((prev) => prev.filter((u) => u !== uri));
+    setExistingPhotos((prev) => prev.filter((p) => p.thumbUrl !== uri));
     setNewPhotoUris((prev) => prev.filter((u) => u !== uri));
   }, []);
 
@@ -94,10 +97,10 @@ export const InspectionChecklistView = () => {
   const onSave = useCallback(() => {
     if (!orderId) return;
     saveInspection.mutate(
-      { orderId, ratings, summaryNotes, existingPhotoUrls, newPhotoUris },
+      { orderId, ratings, summaryNotes, existingPhotos, newPhotoUris },
       { onSuccess: () => router.back() },
     );
-  }, [orderId, ratings, summaryNotes, existingPhotoUrls, newPhotoUris, saveInspection, router]);
+  }, [orderId, ratings, summaryNotes, existingPhotos, newPhotoUris, saveInspection, router]);
 
   if (orderLoading || inspectionLoading) {
     return (
@@ -165,7 +168,11 @@ export const InspectionChecklistView = () => {
         loading={saveInspection.isPending}
         disabled={!hasAnyRating || saveInspection.isPending}
       >
-        {saveInspection.isPending ? INSPECTION_COPY.saving : INSPECTION_COPY.save}
+        {saveInspection.isPending
+          ? saveInspection.progress
+            ? INSPECTION_COPY.uploading(saveInspection.progress.done, saveInspection.progress.total)
+            : INSPECTION_COPY.saving
+          : INSPECTION_COPY.save}
       </AppButton>
     </KeyboardSafeView>
   );

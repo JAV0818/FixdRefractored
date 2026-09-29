@@ -15,5 +15,6 @@ export type InspectionReport = {
   ratings: Record<string, InspectionItemResult>;
   summaryNotes: string;
   photoUrls: string[];
+  photoThumbUrls?: string[]; // index-aligned with photoUrls; absent on older reports
   updatedAt: number;
 };

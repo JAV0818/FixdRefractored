@@ -14,6 +14,7 @@ export const QUOTE_REQUEST_COPY = {
   next: "Next",
   submit: "Submit request",
   submitting: "Submitting…",
+  uploading: (done: number, total: number) => `Uploading photos ${done}/${total}…`,
   photosHint: "Tap the camera tile to add up to 5 photos.",
   submitError: "We couldn't submit your request. Please try again.",
   review: {

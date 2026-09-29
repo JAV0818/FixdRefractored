@@ -4,7 +4,6 @@
 import { useState } from "react";
 import {
   FlatList,
-  Image,
   Modal,
   Pressable,
   StyleSheet,
@@ -12,16 +11,18 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { colors, radii, spacing } from "@/theme";
+import type { Photo } from "@/types/photo.interface";
 
 type PhotoGalleryProps = {
-  uris: string[];
+  photos: Photo[];
 };
 
-export const PhotoGallery = ({ uris }: PhotoGalleryProps) => {
+export const PhotoGallery = ({ photos }: PhotoGalleryProps) => {
   const { width, height } = useWindowDimensions();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const isOpen = activeIndex !== null;
@@ -30,9 +31,15 @@ export const PhotoGallery = ({ uris }: PhotoGalleryProps) => {
   return (
     <>
       <View style={styles.grid}>
-        {uris.map((uri, index) => (
-          <TouchableOpacity key={uri} activeOpacity={0.85} onPress={() => setActiveIndex(index)}>
-            <Image source={{ uri }} style={styles.thumb} resizeMode="cover" />
+        {photos.map((photo, index) => (
+          <TouchableOpacity key={photo.url} activeOpacity={0.85} onPress={() => setActiveIndex(index)}>
+            <Image
+              source={{ uri: photo.thumbUrl }}
+              style={styles.thumb}
+              contentFit="cover"
+              transition={150}
+              cachePolicy="memory-disk"
+            />
           </TouchableOpacity>
         ))}
       </View>
@@ -41,8 +48,8 @@ export const PhotoGallery = ({ uris }: PhotoGalleryProps) => {
         <View style={styles.backdrop}>
           {isOpen && (
             <FlatList
-              data={uris}
-              keyExtractor={(uri) => uri}
+              data={photos}
+              keyExtractor={(photo) => photo.url}
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
@@ -55,7 +62,15 @@ export const PhotoGallery = ({ uris }: PhotoGalleryProps) => {
               renderItem={({ item }) => (
                 // Tap the photo (not a swipe) to dismiss.
                 <Pressable onPress={close} style={{ width, height }}>
-                  <Image source={{ uri: item }} style={{ width, height }} resizeMode="contain" />
+                  <Image
+                    source={{ uri: item.url }}
+                    // Show the already-cached thumbnail instantly while the full photo loads.
+                    placeholder={{ uri: item.thumbUrl }}
+                    style={{ width, height }}
+                    contentFit="contain"
+                    transition={150}
+                    cachePolicy="memory-disk"
+                  />
                 </Pressable>
               )}
             />

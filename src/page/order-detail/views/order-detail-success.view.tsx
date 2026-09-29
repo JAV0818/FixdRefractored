@@ -14,6 +14,8 @@ import { useUserProfile } from "@/page/auth/hooks/use-user-profile";
 import type { RepairOrder } from "@/types/order.interface";
 
 import { ORDER_DETAIL_COPY } from "../order-detail.constants";
+import { toPhotos } from "@/utils/photos";
+
 import { DetailSection, OrderParty, PhotoGallery, QuoteSummary } from "../components";
 import { AdminActions } from "./order-detail-admin-actions.view";
 import { CustomerActions } from "./order-detail-customer-actions.view";
@@ -90,7 +92,7 @@ export const OrderDetailSuccessView = ({ order }: OrderDetailSuccessViewProps) =
 
       {order.mediaUrls.length > 0 && (
         <DetailSection title={ORDER_DETAIL_COPY.sections.photos}>
-          <PhotoGallery uris={order.mediaUrls} />
+          <PhotoGallery photos={toPhotos(order.mediaUrls, order.mediaThumbUrls)} />
         </DetailSection>
       )}
 

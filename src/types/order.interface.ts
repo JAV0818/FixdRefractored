@@ -97,8 +97,10 @@ export type RepairOrder = {
   remainingBalance: number; // totalPrice - depositAmount
   totalPrice: number;
 
-  // Customer-uploaded photos (Firebase Storage download URLs)
+  // Customer-uploaded photos (Firebase Storage download URLs) + matching small
+  // thumbnails, index-aligned. Thumbs are absent on orders that predate them.
   mediaUrls: string[];
+  mediaThumbUrls?: string[];
 
   // Lifecycle timestamps (ms since epoch)
   acceptedAt: number | null;

@@ -2,7 +2,8 @@
 // initials when there's no photo. App-wide primitive.
 
 import { memo } from "react";
-import { StyleSheet, Image, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Image } from "expo-image";
 import { Text } from "react-native-paper";
 
 import { colors, fontWeight } from "@/theme";
@@ -24,7 +25,13 @@ export const Avatar = memo(function Avatar({ name, photoUrl, size = 48 }: Avatar
   const dimensions = { width: size, height: size, borderRadius: size / 2 };
 
   if (photoUrl) {
-    return <Image source={{ uri: photoUrl }} style={[styles.image, dimensions]} resizeMode="cover" />;
+    return <Image
+        source={{ uri: photoUrl }}
+        style={[styles.image, dimensions]}
+        contentFit="cover"
+        transition={150}
+        cachePolicy="memory-disk"
+      />;
   }
 
   return (

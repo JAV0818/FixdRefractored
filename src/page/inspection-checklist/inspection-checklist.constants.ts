@@ -56,5 +56,6 @@ export const INSPECTION_COPY = {
   photos: "Photos",
   save: "Save inspection",
   saving: "Saving…",
+  uploading: (done: number, total: number) => `Uploading photos ${done}/${total}…`,
   saveError: "We couldn't save the inspection. Please try again.",
 } as const;

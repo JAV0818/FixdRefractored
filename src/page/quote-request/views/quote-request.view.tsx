@@ -3,7 +3,7 @@
 // with `trigger`, opens the image picker as a side effect, and on submit
 // creates the order then attaches any photos before redirecting to Requests.
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { HelperText, Text } from "react-native-paper";
 import { useForm } from "react-hook-form";
@@ -40,6 +40,9 @@ export const QuoteRequestView = () => {
 
   const createOrder = useCreateOrder();
   const uploadImages = useUploadImages();
+  // Kept across retries: if photo upload fails after the order exists, tapping
+  // submit again re-uploads to the same order instead of creating a duplicate.
+  const createdOrderId = useRef<string | null>(null);
   const isSubmitting = createOrder.isPending || uploadImages.isPending;
   const submitFailed = createOrder.isError || uploadImages.isError;
 
@@ -93,7 +96,8 @@ export const QuoteRequestView = () => {
   const onValid = useCallback(
     async (values: QuoteRequestForm) => {
       try {
-        const orderId = await createOrder.mutateAsync(values);
+        const orderId = createdOrderId.current ?? (await createOrder.mutateAsync(values));
+        createdOrderId.current = orderId;
         if (images.length > 0) {
           await uploadImages.mutateAsync({ orderId, uris: images });
         }
@@ -234,7 +238,9 @@ export const QuoteRequestView = () => {
           {step < LAST_STEP
             ? QUOTE_REQUEST_COPY.next
             : isSubmitting
-              ? QUOTE_REQUEST_COPY.submitting
+              ? uploadImages.progress
+                ? QUOTE_REQUEST_COPY.uploading(uploadImages.progress.done, uploadImages.progress.total)
+                : QUOTE_REQUEST_COPY.submitting
               : QUOTE_REQUEST_COPY.submit}
         </AppButton>
       </View>

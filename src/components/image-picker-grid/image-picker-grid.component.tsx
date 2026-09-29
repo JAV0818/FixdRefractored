@@ -3,8 +3,9 @@
 // useImagePicker). It just renders the current uris and emits add/remove events.
 
 import { memo } from "react";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { Text } from "react-native-paper";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 
 import { colors, fontSize, radii, spacing } from "@/theme";
@@ -28,7 +29,13 @@ export const ImagePickerGrid = memo(function ImagePickerGrid({
     <View style={styles.grid}>
       {uris.map((uri) => (
         <View key={uri} style={styles.thumbWrap}>
-          <Image source={{ uri }} style={styles.thumb} />
+          <Image
+            source={{ uri }}
+            style={styles.thumb}
+            contentFit="cover"
+            transition={150}
+            cachePolicy="memory-disk"
+          />
           <TouchableOpacity style={styles.remove} onPress={() => onRemove(uri)} hitSlop={8}>
             <Ionicons name="close" size={14} color={colors.onPrimary} />
           </TouchableOpacity>
