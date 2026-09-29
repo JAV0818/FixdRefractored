@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors, radii, spacing } from "@/theme";
 import type { Photo } from "@/types/photo.interface";
@@ -24,6 +24,10 @@ type PhotoGalleryProps = {
 
 export const PhotoGallery = ({ photos }: PhotoGalleryProps) => {
   const { width, height } = useWindowDimensions();
+  // Read insets here, outside the Modal. A SafeAreaView *inside* a Modal measures
+  // zero insets the first time it opens (the close button then sits under the
+  // status bar), then is correct on every open after.
+  const insets = useSafeAreaInsets();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const isOpen = activeIndex !== null;
   const close = () => setActiveIndex(null);
@@ -75,11 +79,11 @@ export const PhotoGallery = ({ photos }: PhotoGalleryProps) => {
               )}
             />
           )}
-          <SafeAreaView edges={["top"]} style={styles.closeBar} pointerEvents="box-none">
-            <TouchableOpacity onPress={close} hitSlop={16} style={styles.closeButton}>
-              <Ionicons name="close" size={40} color={colors.dangerOnDark} />
+          <View style={[styles.closeBar, { paddingTop: insets.top + spacing.sm }]} pointerEvents="box-none">
+            <TouchableOpacity onPress={close} hitSlop={12} style={styles.closeButton}>
+              <Ionicons name="close" size={24} color={colors.glassText} />
             </TouchableOpacity>
-          </SafeAreaView>
+          </View>
         </View>
       </Modal>
     </>
@@ -108,8 +112,17 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: "flex-end",
+    paddingRight: spacing.md,
   },
+  // Frosted round button so the X stays visible over any photo, light or dark.
   closeButton: {
-    padding: spacing.md,
+    width: 44,
+    height: 44,
+    borderRadius: radii.full,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.glassSurfaceHighlight,
+    borderWidth: 1,
+    borderColor: colors.glassBorderStrong,
   },
 });
