@@ -5,7 +5,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Fixd",
   slug: "fixd",
   version: "0.1.0",
-  sdkVersion: "54.0.0",
   orientation: "portrait",
   scheme: "fixd",
   userInterfaceStyle: "automatic",
