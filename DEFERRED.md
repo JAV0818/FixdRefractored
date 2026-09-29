@@ -23,3 +23,40 @@ Things knowingly left for later. Each entry says why and what "done" looks like.
 - **What:** Photos uploaded before compression/thumbnails shipped stay ~5 MB with no thumbnail
   (they fall back to the full image).
 - **Done when:** a one-off backfill resizes them, or we accept it for test data.
+
+## Security: rules don't limit which fields can be written  (fix before real customers/money)
+Found 2026-09-29 while fact-checking the agent handoff. Nothing here was tested against the
+live project; it's read straight from `firestore.rules`.
+- **Roles:** `users/{uid}` update allows self to write any field, including `role`. Any signed-in
+  user can set `role: "owner"` and gain owner powers (read all users, delete orders, write
+  transactions, owner access in Storage rules). Also lets a mechanic edit their own
+  `providerProfile.totalEarnings`.
+- **Payments:** `repair-orders` update allows customer/provider/owner to change any field, so
+  `status`, `paymentStatus`, `remainingBalance`, `depositPaid` can be written from the client,
+  bypassing the Cloud Functions. The app itself writes some of these (e.g. `paymentStatus:
+  "authorized"` in `order-service.ts`), so tightening needs those moved server-side or allowed
+  by field.
+- **Done when:** users can only self-set role to customer/provider (never owner); orders limit
+  each party to specific fields; payment/status fields are written only by functions.
+- Suggested order: roles lockdown (small) → order field restrictions (larger, retest the whole
+  payment flow) → owner-only rule for `analytics`.
+
+## Stripe functions can't read their secret
+- **What:** `functions/src/payments/*` read `process.env.STRIPE_SECRET_KEY`, but nothing binds
+  a secret (`secrets:` option) and there's no `functions/.env`. Secret Manager has no
+  `STRIPE_SECRET_KEY` in project `intfixd` (404). The three functions are deployed, so payment
+  calls most likely fail with "Stripe secret key is not configured."
+- **Done when:** the secret exists and is bound in `onCall({ secrets: [...] }, ...)`, and a real
+  test-mode deposit succeeds end to end.
+- Also: `functions/` was never built locally (no `node_modules`/`lib`, no predeploy build in
+  `firebase.json`), so confirm it compiles before redeploying.
+
+## Owner Earnings screen can't load
+- **What:** `analytics-service` reads `analytics/{date}` but `firestore.rules` has no rule for
+  it (default deny), and no trigger function writes to it.
+- **Done when:** an owner-only read rule exists and something populates the collection.
+
+## recordCashPayment doesn't cap the amount
+- **What:** only checks `amount > 0` and that a balance remains; a mechanic can record more
+  than `remainingBalance` and inflate `totalEarnings`.
+- **Done when:** `amount` is validated against `remainingBalance`.

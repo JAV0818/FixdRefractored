@@ -1,6 +1,5 @@
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
-
 import { AppButton } from "@/components";
 
 import { colors, spacing } from "@/theme";
