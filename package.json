@@ -52,5 +52,8 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "~5.4.0"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "@react-native-async-storage/async-storage": "$@react-native-async-storage/async-storage"
+  }
 }
