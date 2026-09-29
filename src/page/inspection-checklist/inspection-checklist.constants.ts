@@ -44,7 +44,7 @@ export const INSPECTION_SECTIONS = [
   },
 ] as const;
 
-export const MAX_INSPECTION_PHOTOS = 8;
+export const MAX_INSPECTION_PHOTOS = 12;
 
 export const INSPECTION_COPY = {
   title: "Vehicle inspection",

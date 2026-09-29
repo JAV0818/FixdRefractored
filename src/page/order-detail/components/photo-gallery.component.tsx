@@ -47,6 +47,9 @@ export const PhotoGallery = ({ uris }: PhotoGalleryProps) => {
               pagingEnabled
               showsHorizontalScrollIndicator={false}
               initialScrollIndex={activeIndex ?? 0}
+              // Decode only the open photo and its neighbours, not all 12 at once.
+              initialNumToRender={1}
+              windowSize={3}
               getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
               onScrollToIndexFailed={() => {}}
               renderItem={({ item }) => (
