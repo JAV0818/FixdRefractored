@@ -45,9 +45,12 @@ service firebase.storage {
 
     // Customer-uploaded order photos. Only the customer who created the order can upload.
     // Providers assigned to the order, the customer, and owners can view.
+    // The uploader can always read their own folder (path check, no Firestore lookup):
+    // uploadOrderImages calls getDownloadURL right after uploadBytes, and that read
+    // must not depend on the cross-service order lookup below.
     match /repairOrders/{customerId}/{orderId}/{allPaths=**} {
       allow write: if isAuthenticated() && currentUserId() == customerId;
-      allow read: if isOrderParty(orderId);
+      allow read: if (isAuthenticated() && currentUserId() == customerId) || isOrderParty(orderId);
     }
 
     // Mechanic inspection photos. Only the assigned provider can upload.
