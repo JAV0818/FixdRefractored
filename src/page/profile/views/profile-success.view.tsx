@@ -83,6 +83,9 @@ export const ProfileSuccessView = ({ profile }: ProfileSuccessViewProps) => {
 
   const onSignOut = useCallback(() => signOut.mutate(), [signOut]);
 
+  // The mechanic cards + toolbar need a saved providerProfile.
+  const showsMechanicSection = profile.role === "provider" && !!profile.providerProfile;
+
   return (
     <KeyboardSafeView contentContainerStyle={styles.content}>
       <ProfileHeader
@@ -106,7 +109,7 @@ export const ProfileSuccessView = ({ profile }: ProfileSuccessViewProps) => {
         onCancel={onCancel}
       />
 
-      {profile.role === "provider" && profile.providerProfile ? (
+      {showsMechanicSection && profile.providerProfile ? (
         <>
           <MechanicAvailabilityCard
             isAvailable={profile.providerProfile.isAvailable}
@@ -147,30 +150,18 @@ export const ProfileSuccessView = ({ profile }: ProfileSuccessViewProps) => {
       ) : null}
 
       {profile.role === "customer" ? (
-        <>
-          <CustomerSections
-            vehicles={profile.vehicles ?? []}
-            averageRating={profile.averageRating}
-            totalRatingsCount={profile.totalRatingsCount}
-            completedOrdersCount={profile.completedOrdersCount}
-          />
-
-          <GlassCard style={styles.toolbarCard}>
-            <View style={styles.toolbar}>
-              <IconActionButton
-                icon="logout"
-                label={PROFILE_COPY.signOutLabel}
-                onPress={onSignOut}
-                destructive
-                loading={signOut.isPending}
-                disabled={signOut.isPending}
-              />
-            </View>
-          </GlassCard>
-        </>
+        <CustomerSections
+          vehicles={profile.vehicles ?? []}
+          averageRating={profile.averageRating}
+          totalRatingsCount={profile.totalRatingsCount}
+          completedOrdersCount={profile.completedOrdersCount}
+        />
       ) : null}
 
-      {profile.role === "owner" ? (
+      {/* Everyone except a fully set-up mechanic (whose toolbar above has its own
+          sign-out) gets this — customers, owners, and also a mechanic who hasn't
+          finished onboarding yet or has no role, so nobody is ever stuck signed in. */}
+      {!showsMechanicSection ? (
         <GlassCard style={styles.toolbarCard}>
           <View style={styles.toolbar}>
             <IconActionButton
