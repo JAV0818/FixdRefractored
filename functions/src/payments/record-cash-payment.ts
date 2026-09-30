@@ -48,6 +48,12 @@ export const recordCashPayment = onCall<RecordCashPaymentRequest>(async (request
     throw new HttpsError("failed-precondition", "No remaining balance to record.");
   }
 
+  // Never record more than is owed — otherwise a mechanic could inflate their
+  // lifetime earnings by entering a larger amount than the job's balance.
+  if (amount > order.remainingBalance) {
+    throw new HttpsError("invalid-argument", "Amount exceeds the remaining balance.");
+  }
+
   const now = Date.now();
   const platformFee = 0; // Cash jobs: platform already collected $20 deposit; no additional fee
   const providerEarnings = amount;
