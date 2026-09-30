@@ -21,13 +21,54 @@ service cloud.firestore {
       return isAuthenticated() && currentUserRole() == 'owner';
     }
 
+    // ---- users -----------------------------------------------------------------
+    // A user may edit their own profile, but not the fields that grant power or
+    // are maintained by Cloud Functions. Otherwise anyone could write
+    // `role: "owner"` on their own document and become an owner. Owners (assigned
+    // in the Firebase console, never from the app) can edit anyone.
+
+    // True when `field` has the same value before and after this write.
+    function unchanged(field, fallback) {
+      return request.resource.data.get(field, fallback) == resource.data.get(field, fallback);
+    }
+
+    function providerStat(data, field) {
+      return data.get('providerProfile', {}).get(field, 0);
+    }
+
+    // Self-edits may set role once (null -> customer/provider at onboarding),
+    // and never to "owner".
+    function roleEditAllowed() {
+      return unchanged('role', null) || (
+        resource.data.get('role', null) == null &&
+        request.resource.data.role in ['customer', 'provider']
+      );
+    }
+
+    // Deactivation and the rating / earnings counters are not self-editable.
+    function protectedFieldsUnchanged() {
+      return unchanged('isActive', true)
+        && unchanged('averageRating', null)
+        && unchanged('completedOrdersCount', 0)
+        && unchanged('totalRatingsCount', 0)
+        && providerStat(request.resource.data, 'averageRating') == providerStat(resource.data, 'averageRating')
+        && providerStat(request.resource.data, 'totalJobsCompleted') == providerStat(resource.data, 'totalJobsCompleted')
+        && providerStat(request.resource.data, 'totalEarnings') == providerStat(resource.data, 'totalEarnings');
+    }
+
     match /users/{userId} {
       allow read: if isAuthenticated() && (
         currentUserId() == userId || isOwner()
       );
-      allow create: if isAuthenticated() && currentUserId() == userId;
+      // A new account starts with no role and no provider profile; both are set
+      // later, under the update rule.
+      allow create: if isAuthenticated()
+        && currentUserId() == userId
+        && request.resource.data.get('role', null) == null
+        && !('providerProfile' in request.resource.data);
       allow update: if isAuthenticated() && (
-        currentUserId() == userId || isOwner()
+        isOwner() ||
+        (currentUserId() == userId && roleEditAllowed() && protectedFieldsUnchanged())
       );
       allow delete: if false;
     }
@@ -72,6 +113,13 @@ service cloud.firestore {
         order().providerId == currentUserId() ||
         isOwner()
       );
+    }
+
+    // Daily earnings roll-ups for the owner's Earnings screen. Written only by
+    // Cloud Functions (Admin SDK bypasses rules), so clients never write.
+    match /analytics/{date} {
+      allow read: if isOwner();
+      allow write: if false;
     }
 
     match /transactions/{transactionId} {
