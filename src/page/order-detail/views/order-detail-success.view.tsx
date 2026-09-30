@@ -9,12 +9,13 @@ import { OrderStatusBadge } from "@/components";
 import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatDateTime } from "@/utils/format";
+import { toPhotos } from "@/utils/photos";
 import { useAuthContext } from "@/providers/auth-provider";
 import { useUserProfile } from "@/page/auth/hooks/use-user-profile";
 import type { RepairOrder } from "@/types/order.interface";
 
 import { ORDER_DETAIL_COPY } from "../order-detail.constants";
-import { toPhotos } from "@/utils/photos";
+import { useOrderInspection } from "../hooks/use-order-inspection";
 
 import { DetailSection, OrderParty, PhotoGallery, QuoteSummary } from "../components";
 import { AdminActions } from "./order-detail-admin-actions.view";
@@ -38,6 +39,8 @@ const formatLocation = (order: RepairOrder): string =>
 export const OrderDetailSuccessView = ({ order }: OrderDetailSuccessViewProps) => {
   const { role, currentUser } = useAuthContext();
   const hasQuote = order.totalPrice > 0 || order.items.length > 0;
+  const { data: inspection } = useOrderInspection(order.id);
+  const inspectionPhotos = toPhotos(inspection?.photoUrls, inspection?.photoThumbUrls);
 
   // Show the other party — the mechanic to the customer, the customer to the
   // mechanic. Photo/phone come from their profile (not denormalized on the
@@ -93,6 +96,12 @@ export const OrderDetailSuccessView = ({ order }: OrderDetailSuccessViewProps) =
       {order.mediaUrls.length > 0 && (
         <DetailSection title={ORDER_DETAIL_COPY.sections.photos}>
           <PhotoGallery photos={toPhotos(order.mediaUrls, order.mediaThumbUrls)} />
+        </DetailSection>
+      )}
+
+      {inspectionPhotos.length > 0 && (
+        <DetailSection title={ORDER_DETAIL_COPY.sections.inspectionPhotos}>
+          <PhotoGallery photos={inspectionPhotos} />
         </DetailSection>
       )}
 
