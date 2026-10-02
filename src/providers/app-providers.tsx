@@ -1,12 +1,14 @@
 // Composes all app-wide providers.
 //
 // Order:
+//   KeyboardProvider → native keyboard tracking used by KeyboardSafeView
 //   PaperProvider    → theme for all Paper components
 //   QueryProvider    → React Query client before any hook runs
 //   CometChatProvider → SDK init before auth (login happens right after sign-in)
 //   AuthProvider     → Firebase auth state + Firestore user profile
 
 import type { ReactNode } from "react";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { PaperProvider } from "react-native-paper";
 import { StripeProvider } from "@stripe/stripe-react-native";
 
@@ -28,16 +30,18 @@ type AppProvidersProps = {
 };
 
 export const AppProviders = ({ children }: AppProvidersProps) => (
-  <PaperProvider theme={theme}>
-    <QueryProvider>
-      <CometChatProvider>
-        <StripeProvider publishableKey={STRIPE_PUBLISHABLE_KEY}>
-          <AuthProvider>
-            <SyncCometChatProfile />
-            {children}
-          </AuthProvider>
-        </StripeProvider>
-      </CometChatProvider>
-    </QueryProvider>
-  </PaperProvider>
+  <KeyboardProvider>
+    <PaperProvider theme={theme}>
+      <QueryProvider>
+        <CometChatProvider>
+          <StripeProvider publishableKey={STRIPE_PUBLISHABLE_KEY}>
+            <AuthProvider>
+              <SyncCometChatProfile />
+              {children}
+            </AuthProvider>
+          </StripeProvider>
+        </CometChatProvider>
+      </QueryProvider>
+    </PaperProvider>
+  </KeyboardProvider>
 );
