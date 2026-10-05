@@ -42,6 +42,7 @@ export default function ProviderTabsLayout() {
         options={{
           title: "Messages",
           tabBarIcon: tabIcon("chatbubble", "chatbubble-outline"),
+          unmountOnBlur: true,
         }}
       />
       <Tabs.Screen
@@ -49,6 +50,7 @@ export default function ProviderTabsLayout() {
         options={{
           title: "Profile",
           tabBarIcon: tabIcon("person", "person-outline"),
+          unmountOnBlur: true,
         }}
       />
     </Tabs>

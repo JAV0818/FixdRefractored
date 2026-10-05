@@ -9,6 +9,10 @@ export const queryClient = new QueryClient({
       staleTime: 30_000,
       retry: 1,
       refetchOnWindowFocus: false,
+      // GC inactive queries after 30s (default is 5min). On mobile, stale cache
+      // from visited screens (order details, conversations, mechanic profiles)
+      // accumulates and contributes to OS memory-pressure kills.
+      gcTime: 30_000,
     },
     mutations: {
       retry: 0,

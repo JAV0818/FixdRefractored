@@ -19,6 +19,11 @@ type ChatViewProps = {
   orderId?: string;
 };
 
+// Keep at most this many messages in state to avoid unbounded memory growth
+// in long-running conversations. The FlatList is inverted (newest first), so
+// we keep the most recent messages and drop the oldest.
+const MAX_LOCAL_MESSAGES = 100;
+
 const mergeMessages = (
   existing: CometChatMessage[],
   incoming: CometChatMessage[],
@@ -33,7 +38,10 @@ const mergeMessages = (
     byId.set(message.id, message);
   }
 
-  return Array.from(byId.values()).sort((a, b) => b.sentAt - a.sentAt);
+  const sorted = Array.from(byId.values()).sort((a, b) => b.sentAt - a.sentAt);
+  return sorted.length > MAX_LOCAL_MESSAGES
+    ? sorted.slice(0, MAX_LOCAL_MESSAGES)
+    : sorted;
 };
 
 export const ChatView = ({ conversationId, orderId }: ChatViewProps) => {

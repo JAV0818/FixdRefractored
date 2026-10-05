@@ -74,6 +74,65 @@ flipped server-side and don't pollute paginated results).
 
 ---
 
+## 🔴 HIGH — Customer requests list has no pagination
+
+**File:** `src/page/customer-requests/views/customer-requests-success.view.tsx`,
+`src/services/order-service.ts` → `subscribeToCustomerOrders()`
+
+**Problem:** The customer Requests tab fetches up to 50 orders via `limit(50)` and
+dumps them all into a FlatList with no reveal pattern and no cursor pagination.
+As a customer accumulates order history (completed, cancelled, expired), the list
+grows unbounded within that 50-doc cap. Once they exceed 50 orders, older ones
+are silently invisible. No "Load more" or infinite scroll exists on the customer
+side — the provider marketplace has a client-side reveal, but this screen has
+nothing.
+
+**Fix:** Add cursor-based pagination (`useInfiniteQuery` + `startAfter`) in M10,
+matching whatever pattern the marketplace adopts. In the short term, adding the
+same client-side reveal (`visibleCount` + "Load more") used by the marketplace
+would reduce initial render cost.
+
+---
+
+## 🔴 HIGH — Admin orders query has no limit
+
+**File:** `src/services/order-service.ts` → `getAllOrders()` / `subscribeToAllOrders()`
+
+**Problem:** The admin Orders tab fetches **every order in the system** with no
+`limit()`. The `onSnapshot` listener fires on every write to the `repair-orders`
+collection. At scale this means:
+- Firestore read costs grow linearly with total orders (not just active ones).
+- Every order status change triggers a snapshot callback re-processing the entire
+  collection.
+- Memory holds every `RepairOrder` object simultaneously.
+
+At 500+ orders this will noticeably degrade; at 1,000+ it becomes untenable.
+
+**Fix:** Add `limit()` + cursor-based pagination. The admin view already has status
+filter chips — combining `where("status", "==", ...)` with a limit and cursor
+keeps each page small. Ship alongside the M10 pagination work.
+
+---
+
+## ✅ RESOLVED — App silently closes after prolonged use (Oct 4 2026)
+
+**Files:** `src/services/query-client.ts`, `app/(provider-tabs)/_layout.tsx`,
+`app/(customer-tabs)/_layout.tsx`, `app/(admin-tabs)/_layout.tsx`,
+`src/page/chat/views/chat.view.tsx`
+
+**Problem:** The app was killed by the OS due to memory pressure after extended use.
+Root causes: React Query default `gcTime` (5 min) let stale cache accumulate, all
+tab screens stayed mounted with concurrent `onSnapshot` listeners, and the chat
+message array grew unbounded in long conversations.
+
+**Fix:**
+- Set `gcTime: 30_000` on the QueryClient so inactive queries are GC'd after 30s.
+- Added `unmountOnBlur: true` to Messages and Profile tabs across all tab groups
+  so only the active tab holds live listeners.
+- Capped `mergeMessages` at 100 messages in the chat view.
+
+---
+
 ## 🟡 MEDIUM — Orphan-user writes assume the user doc exists
 
 **Files:** `src/services/user-service.ts` → `saveVehicle`, `saveMechanicProfile`,
@@ -197,6 +256,34 @@ and layout. Loading but empty can look like a broken screen on first open.
 
 **Fix:** One shared `EmptyState` component (illustration + title + body + optional
 CTA) reused across Requests, Queue, Marketplace, Messages, etc.
+
+---
+
+## 🔴 HIGH — No server-side order expiry or stale-order alerts
+
+**Files:** `src/services/order-service.ts` → `subscribeToAvailableOrders()`, `functions/src/` (not yet created)
+
+**Problem:** Pending orders that pass their 24h `expiresAt` window are only filtered
+client-side (line 248 of `order-service.ts`). The Firestore document stays
+`status: "Pending"` forever. This causes:
+- Mechanics see "No jobs available" even though Firestore has pending orders (they're
+  all silently filtered out because `expiresAt < Date.now()`).
+- Admins checking Firestore see stale Pending orders and think jobs aren't being served.
+- No one is notified when an order sits unclaimed or its scheduled time is approaching.
+
+**Fix (two parts):**
+1. **Scheduled Cloud Function (`alert-stale-orders`):** Runs hourly. Scans for Pending
+   orders with `providerId == null` that are either 48h+ old or whose `scheduledAt` is
+   within the next 24h. Writes to an `admin-alerts` collection so owners can manually
+   assign a mechanic. Avoids auto-expiry and refunds.
+2. **Scheduled Cloud Function (`expire-orders`):** Runs hourly. Flips truly dead orders
+   (e.g. 7+ days old, no mechanic, past scheduled time) to `status: "Expired"` so they
+   stop polluting queries. Also update `ORDER_EXPIRY_MS` client-side to 48h and add
+   `scheduledAt` to the client filter.
+3. **Admin alerts UI:** Badge on the admin Orders tab + alert list with tap-to-assign.
+
+**Target:** M10 (Cloud Functions milestone). The stale-order alert is higher priority
+than the auto-expire — ship it first so the owner can intervene before any refunds.
 
 ---
 

@@ -508,6 +508,7 @@ app/(provider-tabs)/queue/[orderId]/collect-payment.tsx → collect-payment.page
 
 ### 10A — Cloud Functions (`/functions/src/`)
 - `expire-orders.ts` — scheduled hourly: mark Pending orders past `expiresAt` as Expired, push notify customer
+- `alert-stale-orders.ts` — scheduled hourly: scan for Pending orders with no mechanic that are either 48h+ old or whose `scheduledAt` is within the next 24h. Write alerts to an `admin-alerts` Firestore collection so owners see a badge/list of orders needing manual intervention (mechanic assignment). Avoids auto-expiry and refunds — keeps the owner in control.
 - `on-order-create.ts` — Firestore onCreate: set `expiresAt = +24hrs`, notify available mechanics via FCM
 - `on-order-status-change.ts` — Firestore onUpdate: status-to-notification mapping, increment analytics
 - `on-user-create.ts` — Auth onCreate: create `users/{uid}` doc with defaults
@@ -518,7 +519,21 @@ app/(provider-tabs)/queue/[orderId]/collect-payment.tsx → collect-payment.page
 
 Wire into `app/_layout.tsx` after auth hydration. Deep-link routing on tap: new message → `messages/[id]`, order update → `requests/[id]` or `queue/[id]`, new order (mechanic) → `marketplace`.
 
-### 10C — Firestore Security Rules
+### 10C — Cursor-based pagination for all order lists
+Replace the current `limit(50)` + client-side reveal pattern with real Firestore
+cursor pagination (`useInfiniteQuery` + `startAfter(lastDoc)`). Depends on 10A
+(`expire-orders`) being live so expired orders are flipped server-side and don't
+pollute paginated results.
+
+Screens to convert:
+- **Provider marketplace** (`subscribeToAvailableOrders`) — currently has client-side reveal but no cursor
+- **Customer requests** (`subscribeToCustomerOrders`) — no pagination at all, dumps all docs into FlatList
+- **Provider queue** (`subscribeToProviderOrders`) — no pagination
+- **Admin orders** (`subscribeToAllOrders`) — no `limit()` at all, fetches every order in the system
+
+Each gets `onEndReached` → fetch next page, with a "Load more" fallback button.
+
+### 10D — Firestore Security Rules
 Write `firestore.rules` per BACKEND_DESIGN.md section 7:
 - Users: own read/write; owner full access
 - repair-orders: participants read/write; providers can read Pending (marketplace); customers create

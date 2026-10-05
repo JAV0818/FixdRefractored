@@ -35,6 +35,7 @@ export default function AdminTabsLayout() {
         options={{
           title: "Mechanics",
           tabBarIcon: tabIcon("build", "build-outline"),
+          unmountOnBlur: true,
         }}
       />
       <Tabs.Screen
@@ -42,6 +43,7 @@ export default function AdminTabsLayout() {
         options={{
           title: "Profile",
           tabBarIcon: tabIcon("person", "person-outline"),
+          unmountOnBlur: true,
         }}
       />
     </Tabs>
