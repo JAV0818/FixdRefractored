@@ -6,7 +6,9 @@ interface CaptureDepositAndApproveQuoteRequest {
   orderId: string;
 }
 
-export const captureDepositAndApproveQuote = onCall<CaptureDepositAndApproveQuoteRequest>(async (request) => {
+export const captureDepositAndApproveQuote = onCall<CaptureDepositAndApproveQuoteRequest>(
+  { secrets: ["STRIPE_SECRET_KEY"] },
+  async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Authentication required.");
   }

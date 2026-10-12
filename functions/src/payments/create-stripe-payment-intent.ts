@@ -9,7 +9,9 @@ interface CreateStripePaymentIntentRequest {
 const DEPOSIT_AMOUNT_CENTS = 2000; // $20.00
 const CURRENCY = "usd";
 
-export const createStripePaymentIntent = onCall<CreateStripePaymentIntentRequest>(async (request) => {
+export const createStripePaymentIntent = onCall<CreateStripePaymentIntentRequest>(
+  { secrets: ["STRIPE_SECRET_KEY"] },
+  async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Authentication required.");
   }
