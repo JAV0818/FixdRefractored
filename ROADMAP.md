@@ -80,6 +80,55 @@ disagree, **the code wins**; the key deltas:
 
 ---
 
+## Deferred — known gaps, debt, and blockers
+
+> Full detail lives in `DEFERRED.md` (feature gaps/UX) and `TECH_DEBT.md` (code corners cut).
+> This section is the executive summary. Fix order: 🔴 before launch, 🟡 first post-launch sprint, 🟢 whenever.
+
+### 🔴 BLOCKERS — must fix before real users / money
+
+| Item | Source | What breaks if ignored |
+|---|---|---|
+| **Stripe secret not bound** — `STRIPE_SECRET_KEY` missing from Secret Manager; all 3 payment functions fail at runtime | DEFERRED.md | Payments 100% broken |
+| **Security rules allow self-role escalation** — any user can write `role: "owner"` on their own doc | DEFERRED.md | Auth bypass, full admin access |
+| **Security rules allow client-side payment writes** — `status`, `paymentStatus`, `remainingBalance` writable from app | DEFERRED.md | Payments easily manipulated |
+| **No server-side order expiry** — expired orders stay `Pending` in Firestore forever; client-side filter masks them | TECH_DEBT.md | Stale data, mechanic sees "no jobs" |
+| **recordCashPayment has no amount cap** — mechanic can record more than `remainingBalance` | DEFERRED.md | Earnings inflation |
+| **Customer search is client-side** — 100-doc cap silently drops results at scale | TECH_DEBT.md | Broken mechanic → customer lookup |
+
+### 🔴 HIGH — scale/reliability (fix in M10 window)
+
+| Item | Source | Notes |
+|---|---|---|
+| **Marketplace pagination is client-side reveal** — hard cap of 50 orders; newer requests invisible past that | TECH_DEBT.md | Needs cursor pagination + M10 expire function live first |
+| **Customer Requests has no pagination** — same 50-doc cap, no load-more | TECH_DEBT.md | Match whatever marketplace adopts |
+| **Admin Orders query has no limit** — fetches every order with no `limit()` | TECH_DEBT.md | Linear read cost + memory at scale |
+
+### 🟡 MEDIUM — quality gaps (first post-launch sprint)
+
+| Item | Source | Notes |
+|---|---|---|
+| **Customers can't see inspection photos** | DEFERRED.md | Reuse `PhotoGallery` with `toPhotos()` on order detail |
+| **Orphan-user writes use `updateDoc`** — throws if doc missing | TECH_DEBT.md | Ensure-doc in AuthProvider or switch to `setDoc(merge)` |
+| **`completeOrder` job-counter assumes `providerProfile` exists** | TECH_DEBT.md | Tied to orphan-user fix |
+| **Inspection checklist is trimmed** — V1 has a curated subset, not full DVI | TECH_DEBT.md | ~50 items in old app across 6 sections |
+| **No final inspection report** — only initial; old app implied initial + final | TECH_DEBT.md | Add `reportType: "initial" \| "final"` |
+| **Onboarding specialties diverge from canonical taxonomy** | TECH_DEBT.md | Mechanic specialties won't match order category filters |
+| **Profile edits incomplete** — no vehicle add/edit/remove, no years-of-experience edit | TECH_DEBT.md | Also missing from M4 scope |
+| **Owner Earnings screen can't load** — `analytics` collection has no Firestore rule + nothing writes to it | DEFERRED.md | Needs M10 Cloud Functions + rule |
+
+### 🟢 LOW — nice to have
+
+| Item | Source |
+|---|---|
+| Retry failed submit doesn't apply edited form values | DEFERRED.md |
+| Existing photos (pre-compression) stay full-size, no thumbnail | DEFERRED.md |
+| Live hooks open duplicate Firestore listeners per screen (no shared cache) | TECH_DEBT.md |
+| UI primitives sweep incomplete (onboarding inputs, line-item rows, date-time modal buttons) | TECH_DEBT.md |
+| No signatures on inspection reports | TECH_DEBT.md |
+
+---
+
 # Fixd Refractor — Full Rebuild Plan
 
 ## Context
