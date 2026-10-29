@@ -406,32 +406,8 @@ export const orderService = {
     });
   },
 
-  // Customer approves and books an appointment (which may be far in the future).
-  // Customer successfully confirmed the card in the Stripe PaymentSheet.
-  // Mark the deposit hold as authorized on the order.
-  async markDepositAuthorized(id: string): Promise<void> {
-    await updateDoc(doc(db, ORDERS, id), {
-      paymentStatus: "authorized",
-      depositAuthorizedAt: Date.now(),
-      updatedAt: Date.now(),
-    });
-  },
-
-  // Capturing the $20 hold is done server-side by the payment Cloud Function,
-  // which then sets paymentStatus → "deposit_paid" + depositCapturedAt.
-  // The appointment time was set by the customer at request and confirmed by the
-  // mechanic in the quote, so approval just books it — no time argument.
-  async approveQuote(id: string): Promise<void> {
-    const now = Date.now();
-    await updateDoc(doc(db, ORDERS, id), {
-      status: "Scheduled",
-      quoteApprovedAt: now,
-      updatedAt: now,
-    });
-  },
-
-  // Customer declines the quote → order cancelled. Releasing the hold (so they
-  // are never charged) is done server-side by the payment Cloud Function.
+  // Customer declines the quote → order cancelled. The hold release is handled
+  // by the useDeclineQuote hook calling releaseDepositHold before this.
   async declineQuote(id: string, cancelledBy: string): Promise<void> {
     const now = Date.now();
     await updateDoc(doc(db, ORDERS, id), {
@@ -440,16 +416,6 @@ export const orderService = {
       cancelledBy,
       cancelledAt: now,
       updatedAt: now,
-    });
-  },
-
-  // System (scheduled Cloud Function): the approval window lapsed with no
-  // response → expire the order; the payment function releases the hold.
-  async expireQuoteWindow(id: string): Promise<void> {
-    await updateDoc(doc(db, ORDERS, id), {
-      status: "Expired",
-      cancellationReason: "quote_expired",
-      updatedAt: Date.now(),
     });
   },
 
@@ -529,30 +495,6 @@ export const orderService = {
       cancelledBy,
       cancelledAt: now,
       updatedAt: now,
-    });
-  },
-
-  // Mechanic adds extra charges that came up during the job. Runs in a
-  // transaction so the running total is always consistent: reads the current
-  // items list, appends the new ones, and rewrites totalPrice + remainingBalance
-  // atomically. Only valid on InProgress orders.
-  async addCustomCharges(id: string, newItems: OrderItem[]): Promise<void> {
-    const ref = doc(db, ORDERS, id);
-    await runTransaction(db, async (tx) => {
-      const snap = await tx.get(ref);
-      if (!snap.exists()) throw new Error("Order not found");
-      const data = snap.data() as RepairOrder;
-      if (data.status !== "InProgress")
-        throw new Error("Charges can only be added to an in-progress order.");
-      const updatedItems: OrderItem[] = [...data.items, ...newItems];
-      const earnings = updatedItems.reduce((sum, it) => sum + it.price * it.quantity, 0);
-      const totalPrice = earnings + PLATFORM_DEPOSIT;
-      tx.update(ref, {
-        items: updatedItems,
-        totalPrice,
-        remainingBalance: Math.max(totalPrice - PLATFORM_DEPOSIT, 0),
-        updatedAt: Date.now(),
-      });
     });
   },
 

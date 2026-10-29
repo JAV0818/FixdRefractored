@@ -12,7 +12,7 @@ import { colors, fontSize, fontWeight, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatCurrency } from "@/utils/format";
 import { useOrder } from "@/hooks/use-order";
-import { orderService, PLATFORM_DEPOSIT } from "@/services/order-service";
+import { PLATFORM_DEPOSIT } from "@/services/order-service";
 import { CardField, paymentService } from "@/services/payment-service";
 
 import { PAYMENT_COPY } from "../payment.constants";
@@ -51,7 +51,7 @@ export const PaymentView = () => {
 
     try {
       await paymentService.confirmStripePayment(clientSecret);
-      await orderService.markDepositAuthorized(orderId);
+      await paymentService.verifyDepositHold(orderId);
       router.back();
     } catch (err) {
       setPaymentError(err instanceof Error ? err : new Error("Payment failed"));

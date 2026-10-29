@@ -73,6 +73,19 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Payment and financial fields that only Cloud Functions (Admin SDK) may
+    // change. The Admin SDK bypasses rules, so these constraints only block
+    // client-side writes.
+    function paymentFieldsUnchanged() {
+      return request.resource.data.get('paymentStatus', 'pending') == resource.data.get('paymentStatus', 'pending')
+        && request.resource.data.get('stripePaymentIntentId', null) == resource.data.get('stripePaymentIntentId', null)
+        && request.resource.data.get('depositAuthorizedAt', null) == resource.data.get('depositAuthorizedAt', null)
+        && request.resource.data.get('depositCapturedAt', null) == resource.data.get('depositCapturedAt', null)
+        && request.resource.data.get('depositReleasedAt', null) == resource.data.get('depositReleasedAt', null)
+        && request.resource.data.get('depositRefundedAt', null) == resource.data.get('depositRefundedAt', null)
+        && request.resource.data.get('depositAmount', 20) == resource.data.get('depositAmount', 20);
+    }
+
     match /repair-orders/{orderId} {
       allow create: if isAuthenticated()
         && request.resource.data.customerId == currentUserId();
@@ -84,7 +97,7 @@ service cloud.firestore {
         (currentUserRole() == 'provider' && resource.data.status == 'Pending' && resource.data.providerId == null)
       );
 
-      allow update: if isAuthenticated() && (
+      allow update: if isAuthenticated() && paymentFieldsUnchanged() && (
         resource.data.customerId == currentUserId() ||
         resource.data.providerId == currentUserId() ||
         isOwner() ||

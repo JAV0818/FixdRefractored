@@ -15,6 +15,9 @@ export type ConfirmStripePaymentResult = { success: boolean };
 type CreateStripePaymentIntentData = { orderId: string };
 type CaptureDepositAndApproveQuoteData = { orderId: string };
 type RecordCashPaymentData = { orderId: string; amount: number };
+type VerifyDepositHoldData = { orderId: string };
+type ReleaseDepositHoldData = { orderId: string };
+type AddCustomChargesData = { orderId: string; newItems: { description: string | null; name: string; price: number; quantity: number }[] };
 
 export const paymentService = {
   // Calls the Firebase Callable Function `createStripePaymentIntent` with { orderId }.
@@ -78,5 +81,39 @@ export const paymentService = {
       "recordCashPayment",
     );
     await callable({ orderId, amount });
+  },
+
+  // Verifies with Stripe that the $20 auth hold is real, then writes
+  // paymentStatus: "authorized" server-side. Replaces the old client-side
+  // markDepositAuthorized call.
+  async verifyDepositHold(orderId: string): Promise<void> {
+    const functions = getFunctions(firebaseApp);
+    const callable = httpsCallable<VerifyDepositHoldData, { success: boolean }>(
+      functions,
+      "verifyDepositHold",
+    );
+    await callable({ orderId });
+  },
+
+  // Releases a Stripe auth hold (cancels the PaymentIntent). Idempotent —
+  // returns success if no hold exists or it was already released.
+  async releaseDepositHold(orderId: string): Promise<void> {
+    const functions = getFunctions(firebaseApp);
+    const callable = httpsCallable<ReleaseDepositHoldData, { success: boolean }>(
+      functions,
+      "releaseDepositHold",
+    );
+    await callable({ orderId });
+  },
+
+  // Adds custom charges to an in-progress order. Runs server-side so
+  // remainingBalance can't be manipulated by the client.
+  async addCustomCharges(orderId: string, newItems: AddCustomChargesData["newItems"]): Promise<void> {
+    const functions = getFunctions(firebaseApp);
+    const callable = httpsCallable<AddCustomChargesData, { success: boolean }>(
+      functions,
+      "addCustomCharges",
+    );
+    await callable({ orderId, newItems });
   },
 };
