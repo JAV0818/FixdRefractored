@@ -1,6 +1,5 @@
 // Customer deposit payment view. Loads the order, shows the vehicle + quote
-// summary, collects card details via Stripe CardField, and confirms the
-// PaymentIntent when the user taps the primary CTA.
+// summary, then opens the Stripe PaymentSheet (Apple Pay, Google Pay, cards).
 
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -13,50 +12,38 @@ import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatCurrency } from "@/utils/format";
 import { useOrder } from "@/hooks/use-order";
 import { PLATFORM_DEPOSIT } from "@/services/order-service";
-import { CardField, paymentService } from "@/services/payment-service";
+import { paymentService } from "@/services/payment-service";
 
 import { PAYMENT_COPY } from "../payment.constants";
-import { useCreatePaymentIntent } from "../hooks/use-create-payment-intent";
 
 export const PaymentView = () => {
   const router = useRouter();
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
   const { data: order, isLoading, isError, refetch } = useOrder(orderId);
-  const createPaymentIntent = useCreatePaymentIntent();
 
-  const [isConfirming, setIsConfirming] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
   const [paymentError, setPaymentError] = useState<Error | null>(null);
-  const [cardComplete, setCardComplete] = useState(false);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-
-  const isPending = createPaymentIntent.isPending || isConfirming;
-
-  const onPreparePayment = () => {
-    if (!orderId || isPending) return;
-    setPaymentError(null);
-
-    createPaymentIntent.mutate(orderId, {
-      onSuccess: (intent) => {
-        // eslint-disable-next-line no-console
-        console.log("[PaymentView] received client secret:", intent.clientSecret.slice(0, 20) + "...");
-        setClientSecret(intent.clientSecret);
-      },
-    });
-  };
 
   const onPayDeposit = async () => {
-    if (!orderId || !clientSecret || isConfirming) return;
-    setIsConfirming(true);
+    if (!orderId || isPaying) return;
+    setIsPaying(true);
     setPaymentError(null);
 
     try {
-      await paymentService.confirmStripePayment(clientSecret);
+      // 1. Create the PaymentIntent server-side.
+      const { clientSecret } = await paymentService.createStripePaymentIntent(orderId);
+
+      // 2. Open Stripe PaymentSheet (Apple Pay, Google Pay, cards, Link).
+      await paymentService.openPaymentSheet(clientSecret);
+
+      // 3. Verify the hold server-side and write paymentStatus: "authorized".
       await paymentService.verifyDepositHold(orderId);
+
       router.back();
     } catch (err) {
       setPaymentError(err instanceof Error ? err : new Error("Payment failed"));
     } finally {
-      setIsConfirming(false);
+      setIsPaying(false);
     }
   };
 
@@ -104,23 +91,6 @@ export const PaymentView = () => {
         </View>
       </GlassCard>
 
-      {clientSecret ? (
-        <GlassCard>
-          <Text style={styles.sectionLabel}>{PAYMENT_COPY.cardLabel}</Text>
-          <CardField
-            postalCodeEnabled={false}
-            placeholders={{ number: "4242 4242 4242 4242" }}
-            cardStyle={cardFieldStyle}
-            style={styles.cardFieldContainer}
-            onCardChange={(cardDetails) => {
-              // eslint-disable-next-line no-console
-              console.log("[PaymentView] card details changed. complete:", cardDetails.complete);
-              setCardComplete(cardDetails.complete);
-            }}
-          />
-        </GlassCard>
-      ) : null}
-
       {paymentError && (
         <HelperText type="error" visible style={styles.errorText}>
           {PAYMENT_COPY.confirmPaymentError}
@@ -129,28 +99,11 @@ export const PaymentView = () => {
         </HelperText>
       )}
 
-      {clientSecret ? (
-        <AppButton
-          onPress={onPayDeposit}
-          loading={isConfirming}
-          disabled={isConfirming || !cardComplete}
-        >
-          {isConfirming ? PAYMENT_COPY.processing : PAYMENT_COPY.payDepositButton}
-        </AppButton>
-      ) : (
-        <AppButton onPress={onPreparePayment} loading={isPending} disabled={isPending}>
-          {PAYMENT_COPY.enterCard}
-        </AppButton>
-      )}
+      <AppButton onPress={onPayDeposit} loading={isPaying} disabled={isPaying}>
+        {isPaying ? PAYMENT_COPY.processing : PAYMENT_COPY.payDepositButton}
+      </AppButton>
     </KeyboardSafeView>
   );
-};
-
-const cardFieldStyle = {
-  backgroundColor: colors.surface,
-  textColor: colors.textPrimary,
-  borderRadius: 8,
-  fontSize: 16,
 };
 
 const styles = StyleSheet.create({
@@ -201,9 +154,5 @@ const styles = StyleSheet.create({
   },
   errorText: {
     textAlign: "center",
-  },
-  cardFieldContainer: {
-    height: 50,
-    marginVertical: spacing.sm,
   },
 });
