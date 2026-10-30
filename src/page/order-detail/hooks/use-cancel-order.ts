@@ -1,5 +1,6 @@
 // useCancelOrder — cancel an order, recording who cancelled and why.
-// If a Stripe deposit hold exists, releases it before cancelling.
+// Customer cancellations of Scheduled orders go through the 48-hour policy
+// Cloud Function. Mechanic cancellations always release the hold.
 
 import { useMutation } from "@tanstack/react-query";
 
@@ -18,10 +19,16 @@ type CancelOrderInput = {
 export const useCancelOrder = () => {
   return useMutation({
     mutationFn: async ({ orderId, cancelledBy, reason }: CancelOrderInput) => {
-      // Release the Stripe hold if one exists. The CF is idempotent — returns
-      // success when there's nothing to release.
+      if (reason === "customer_cancelled") {
+        // Server-side 48h policy: releases hold if >= 48h out, captures if < 48h.
+        const { charged } = await paymentService.cancelOrderWithPolicy(orderId);
+        return { charged };
+      }
+
+      // Mechanic or admin cancellation: always release the hold, then cancel.
       await paymentService.releaseDepositHold(orderId);
       await orderService.cancelOrder(orderId, cancelledBy, reason);
+      return { charged: false };
     },
   });
 };

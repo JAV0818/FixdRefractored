@@ -1,13 +1,16 @@
+// NOTE: This function's name is a legacy holdover. It no longer captures the
+// Stripe hold — capture now happens when the mechanic starts the job
+// (startOrderAndCapture). This function only verifies the hold exists and
+// transitions the order to Scheduled.
+
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
-import Stripe from "stripe";
 
 interface CaptureDepositAndApproveQuoteRequest {
   orderId: string;
 }
 
 export const captureDepositAndApproveQuote = onCall<CaptureDepositAndApproveQuoteRequest>(
-  { secrets: ["STRIPE_SECRET_KEY"] },
   async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Authentication required.");
@@ -18,12 +21,6 @@ export const captureDepositAndApproveQuote = onCall<CaptureDepositAndApproveQuot
     throw new HttpsError("invalid-argument", "orderId is required.");
   }
 
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-  if (!secretKey) {
-    throw new HttpsError("failed-precondition", "Stripe secret key is not configured.");
-  }
-
-  const stripe = new Stripe(secretKey, { apiVersion: "2026-06-24.dahlia" });
   const db = getFirestore();
   const orderRef = db.collection("repair-orders").doc(orderId);
   const orderSnap = await orderRef.get();
@@ -35,7 +32,6 @@ export const captureDepositAndApproveQuote = onCall<CaptureDepositAndApproveQuot
   const order = orderSnap.data() as {
     customerId: string;
     status: string;
-    stripePaymentIntentId?: string | null;
     paymentStatus?: string;
   };
 
@@ -47,28 +43,19 @@ export const captureDepositAndApproveQuote = onCall<CaptureDepositAndApproveQuot
     throw new HttpsError("failed-precondition", "Quote is not available for approval.");
   }
 
-  if (!order.stripePaymentIntentId) {
-    throw new HttpsError("failed-precondition", "No deposit authorization found.");
+  if (order.paymentStatus !== "authorized") {
+    throw new HttpsError("failed-precondition", "Deposit hold must be authorized before approving.");
   }
 
-  try {
-    const paymentIntent = await stripe.paymentIntents.capture(order.stripePaymentIntentId);
+  const now = Date.now();
+  await orderRef.update({
+    status: "Scheduled",
+    quoteApprovedAt: now,
+    updatedAt: now,
+  });
 
-    // eslint-disable-next-line no-console
-    console.log(`[captureDepositAndApproveQuote] captured ${paymentIntent.id} for order ${orderId}`);
+  // eslint-disable-next-line no-console
+  console.log(`[captureDepositAndApproveQuote] approved quote for order ${orderId}`);
 
-    const now = Date.now();
-    await orderRef.update({
-      status: "Scheduled",
-      paymentStatus: "deposit_paid",
-      depositCapturedAt: now,
-      quoteApprovedAt: now,
-      updatedAt: now,
-    });
-
-    return { success: true };
-  } catch (err) {
-    console.error("[captureDepositAndApproveQuote] Stripe error:", err);
-    throw new HttpsError("internal", "Unable to capture deposit.");
-  }
+  return { success: true };
 });

@@ -14,6 +14,9 @@ type CaptureDepositAndApproveQuoteData = { orderId: string };
 type RecordCashPaymentData = { orderId: string; amount: number };
 type VerifyDepositHoldData = { orderId: string };
 type ReleaseDepositHoldData = { orderId: string };
+type StartOrderAndCaptureData = { orderId: string };
+type CancelOrderWithPolicyData = { orderId: string };
+type CancelOrderWithPolicyResult = { success: boolean; charged: boolean };
 type AddCustomChargesData = { orderId: string; newItems: { description: string | null; name: string; price: number; quantity: number }[] };
 
 export const paymentService = {
@@ -35,7 +38,7 @@ export const paymentService = {
 
   // Initializes and presents Stripe's PaymentSheet (Apple Pay, Google Pay,
   // cards, Link, etc.). Resolves when the customer completes payment.
-  async openPaymentSheet(clientSecret: string): Promise<void> {
+  async openPaymentSheet(clientSecret: string): Promise<{ cancelled: boolean }> {
     const { error: initError } = await initPaymentSheet({
       paymentIntentClientSecret: clientSecret,
       merchantDisplayName: "Fixd",
@@ -50,10 +53,11 @@ export const paymentService = {
     const { error: presentError } = await presentPaymentSheet();
 
     if (presentError) {
-      // User cancelled the sheet — not a real error.
-      if (presentError.code === "Canceled") return;
+      if (presentError.code === "Canceled") return { cancelled: true };
       throw new Error(presentError.message);
     }
+
+    return { cancelled: false };
   },
 
   // Calls the Firebase Callable Function `captureDepositAndApproveQuote` with { orderId }.
@@ -98,6 +102,29 @@ export const paymentService = {
       "releaseDepositHold",
     );
     await callable({ orderId });
+  },
+
+  // Captures the authorized $20 hold and starts the job. Called when the
+  // mechanic taps "Start job".
+  async startOrderAndCapture(orderId: string): Promise<void> {
+    const functions = getFunctions(firebaseApp);
+    const callable = httpsCallable<StartOrderAndCaptureData, { success: boolean }>(
+      functions,
+      "startOrderAndCapture",
+    );
+    await callable({ orderId });
+  },
+
+  // Cancels a Scheduled order with 48-hour policy enforcement. If >= 48h
+  // before appointment the hold is released; if < 48h the deposit is captured.
+  async cancelOrderWithPolicy(orderId: string): Promise<{ charged: boolean }> {
+    const functions = getFunctions(firebaseApp);
+    const callable = httpsCallable<CancelOrderWithPolicyData, CancelOrderWithPolicyResult>(
+      functions,
+      "cancelOrderWithPolicy",
+    );
+    const result = await callable({ orderId });
+    return { charged: result.data.charged };
   },
 
   // Adds custom charges to an in-progress order. Runs server-side so

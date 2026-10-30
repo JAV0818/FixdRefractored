@@ -19,6 +19,7 @@ type DateTimeFieldProps = {
   onChange: (value: number) => void;
   placeholder?: string;
   minimumDate?: Date;
+  maximumDate?: Date;
 };
 
 export const DateTimeField = ({
@@ -27,6 +28,7 @@ export const DateTimeField = ({
   onChange,
   placeholder = "Select date & time",
   minimumDate,
+  maximumDate,
 }: DateTimeFieldProps) => {
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<"date" | "time">("date");
@@ -72,6 +74,7 @@ export const DateTimeField = ({
               mode={phase}
               display="spinner"
               minimumDate={phase === "date" ? minimumDate : undefined}
+              maximumDate={phase === "date" ? maximumDate : undefined}
               onChange={onSpin}
               themeVariant="light"
             />

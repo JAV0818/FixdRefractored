@@ -43,6 +43,14 @@ export const ORDER_EXPIRY_MS = 24 * 60 * 60 * 1000;
 // days to approve before the order expires and the $20 hold is released.
 export const QUOTE_APPROVAL_WINDOW_MS = 2 * 24 * 60 * 60 * 1000;
 
+// Maximum booking window: appointments must be within 7 days to stay inside
+// Stripe's authorization hold limit.
+export const MAX_BOOKING_ADVANCE_MS = 7 * 24 * 60 * 60 * 1000;
+
+// Cancellation grace period: customers who cancel >= 48h before the appointment
+// get the hold released; cancelling within 48h forfeits the $20 deposit.
+export const CANCELLATION_WINDOW_MS = 48 * 60 * 60 * 1000;
+
 // Safety cap on the unbounded list queries (marketplace + provider history) so a
 // large dataset can't blow up Firestore read cost. Not real pagination — see the
 // TODO on getAvailableOrders for the cursor-based follow-up.

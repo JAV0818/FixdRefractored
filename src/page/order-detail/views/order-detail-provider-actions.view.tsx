@@ -64,7 +64,16 @@ export const ProviderActions = ({ order }: ProviderActionsProps) => {
     });
   }, [router, order.id]);
 
-  const onStart = useCallback(() => startOrder.mutate(order.id), [startOrder, order.id]);
+  const onStart = useCallback(() => {
+    startOrder.mutate(order.id, {
+      onError: (error) => {
+        Alert.alert(
+          "Couldn't start job",
+          error instanceof Error ? error.message : "Something went wrong. Please try again.",
+        );
+      },
+    });
+  }, [startOrder, order.id]);
 
   const onChat = useCallback(() => {
     if (!order.customerId) return;

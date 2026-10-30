@@ -4,6 +4,8 @@
 
 import { z } from "zod";
 
+import { MAX_BOOKING_ADVANCE_MS } from "@/services/order-service";
+
 export const quoteRequestSchema = z.object({
   description: z
     .string()
@@ -23,7 +25,8 @@ export const quoteRequestSchema = z.object({
       required_error: "Pick a preferred date and time.",
       invalid_type_error: "Pick a preferred date and time.",
     })
-    .refine((v) => v > Date.now(), "Pick a time in the future."),
+    .refine((v) => v > Date.now(), "Pick a time in the future.")
+    .refine((v) => v <= Date.now() + MAX_BOOKING_ADVANCE_MS, "Appointments must be within 7 days."),
 });
 
 export type QuoteRequestForm = z.infer<typeof quoteRequestSchema>;

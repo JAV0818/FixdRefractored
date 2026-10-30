@@ -14,7 +14,7 @@ import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatCurrency } from "@/utils/format";
 import { useAuthContext } from "@/providers/auth-provider";
-import { PLATFORM_DEPOSIT } from "@/services/order-service";
+import { PLATFORM_DEPOSIT, MAX_BOOKING_ADVANCE_MS } from "@/services/order-service";
 import type { OrderItem } from "@/types/order.interface";
 import type { UserProfile } from "@/types/user.interface";
 
@@ -298,6 +298,7 @@ export const MechanicCustomQuoteView = () => {
         value={scheduledAt}
         onChange={setScheduledAt}
         minimumDate={new Date()}
+        maximumDate={new Date(Date.now() + MAX_BOOKING_ADVANCE_MS)}
       />
 
       <View style={styles.summary}>

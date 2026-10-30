@@ -12,6 +12,7 @@ import { AppButton, DateTimeField, KeyboardSafeView } from "@/components";
 import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
 import { formatCurrency } from "@/utils/format";
+import { MAX_BOOKING_ADVANCE_MS } from "@/services/order-service";
 import { useOrder } from "@/hooks/use-order";
 import { PLATFORM_DEPOSIT } from "@/services/order-service";
 import type { OrderItem } from "@/types/order.interface";
@@ -123,6 +124,7 @@ export const QuoteBuilderView = () => {
         value={scheduledAt}
         onChange={setScheduledAt}
         minimumDate={new Date()}
+        maximumDate={new Date(Date.now() + MAX_BOOKING_ADVANCE_MS)}
       />
 
       {items.map((item, index) => (

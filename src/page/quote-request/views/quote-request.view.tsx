@@ -14,6 +14,7 @@ import { AppButton, DateTimeField, ImagePickerGrid, KeyboardSafeView } from "@/c
 import { colors, fontSize, fontWeight, radii, spacing } from "@/theme";
 import { SERVICE_CATEGORIES } from "@/constants/service-categories";
 import { formatDateTime } from "@/utils/format";
+import { MAX_BOOKING_ADVANCE_MS } from "@/services/order-service";
 import { useImagePicker } from "@/hooks/use-image-picker";
 
 import { CategoryChips, FormTextField, StepIndicator } from "../components";
@@ -193,6 +194,7 @@ export const QuoteRequestView = () => {
               value={watch("scheduledAt") ?? null}
               onChange={(ts) => setValue("scheduledAt", ts, { shouldValidate: true })}
               minimumDate={new Date()}
+              maximumDate={new Date(Date.now() + MAX_BOOKING_ADVANCE_MS)}
             />
             {errors.scheduledAt && (
               <HelperText type="error" visible>
